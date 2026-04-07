@@ -5,6 +5,7 @@
 !/.gitignore
 !/.env.example
 !/AGENTS.md
+!/README.md
 !/docker-compose.yml
 !/docker/
 !/docker/**
