@@ -1,0 +1,8 @@
+
+	.nativechurch-shortcode-creator input[type="text"],
+	.nativechurch-shortcode-creator input[type="password"],
+	.nativechurch-shortcode-creator input[type="email"],
+	.nativechurch-shortcode-creator textarea,
+	.nativechurch-shortcode-creator select {
+		margin-bottom: 20px
+}

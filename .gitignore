@@ -1,0 +1,65 @@
+# Ignore everything in this runtime WordPress tree by default.
+*
+
+# Repository metadata and tracked workflow files.
+!/.gitignore
+!/.env.example
+!/AGENTS.md
+!/docker-compose.yml
+!/docker/
+!/docker/**
+!/scripts/
+!/scripts/**
+!/docs/
+!/docs/**
+!/deploy/
+!/deploy/**
+
+# Tracked site-owned code.
+!/wp-content/
+!/wp-content/themes/
+!/wp-content/themes/NativeChurch/
+!/wp-content/themes/NativeChurch/**
+!/wp-content/plugins/
+!/wp-content/plugins/nativechurch-core/
+!/wp-content/plugins/nativechurch-core/**
+!/wp-content/plugins/isermons/
+!/wp-content/plugins/isermons/**
+!/wp-content/plugins/ipray/
+!/wp-content/plugins/ipray/**
+!/wp-content/plugins/eventer/
+!/wp-content/plugins/eventer/**
+
+# Local-only inputs and build artifacts.
+.env
+.env.local
+/deploy/build/
+/cbc.sql
+/wp-blog-header.zip
+
+# Logs and editor noise.
+/error_log
+*.log
+*.bak
+*.swp
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Runtime files kept on disk but not in Git.
+/wp-config.php
+/wp-content/uploads/
+/wp-content/mu-plugins/
+/wp-content/upgrade/
+/wp-content/upgrade-temp-backup/
+/wp-content/maintenance/
+/wp-content/maintenance.php
+/wp-content/temp-write-test-*
+/wp-content/plugins/elementor/
+/wp-content/plugins/elementor-pro/
+/wp-content/plugins/akismet/
+/wp-content/plugins/contact-form-7/
+/wp-content/plugins/redux-framework/

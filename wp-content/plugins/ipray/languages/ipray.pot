@@ -1,0 +1,380 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"Project-Id-Version: iPray\n"
+"POT-Creation-Date: 2019-05-16 15:25+0530\n"
+"PO-Revision-Date: 2019-05-16 15:25+0530\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.12\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-WPHeader: ipray.php\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
+"_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.js\n"
+
+#: libraries/ipray_admin_init.php:46
+msgid "Prayer added successfully."
+msgstr ""
+
+#: libraries/ipray_admin_init.php:49
+msgid "Form instructions comes here"
+msgstr ""
+
+#: libraries/ipray_function.php:121 libraries/ipray_global.php:21
+#: public/templates/ipray_alertform.php:14
+msgid "Add new prayer"
+msgstr ""
+
+#: libraries/ipray_function.php:125
+msgid "New prayer has been added."
+msgstr ""
+
+#: libraries/ipray_function.php:150
+msgid "Someone prayed for you."
+msgstr ""
+
+#: libraries/ipray_global.php:18
+msgid "Prayers"
+msgstr ""
+
+#: libraries/ipray_global.php:19
+msgid "Prayer"
+msgstr ""
+
+#: libraries/ipray_global.php:20
+msgid "Add New"
+msgstr ""
+
+#: libraries/ipray_global.php:22
+msgid "Edit Prayer"
+msgstr ""
+
+#: libraries/ipray_global.php:23
+msgid "New Prayer"
+msgstr ""
+
+#: libraries/ipray_global.php:24
+msgid "View Prayer"
+msgstr ""
+
+#: libraries/ipray_global.php:25
+msgid "Search Prayer"
+msgstr ""
+
+#: libraries/ipray_global.php:26
+msgid "No prayers have been added yet"
+msgstr ""
+
+#: libraries/ipray_global.php:27
+msgid "Nothing found in Trash"
+msgstr ""
+
+#: libraries/ipray_global.php:50 libraries/ipray_global.php:57
+#: public/templates/ipray_alertform.php:37
+msgid "Share this"
+msgstr ""
+
+#: libraries/ipray_global.php:51 public/templates/ipray_alertform.php:40
+msgid "Share this anonymously"
+msgstr ""
+
+#: libraries/ipray_global.php:52 libraries/ipray_global.php:58
+#: public/templates/ipray_alertform.php:44
+msgid "Do not share this"
+msgstr ""
+
+#: libraries/ipray_global.php:65
+msgid "Prayer Extra Fields"
+msgstr ""
+
+#: libraries/ipray_global.php:70 public/templates/ipray_alertform.php:22
+msgid "Your Name:"
+msgstr ""
+
+#: libraries/ipray_global.php:72 libraries/ipray_global.php:79
+msgid "Enter your name."
+msgstr ""
+
+#: libraries/ipray_global.php:77 public/templates/ipray_alertform.php:26
+msgid "Your Email:"
+msgstr ""
+
+#: libraries/ipray_global.php:84 public/templates/ipray_alertform.php:30
+msgid "Your Phone:"
+msgstr ""
+
+#: libraries/ipray_global.php:86
+msgid "Enter your phone"
+msgstr ""
+
+#: libraries/ipray_global.php:91
+msgid "Please..."
+msgstr ""
+
+#: libraries/ipray_global.php:93
+msgid "Desired share option"
+msgstr ""
+
+#: libraries/ipray_global.php:98 public/templates/ipray_alertform.php:60
+msgid "Email me when someone prays for me"
+msgstr ""
+
+#: libraries/ipray_global.php:100
+msgid "Please check for notification"
+msgstr ""
+
+#: libraries/ipray_global.php:115
+msgid "Settings"
+msgstr ""
+
+#: libraries/ipray_page.php:6
+msgid "iPray Settings"
+msgstr ""
+
+#: libraries/ipray_page.php:8
+msgid "Usage"
+msgstr ""
+
+#: libraries/ipray_page.php:9
+msgid ""
+"Copy/Paste below shortcode in any of your page to show Prayers Wall. Change "
+"per_page attribute for the number of prayers to show per page."
+msgstr ""
+
+#: libraries/ipray_page.php:12
+msgid "Configuration"
+msgstr ""
+
+#: libraries/ipray_page.php:15
+msgid "Show prayers subscribe form"
+msgstr ""
+
+#: libraries/ipray_page.php:22
+msgid "Allow anonymous prayer submissions"
+msgstr ""
+
+#: libraries/ipray_page.php:29
+msgid "Show pagination"
+msgstr ""
+
+#: libraries/ipray_page.php:33
+msgid "Top"
+msgstr ""
+
+#: libraries/ipray_page.php:35
+msgid "Bottom"
+msgstr ""
+
+#: libraries/ipray_page.php:37
+msgid "Both"
+msgstr ""
+
+#: libraries/ipray_page.php:41
+msgid "Requires Admin Approval"
+msgstr ""
+
+#: libraries/ipray_page.php:45
+msgid ""
+"Check if you need to approve prayers before publishing them on website live."
+msgstr ""
+
+#: libraries/ipray_page.php:49
+msgid "Unsubscribe Prayer"
+msgstr ""
+
+#: libraries/ipray_page.php:53
+msgid "Check if you need to add a link of unsubscribe prayer in email."
+msgstr ""
+
+#: libraries/ipray_page.php:57
+msgid "Message for prayer request form submission"
+msgstr ""
+
+#: libraries/ipray_page.php:63
+msgid "Number of prayers to show per page"
+msgstr ""
+
+#: libraries/ipray_page.php:66
+msgid "This can be overridden by the shortcode attribute per_page"
+msgstr ""
+
+#: libraries/ipray_page.php:70
+msgid "Prayer Page URL"
+msgstr ""
+
+#: libraries/ipray_page.php:76
+msgid "Include Bootstrap CSS"
+msgstr ""
+
+#: libraries/ipray_page.php:80 libraries/ipray_page.php:91
+msgid "Yes"
+msgstr ""
+
+#: libraries/ipray_page.php:82 libraries/ipray_page.php:93
+msgid "No"
+msgstr ""
+
+#: libraries/ipray_page.php:83
+msgid "Select No if your theme already loads Twitter Bootstrap CSS File."
+msgstr ""
+
+#: libraries/ipray_page.php:87
+msgid "Include Bootstrap JS"
+msgstr ""
+
+#: libraries/ipray_page.php:94
+msgid "Select No if your theme already loads Twitter Bootstrap JS File."
+msgstr ""
+
+#: libraries/ipray_page.php:98
+msgid "Instructions for the prayer submission form"
+msgstr ""
+
+#: libraries/ipray_page.php:107
+msgid "Prayer added email content"
+msgstr ""
+
+#: libraries/ipray_page.php:112
+msgid ""
+"You can format email content using some HTML Tags, please use [msg] for "
+"prayer message and [prayer_url] for prayer page URL."
+msgstr ""
+
+#: libraries/ipray_prayer_publish.php:12 libraries/ipray_utility.php:74
+#: libraries/ipray_utility.php:156
+msgid "Anonymous"
+msgstr ""
+
+#: libraries/ipray_shortcode.php:54
+msgid "Prayer has been added successfully."
+msgstr ""
+
+#: libraries/ipray_shortcode.php:55
+msgid "Oops!! Something went wrong! Please try again!"
+msgstr ""
+
+#: libraries/ipray_shortcode.php:56
+msgid "No prayers found"
+msgstr ""
+
+#: libraries/ipray_shortcode.php:57
+msgid "Loading..."
+msgstr ""
+
+#: libraries/ipray_shortcode.php:58
+msgid "Sending..."
+msgstr ""
+
+#: libraries/ipray_utility.php:136
+msgid "Successfully unsubscribed for new prayer notifications."
+msgstr ""
+
+#: libraries/ipray_utility.php:168
+msgid "times"
+msgstr ""
+
+#: libraries/ipray_utility.php:168
+msgid "time"
+msgstr ""
+
+#: libraries/ipray_utility.php:170 libraries/ipray_utility.php:311
+#, php-format
+msgid "Prayed for %d %s"
+msgstr ""
+
+#: libraries/ipray_utility.php:189
+msgid "This email address already exists!"
+msgstr ""
+
+#: libraries/ipray_utility.php:195
+msgid "You have been successfully resubscribed!"
+msgstr ""
+
+#: libraries/ipray_utility.php:208
+msgid "You have been successfully subscribed!"
+msgstr ""
+
+#: libraries/ipray_utility.php:354
+msgid "I prayed for this"
+msgstr ""
+
+#: libraries/ipray_utility.php:355
+msgid "Posted:"
+msgstr ""
+
+#: public/templates/ipray_alertform.php:2 public/templates/ipray_list.php:2
+#: public/templates/ipray_newsletter.php:2
+msgid "Don't load directly"
+msgstr ""
+
+#: public/templates/ipray_alertform.php:6
+msgid "Close Prayer Request Form"
+msgstr ""
+
+#: public/templates/ipray_alertform.php:6
+#: public/templates/ipray_alertform.php:7
+msgid "Share Your Request or Praise"
+msgstr ""
+
+#: public/templates/ipray_alertform.php:9
+msgid "Close alerts Form"
+msgstr ""
+
+#: public/templates/ipray_alertform.php:9
+#: public/templates/ipray_alertform.php:10
+msgid "Get alerts when new prayers post"
+msgstr ""
+
+#: public/templates/ipray_alertform.php:34
+msgid "Share it"
+msgstr ""
+
+#: public/templates/ipray_alertform.php:50
+msgid "Your prayer request:"
+msgstr ""
+
+#: public/templates/ipray_alertform.php:65
+msgid "Submit Request"
+msgstr ""
+
+#: public/templates/ipray_newsletter.php:5
+msgid "Get new prayers updates"
+msgstr ""
+
+#: public/templates/ipray_newsletter.php:8
+msgid "Email:"
+msgstr ""
+
+#: public/templates/ipray_newsletter.php:11
+msgid "Subscribe"
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "iPray"
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "http://imitheme.com/plugins/ipray"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid ""
+"iPray is a prayere wall plugin to show prayers and accept prayers from your "
+"website users."
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "imithemes"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "http://imithemes.com/plugins/ipray"
+msgstr ""

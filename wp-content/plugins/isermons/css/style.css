@@ -1,0 +1,1364 @@
+/* ######################## START PLUGIN STYLING ##################### */
+
+.isermons h1, .isermons h2, .isermons h3, .isermons h4, .isermons h5, .isermons h6, .isermons p, .isermons blockquote {
+	margin-top: 0!important;
+	padding-top: 0!important
+}
+.isermons ol, .isermons ul {
+	list-style: none!important;
+	margin: 0!important;
+	padding: 0!important
+}
+.isermons table {
+	border-spacing: 0;
+	border-collapse: collapse;
+}
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+	outline:none
+}
+.isermons iframe{
+	border:0;
+}
+.isermons img{
+	max-width: 100%
+}
+.isermons .pull-left{
+	float: left
+}
+.isermons .pull-right{
+	float: right
+}
+@keyframes imiMoveUp {
+ to {
+  transform:translateY(0);
+  opacity:1
+ }
+}
+.isermons-default-placeholder{
+    position:relative;
+    min-height:150px
+}
+.isermons-default-placeholder-min{
+    min-height:100px
+}
+.isermons-loader-wrap{
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	left: 0;
+	top: 0;
+	z-index: 6;
+	background: rgba(255,255,255,.8)
+}
+.isermons-loader {
+  	position: absolute;
+  	top: 50%;
+  	left: 50%;
+  	-webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+  	width: 50px;
+  	height: 50px;
+	margin: -25px 0 0 -25px;
+  	background-color: #222;
+  	border-radius: 50%;
+}
+.isermons-loader:after {
+  	content: '';
+  	position: absolute;
+  	border-radius: 50%;
+  	top: 50%;
+  	left: 50%;
+  	border: 0px solid white;
+  	-webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+  	-webkit-animation: loading 1000ms ease-out forwards infinite;
+          animation: loading 1000ms ease-out forwards infinite;
+}
+.isermons-list{
+	position: relative
+}
+@-webkit-keyframes loading {
+  	0% {
+    	border: 0px solid white;
+  	}
+  	20% {
+    	border: 8px solid white;
+    	width: 0%;
+    	height: 0%;
+  	}
+  	100% {
+    	border: 8px solid white;
+    	width: 100%;
+    	height: 100%;
+  	}
+}
+@keyframes loading {
+  	0% {
+    	border: 0px solid white;
+  	}
+  	20% {
+    	border: 8px solid white;
+    	width: 0%;
+    	height: 0%;
+  	}
+  	100% {
+    	border: 8px solid white;
+    	width: 100%;
+    	height: 100%;
+  	}
+}
+.isermons{
+	line-height: 1.6rem
+}
+.isermons a{
+	text-decoration: none!important;
+	-webkit-transition:all 0.2s ease!important;
+	-moz-transition:all 0.2s ease!important;
+	-ms-transition:all 0.2s ease!important;
+	-o-transition:all 0.2s ease!important;
+	transition:all 0.2s ease!important
+}
+.isermons a:hover{
+	color: #222
+}
+.isermons-meta-data{
+	color: #999
+}
+.isermons-meta-data > div{
+	display: inline-block
+}
+.isermons-inline-title{
+	position: relative;
+	width: 100%;
+	text-align: center;
+	margin: 60px 0
+}
+.isermons-inline-title:before{
+	background: #eee;
+	height: 1px;
+	content: "";
+	width: 100%;
+	position: absolute;
+	left: 0;
+	bottom: 23px
+}
+.isermons-inline-title span{
+	display: inline-block;
+	background: #fff;
+	border-radius: 999px;
+	border: 1px solid #ddd;
+	padding: 10px 30px!important;
+	text-transform: uppercase;
+	letter-spacing: 2px;
+	font-size: 12px;
+	position: relative;
+	box-shadow: 0 3px 1px rgba(0,0,0,.05);
+	z-index: 1
+}
+.isermons-media{
+	position: relative;
+	display: block;
+	overflow: hidden;
+	line-height: 0
+}
+.isermons-media-box{
+	position: relative;
+	z-index: 1;
+	display: block
+}
+.isermons-nomedia-terms.isermons-grid-layout .isermons-media-box {
+    min-height: 240px
+}
+.isermons-nomedia-terms.isermons-tax-list .isermons-media-box,.isermons-ph-term .isermons-media-box {
+    min-height: 180px
+}
+.isermons-media a.isermons-media-box:before{
+	background: rgba(0,0,0,.55);
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	z-index: 2;
+	opacity: 0;
+	left: 0;
+	top: 0;
+	content: "";
+	-webkit-transition: all 0.2s ease-in-out 0s!important;
+	-moz-transition: all 0.2s ease-in-out 0s!important;
+	-ms-transition: all 0.2s ease-in-out 0s!important;
+	-o-transition: all 0.2s ease-in-out 0s!important;
+	transition: all 0.2s ease-in-out 0s!important
+}
+.isermons-media:hover a.isermons-media-box:before,.isermons-media:hover a.isermons-media-box:after{
+	opacity: 1
+}
+.isermons-media .isermons-media-box:after,.isermons-default-placeholder:before{
+	font-family: simple-line-icons;
+	font-style: normal;
+	font-weight: 400;
+	font-variant: normal;
+	text-transform: none;
+	-moz-osx-font-smoothing: grayscale;
+	content: "\e071";
+	color: #fff;
+	width: 40px;
+	height: 40px;
+	text-align: center;
+	line-height: 40px;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin: -20px 0 0 -20px;
+	z-index: 2;
+	font-size: 30px;
+	opacity: 0;
+	-webkit-transition: all 0.2s ease-in-out 0s!important;
+	-moz-transition: all 0.2s ease-in-out 0s!important;
+	-ms-transition: all 0.2s ease-in-out 0s!important;
+	-o-transition: all 0.2s ease-in-out 0s!important;
+	transition: all 0.2s ease-in-out 0s!important
+}
+.isermons-media.isermons-hover-audio .isermons-media-box:after{
+	content: "\e03d";
+}
+.isermons-media.isermons-hover-view .isermons-media-box:after{
+	content: "\e606";
+}
+.isermons-default-placeholder:before{
+	content: "\e061";
+	opacity: .5;
+	font-size: 40px
+}
+.isermons-hover-video .isermons-default-placeholder:before{
+	content: "\e008";
+}
+.isermons-hover-audio .isermons-default-placeholder:before{
+	content: "\e063";
+}
+.isermons-hover-view .isermons-default-placeholder:before{
+	content: "\e013";
+}
+.isermons-default-placeholder{
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	left: 0;
+	top: 0;
+	z-index: 0
+}
+.isermons-default-placeholder-rel{
+    position:relative;
+}
+.isermons-media-box img{
+	position: relative;
+	z-index: 1;
+	height: auto
+}
+.isermons-single-content .isermons-media-box{
+	min-height: 400px
+}
+.isermons-single-content .isermons-default-placeholder:before{
+	font-size: 60px
+}
+.isermons-single-downloads{
+	margin: 0!important;
+	padding: 0!important;
+	list-style-type: none;
+}
+.isermons-single-downloads li{
+	display: inline-block;
+	margin-right: 30px
+}
+.isermons button{
+	-webkit-appearance:none;
+}
+.isermons .isermons-btn{
+	padding: 10px 20px!important;
+	border: 2px solid #333;
+	color: #333;
+	text-align: center;
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: 2px;
+	display: inline-block;
+	font-style: normal;
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+	border-radius: 0;
+	cursor: pointer
+}
+.isermons .isermons-btn:hover{
+	background-color: #333;
+	color: #fff
+}
+.isermons .isermons-btn-default{
+	background-color: #333;
+	color: #fff
+}
+.isermons-np-links{
+	margin: 30px 0
+}
+.isermons .isermons-btn-light,.isermons .isermons-np-link a{
+	background: none;
+	border: 1px solid #d0d0d0;
+	padding: 8px 15px!important;
+	letter-spacing: 1px
+}
+.isermons .isermons-btn-light:hover,.isermons .isermons-np-link a:hover{
+	background: #d0d0d0
+}
+.isermons .isermons-np-link a{
+	color: #333;
+	letter-spacing: 0
+}
+.isermons .isermons-np-link a i{
+	position: relative;
+	top: 1px
+}
+.isermons .isermons-np-link a:hover{
+	color: #fff
+}
+.isermons .isermons-np-link-next{
+	text-align: right
+}
+.isermons .isermons-btn-primary{
+	color: #fff!important
+}
+.isermons .isermons-btn-primary:hover{
+	opacity: .9;
+	color: #fff!important
+}
+.isermons .isermons-btn.isermons-btn-basic{
+	background: #999;
+	color: #fff;
+	border: 1px solid #999
+}
+.isermons .isermons-btn.isermons-btn-basic:hover{
+	background: #ccc;
+	color: #fff;
+	border: 1px solid #ccc
+}
+.isermons-btn-play:before,.isermons-btn-download:before,.isermons-btn-listen:before,.isermons-btn-view:before{
+	font-family: simple-line-icons;
+	font-style: normal;
+	font-weight: 400;
+	font-variant: normal;
+	text-transform: none;
+	-moz-osx-font-smoothing: grayscale;
+	content: "\e071";
+	margin-right: 5px;
+	position: relative;
+	bottom: -1px
+}
+.isermons-btn-download:before{
+	content: "\e083"
+}
+.isermons-btn-listen:before{
+	content: "\e03d"
+}
+.isermons-btn-view:before{
+	content: "\e606"
+}
+.isermons input[type="text"], .isermons input[type="email"], .isermons input[type="password"], .isermons input[type="tel"], .isermons input[type="url"], .isermons input[type="number"], .isermons input[type="date"], .isermons select, .isermons textarea {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    display: block;
+    width: 100%;
+    border: 1px solid #d0d0d0;
+    color: rgba(20,32,54,0.8);
+    line-height: 1;
+    padding: 8px 12px!important;
+	min-height: 44px;
+    -webkit-transition: border .25s;
+    transition: border .25s;
+	-webkit-appearance:none;
+	border-radius: 0
+}
+.isermons input[type="text"].isermons-required-field, .isermons input[type="email"].isermons-required-field, .isermons input[type="password"].isermons-required-field, .isermons input[type="tel"].isermons-required-field, .isermons input[type="url"].isermons-required-field, .isermons input[type="number"].isermons-required-field, .isermons input[type="date"].isermons-required-field, .isermons select.isermons-required-field, .isermons textarea.isermons-required-field{
+	border-color: red
+}
+.isermons input[type="text"]:focus, .isermons input[type="email"]:focus, .isermons input[type="password"]:focus, .isermons input[type="tel"]:focus, .isermons input[type="url"]:focus, .isermons input[type="number"]:focus, .isermons input[type="date"]:focus, .isermons select:focus, .isermons textarea:focus{
+	border-color: #686e78
+}
+.isermons select{
+	height: 44px;
+	background: #fff
+}
+.isermons input[type="radio"], .isermons input[type="checkbox"] {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	-ms-appearance: none;
+	-o-appearance: none;
+	appearance: none;
+	height: 24px;
+	width: 24px;
+	transition: all 0.15s ease-out 0s;
+	background-color: #fff;
+    border: 1px solid #d0d0d0;
+	color: #fff;
+	cursor: pointer;
+	display: inline-block;
+	outline: none;
+	position: relative;
+	z-index: 1000;
+	bottom: -4px;
+	overflow: hidden;
+	margin: 0!important;
+	padding: 0!important
+}
+.isermons input[type="radio"]:focus, .isermons input[type="checkbox"]:focus{
+	-webkit-box-shadow:none;
+	box-shadow: none;
+	outline: none
+}
+.isermons input[type="radio"]:hover, .isermons input[type="checkbox"]:hover {
+	background-color: #d0d0d0
+}
+.isermons input[type="radio"]:checked:before, .isermons input[type="checkbox"]:checked:before {
+	height: 24px;
+	width: 22px;
+	position: absolute;
+	content: '✓';
+	display: inline-block;
+	font-size: 14px;
+	text-align: center;
+	line-height: 22px;
+	background: #333
+}
+.isermons input[type="radio"]:checked, .isermons input[type="checkbox"]:checked {
+	border-color: #333
+}
+.isermons input[type="radio"] {
+	border-radius: 50%;
+}
+.isermons input[type="radio"]:before {
+	border-radius: 24px;
+}
+.isermons-checkbox input[type="checkbox"], .isermons-radio input[type="radio"]{
+	bottom: -6px;
+	position: relative
+}
+.isermons-radio img{
+	position: relative;
+	bottom: -8px
+}
+.isermons-radio.isermons-required-field, .isermons-checkbox.isermons-required-field{
+	color: red
+}
+.isermons label{
+	display: block;
+	color: #999
+}
+.isermons label:not(.isermons-checkbox):not(.isermons-radio){
+	font-size: 12px;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	margin-bottom: 4px
+}
+.isermons button{
+	cursor: pointer;
+	min-height: 44px;
+	border: 0
+}
+.imi-select {
+  	height: 44px;
+  	background: #fff;
+	position: relative
+}
+.imi-select select {
+  font-style: normal;
+  font-weight: 700;
+  font-size: 14px;
+  display: block;
+  width: 100%;
+  border: 1px solid #d0d0d0;
+  line-height: 1;
+    padding: 8px 12px!important;
+  -webkit-transition: border .25s;
+  	transition: border .25s;
+	-webkit-appearance: none!important;
+  	-moz-appearance: none!important;
+  	appearance: none!important;
+	background: none!important;
+	box-shadow: none!important;
+	text-align: left!important;
+	position: relative;
+	z-index: 1 }
+.imi-select:after {
+  	position: absolute;
+  	right: 0;
+  	top: 0;
+  	width: 40px;
+  	height: 100%;
+	color: #999;
+  	font-family: simple-line-icons;
+  	font-style: normal;
+  	font-weight: normal;
+  	-webkit-font-smoothing: antialiased;
+  	-moz-osx-font-smoothing: grayscale;
+  	text-decoration: none;
+	content: '\e604';
+  	text-align: center;
+  	font-size: 11px;
+	line-height: 44px;
+  	z-index: 0;
+}
+.isermons-container {
+  width: 100%;
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+@media (min-width: 576px) {
+  .isermons-container {
+    max-width: 540px;
+  }
+}
+
+@media (min-width: 768px) {
+  .isermons-container {
+    max-width: 720px;
+  }
+}
+
+@media (min-width: 992px) {
+  .isermons-container {
+    max-width: 960px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .isermons-container {
+    max-width: 1140px;
+  }
+}
+.isermons-row{
+	margin-left: -15px;
+	margin-right: -15px
+}
+.isermons-row .isermons-col1,.isermons-row .isermons-col2,.isermons-row .isermons-col3,.isermons-row .isermons-col4,.isermons-row .isermons-col5,.isermons-row .isermons-col6,.isermons-row .isermons-col7,.isermons-row .isermons-col8,.isermons-row .isermons-col9,.isermons-row .isermons-col10,.isermons-row .isermons-col1by3,.isermons-row .isermons-col1by4{
+	padding-left: 15px!important;
+	padding-right: 15px!important;
+	float: left;
+	position: relative;
+	vertical-align: middle
+}
+.isermons-row .isermons-col1{
+	width: 10%
+}
+.isermons-row .isermons-col2{
+	width: 20%
+}
+.isermons-row .isermons-col3{
+	width: 30%
+}
+.isermons-row .isermons-col4{
+	width: 40%
+}
+.isermons-row .isermons-col5{
+	width: 50%
+}
+.isermons-row .isermons-col6{
+	width: 60%
+}
+.isermons-row .isermons-col7{
+	width: 70%
+}
+.isermons-row .isermons-col8{
+	width: 80%
+}
+.isermons-row .isermons-col9{
+	width: 90%
+}
+.isermons-row .isermons-col10{
+	width: 100%
+}
+.isermons-row .isermons-col1by3{
+	width: 33.33333333%
+}
+.isermons-row .isermons-col1by4{
+	width: 25%
+}
+.isermons-spacer-30{
+	height: 30px;
+	width: 100%;
+	clear: both
+}
+.isermons-spacer-10{
+	height: 10px;
+	width: 100%;
+	clear: both
+}
+.isermons-grid > ul:before, .isermons-grid > ul:after, .clearfix:before, .clearfix:after,.isermons-row:before, .isermons-row:after,.isermons-checkbox:before,.isermons-checkbox:after,.isermons-radio:before,.isermons-radio:after,.isermons-spacer-10:before,.isermons-spacer-10:after,.isermons-spacer-30:before,.isermons-spacer-30:after,.isermons-list-item:before,.isermons-list-item:after,.isermons-single-header:before,.isermons-single-header:after,.isermons-single-content:before,.isermons-single-content:after,.isermons-pagination:before,.isermons-pagination:after{
+	content: "";
+	display: table
+}
+.isermons-grid > ul:after, .clearfix:after,.isermons-row:after,.isermons-checkbox:after,.isermons-radio:after,.isermons-spacer-10:after,.isermons-spacer-30:after,.isermons-list-item:after,.isermons-single-header:after,.isermons-single-content:after,.isermons-pagination:after{
+	clear: both
+}
+.isermons-grid > ul{
+	margin-left: -3%!important;
+	width: 103%!important
+}
+.isermons-no-gutter .isermons-grid > ul{
+	margin-left: 0!important;
+	width: 100%
+}
+.isermons-grid-col6 .isermons-grid-item{
+	width: 13.6666%
+}
+.isermons-grid-col5 .isermons-grid-item{
+	width: 17%
+}
+.isermons-grid-col4 .isermons-grid-item{
+	width: 22%
+}
+.isermons-grid-col3 .isermons-grid-item{
+	width: 30.3333%
+}
+.isermons-grid-col2 .isermons-grid-item{
+	width: 47%
+}
+.isermons-grid-col6.isermons-no-gutter .isermons-grid-item{
+	width: 16.6666%
+}
+.isermons-grid-col5.isermons-no-gutter .isermons-grid-item{
+	width: 20%
+}
+.isermons-grid-col4.isermons-no-gutter .isermons-grid-item{
+	width: 25%
+}
+.isermons-grid-col3.isermons-no-gutter .isermons-grid-item{
+	width: 33.3333%
+}
+.isermons-grid-col2.isermons-no-gutter .isermons-grid-item{
+	width: 50%
+}
+.isermons-grid-item{
+	float: left;
+	position: relative;
+	margin-left: 3%;
+	margin-bottom: 40px;
+	background-color: #fff;
+	box-shadow: 0 0 12px rgba(0,0,0,.15)
+}
+.isermons-no-gutter .isermons-grid-item{
+	margin: 0
+}
+.isermons-grid-item .isermons-media-box{
+	height: 100%
+}
+.isermons-grid-item-in{
+	padding: 30px!important
+}
+.isermons-media .isermons-feed-link{
+	position: absolute;
+	z-index: 1;
+	top: 10px;
+	right: 10px;
+	color: #fff;
+	font-size: 22px;
+	width: 40px;
+	height: 40px;
+	border-radius: 100%;
+	text-align: center;
+	line-height: 40px
+}
+.isermons-media .isermons-feed-link:hover{
+	background: #fff
+}
+.isermons-series-grid-classic .isermons-series-grid-item .isermons-inline-title{
+	margin: 0;
+	position: relative;
+	top: -23px;
+	margin-bottom: -40px
+}
+.isermons-series-grid-classic .isermons-series-grid-item .isermons-inline-title span{
+	padding: 6px 20px!important
+}
+.isermons-series-grid-classic .isermons-series-grid-item .isermons-excerpt{
+	margin-top: 15px
+}
+.isermons-series-grid-item .isermons-meta-data{
+	margin-top: 15px
+}
+.isermons-grid-item h4{
+	margin: 0!important;
+	padding: 0!important;
+	margin-bottom: 10px!important
+}
+.isermons-grid-item .isermons-excerpt{
+	margin: 0!important;
+	padding: 0!important;
+	margin-top: 10px!important
+}
+.isermons-series-grid-modern .isermons-series-overlay{
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	text-align: center;
+	color: #fff;
+	left: 0;
+	top: 0;
+	display: flex;
+	flex-wrap: wrap;
+	align-content: center;
+	opacity: 0;
+	z-index: 2;
+	-webkit-transition: all 0.2s ease-in-out 0s!important;
+	-moz-transition: all 0.2s ease-in-out 0s!important;
+	-ms-transition: all 0.2s ease-in-out 0s!important;
+	-o-transition: all 0.2s ease-in-out 0s!important;
+	transition: all 0.2s ease-in-out 0s!important
+}
+.isermons-series-grid-modern .isermons-media-box:after{
+	display: none
+}
+.isermons-series-grid-modern .isermons-series-overlay > span{
+	display: flex;
+	flex-basis: 100%;
+	text-align: center;
+	justify-content: center;
+	line-height: 1.6rem;
+	margin: 5px 0
+}
+.isermons-series-grid-modern .isermons-series-overlay h4{
+	margin-top: 10px;
+	margin-bottom: 10px;
+	color: #fff
+}
+.isermons-series-grid-modern .isermons-series-overlay .isermons-icon-control-play{
+	font-size: 28px
+}
+.isermons-series-grid-modern .isermons-series-overlay .isermons-fbtn{
+	border: 2px solid #fff;
+	padding: 5px 10px!important;
+	text-transform: uppercase;
+	font-size: 12px;
+	font-weight: 400;
+	letter-spacing: 2px
+}
+.isermons-series-grid-modern .isermons-grid-item:hover .isermons-series-overlay{
+	opacity: 1
+}
+.isermons-series-list-item .isermons-excerpt{
+	margin-top: 10px
+}
+
+.isermons-list-item{
+	margin-bottom: 60px;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	margin-left: -20px;
+	margin-right: -20px
+}
+.isermons-list-item > div{
+	padding: 0 20px!important;
+	float: left
+}
+.isermons-list-item > div:first-child{
+	flex-basis: 220px;
+	flex-wrap: wrap;
+	flex-grow: 1;
+	justify-content: center
+}
+.isermons-list-item > div:last-child{
+	flex-basis: 320px;
+	flex-grow: 10
+}
+.isermons-sermons-list-minimal .isermons-list-item{
+	align-items: center;
+	padding-bottom: 30px!important;
+	margin-bottom: 30px!important;
+	position: relative
+}
+.isermons-sermons-list-minimal .isermons-list-item:after{
+	position: absolute;
+	width: 98%;
+	content: "";
+	height: 1px;
+	background: #ddd;
+	bottom: 0;
+	left: 1%
+}
+.isermons-sermons-list-minimal .isermons-list-item > div{
+	flex-basis: 100px;
+	flex-grow: 1
+}
+.isermons-sermons-list-minimal .isermons-list-item > div:first-child{
+	flex-basis: 140px;
+	flex-grow: 0
+}
+.isermons-sermons-list-minimal .isermons-list-item > div:nth-child(2){
+	flex-basis: 250px;
+	flex-grow: 3
+}
+.isermons-sermons-list-minimal .isermons-list-item > div:nth-child(4){
+	text-align: right
+}
+.isermons-sermons-list-minimal .isermons-list-item > div:nth-child(3){
+	flex-basis: 160px;
+	text-align: center
+}
+.isermons-sermons-list-minimal .isermons-list-item > div:nth-child(4){
+	flex-basis: 200px
+}
+.isermons-sermons-list .isermons-list-item .isermons-media{
+	margin-top: 5px
+}
+.isermons-list-item .isermons-media,.isermons-single-content .isermons-media{
+	box-shadow: 0 0 12px rgba(0,0,0,.15)
+}
+.isermons-sermons-list-minimal .isermons-list-item .isermons-media{
+	max-width: 100px
+}
+.isermons-sermons-list-minimal .isermons-list-item .isermons-media-box{
+	min-height: 100px
+}
+.isermons-sermons-list-minimal .isermons-list-item .isermons-media-box img,.isermons-sermons-list-minimal .isermons-list-item .isermons-media-box .isermons-default-placeholder,.isermons-sermons-list-minimal .isermons-list-item .isermons-media-box:before,.isermons-sermons-list-minimal .isermons-list-item .isermons-media{
+	border-radius: 100%
+}
+.isermons-sermons-list-minimal .isermons-sermon-item-header{
+	padding-bottom: 0!important;
+	border-bottom: 0!important
+}
+.isermons-list-item:last-child{
+	margin-bottom: 0!important;
+	padding-bottom: 0!important
+}
+.isermons-sermons-list-minimal .isermons-list-item:last-child:after{
+	display: none
+}
+.isermons-list-item .isermons-media .isermons-meta-data{
+	line-height: 1.6rem;
+	padding: 5px 10px!important;
+	text-align: center
+}
+.isermons-list-item h4{
+	margin-bottom: 10px
+}
+.isermons-list-item-in .isermons-btn{
+	margin-top: 20px
+}
+.isermons-sermons-list-minimal .isermons-sermon-actions > ul > li{
+	margin-left: 5px;
+	margin-right: 5px
+}
+.isermons-sermons-list-item h4{
+	margin-bottom: 10px
+}
+.isermons-sermons-list-item .isermons-excerpt{
+	margin-top: 20px
+}
+.isermons-sermons-list-item .isermons-sermon-actions{
+	margin-top: 15px
+}
+.isermons-sermon-actions > ul > li{
+	display: inline-block;
+	margin-right: 10px
+}
+.isermons-sermon-actions li i{
+	font-size: 24px
+}
+.isermons-sermon-actions li a{
+	color: #999
+}
+.isermons-grid-item h4 a, .isermons-list-item h4 a{
+	color: #222
+}
+.isermons-meta-data > div{
+	margin-right: 20px
+}
+.isermons-meta-data i{
+	margin-right: 4px
+}
+.isermons-meta-data .isermons-bible-passage abbr{
+	border-bottom: dotted 1px #999;
+	padding-bottom: 2px!important
+}
+.isermons-filters-sorting ul{
+	display: flex;
+	flex-wrap: wrap;
+	flex-direction: row;
+	list-style-type: none;
+	margin: 0 0 0 -20px!important;
+	padding: 0!important
+}
+.isermons-filters-sorting ul li{
+	flex-basis: 200px;
+	flex-grow: 1;
+	margin-left: 20px!important
+}
+.isermons-filters-sorting ul li select{
+	width: 100%;
+	margin-top: 15px!important
+}
+.isermons-sermon-item-header{
+	padding-bottom: 20px!important;
+	border-bottom: 1px solid #ddd;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-content: center
+}
+.isermons-sermon-item-header > div{
+	flex-grow: 1
+}
+.isermons-sermon-item-header > div.isermons-sermon-actions{
+	flex-basis: 120px;
+	max-width: 120px;
+	margin-right: -10px!important
+}
+.isermons-single-content{
+	position: relative
+}
+.isermons-single .isermons-inline-title{
+	margin-bottom: 0
+}
+.isermons-single .isermons-list, .isermons-single .isermons-grid{
+	padding-top: 80px!important;
+	margin-top: -23px!important
+}
+.isermons-single-header{
+    padding-top: 40px!important;
+	padding-bottom: 40px!important
+}
+.isermons-single-header .isermons-feed-link{
+	font-size: 24px
+}
+.isermons-single-header label{
+	display: inline-block;
+	position: relative;
+	bottom: 5px;
+	margin-right: 10px!important;
+	cursor: pointer
+}
+.isermons-single-header a:hover label{
+	color: #222
+}
+.isermons-single-content h2{
+	margin-bottom: 20px!important
+}
+.isermons-single-speakers{
+	position: absolute;
+	left: 15px;
+	bottom: 0;
+	line-height: 0
+}
+.isermons-single-speakers .isermons-meta-data{
+	margin-bottom: 20px!important
+}
+.isermons-single-speakers ul li{
+	display: inline-block;
+	margin-right: 10px!important
+}
+.isermons-single-speakers ul img{
+	width: 50px;
+	height: 50px;
+	border-radius: 100%;
+	box-shadow: 0 0 12px rgba(0,0,0,.15);
+}
+body{
+	counter-reset: sermon
+}
+.isermons-single .isermons-sermons-list-minimal .isermons-list-item .isermons-media{
+	overflow: visible
+}
+.isermons-single .isermons-sermons-list-minimal .isermons-list-item .isermons-media:before {
+    content: counter(sermon);
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    right: -15px;
+    top: 50%;
+	margin-top: -15px!important;
+    background: red;
+    z-index: 11;
+    border-radius: 100%;
+    text-align: center;
+    line-height: 30px;
+    color: #fff;
+    counter-increment: sermon
+}
+.isermons-single-content .plyr--audio .plyr__controls{
+	background: #f6f7f8
+}
+.isermons-tabs {
+	display: flex;
+	flex-wrap: wrap
+}
+.isermons .isermons-filter-tabs{
+	margin-bottom: 30px!important
+}
+.isermons .isermons-single-content .isermons-filter-tabs {
+    margin-bottom: 0!important
+}
+.isermons-tabs .isermons-tabs-input {
+	position: absolute;
+	opacity: 0;
+	width: 0!important
+}
+.isermons .isermons-filter-sermons-search{
+    padding: 0!important
+}
+.isermons-tabs .isermons-tabs-label {
+	padding: 20px 30px!important;
+	cursor: pointer;
+	font-weight: bold;
+	color: #7f7f7f;
+	position: relative;
+	margin-right: 5px!important;
+	margin-left: -2px!important;
+	border: 1px solid transparent;
+	border-top-width: 3px;
+	border-bottom: 0;
+	margin-bottom: -1px!important;
+}
+.isermons-tabs-label:hover {
+	color: #222
+}
+.isermons-tabs-label:active {
+}
+.isermons-tabs-input:focus + .isermons-tabs-label {
+	box-shadow: 0;
+	z-index: 1;
+}
+.isermons-tabs-input:checked + .isermons-tabs-label {
+	background: #fff;
+	color: #222;
+	border-color: #d0d0d0
+}
+.isermons-tabs-label {
+	width: auto;
+}
+
+.isermons-tabs-panel {
+	display: none;
+	padding: 30px 0!important;
+	width: 100%;
+	background: #fff;
+	border-top: 1px solid #d0d0d0
+}
+.isermons-tabs-panel {
+	order: 99;
+}
+.isermons-tabs-input:checked + .isermons-tabs-label + .isermons-tabs-panel {
+	display: block;
+}
+.isermons-filter-search{
+	margin-top: 15px!important
+}
+.isermons-filter-search input{
+	display: inline-block;
+	float: left;
+	font-weight: 700!important;
+	width: 85%!important
+}
+.isermons-filter-search button{
+	width: 15%;
+	display: inline-block;
+	float: left;
+	font-size: 20px;
+	max-height: 44px;
+	margin-left: -1px!important;
+	padding-left: 0!important;
+	padding-right: 0!important
+}
+.isermons-dl-files{
+	position: relative
+}
+ul.isermons-download-files{
+	display: none;
+	margin: 0;
+	background: #fff;
+	position: absolute;
+	z-index: 2;
+	border-radius: 5px;
+	top: 110%;
+	right: 0;
+	box-shadow: 0 0 10px rgba(0,0,0,.06);
+	border: 1px solid rgba(0,0,0,.05);
+	padding: 20px!important;
+	text-align: left
+}
+.custom_plyr__control{
+	margin-left: 5px
+}
+.plyr--audio .custom_plyr__control{
+	display: none
+}
+.plyr__menu__container button{
+	color: #fff!important
+}
+.plyr__menu__container .plyr__control--forward::after{
+	border-left-color: #fff!important
+}
+.plyr__menu__container .plyr__control--back::after{
+	border-right-color: #fff!important
+}
+@media screen and (max-width: 767px){
+	ul.isermons-download-files{
+		left: 0;
+		right: auto
+	}
+}
+.isermons-download-files li{
+	margin: 0!important;
+	padding: 0!important
+}
+.isermons-download-files li a{
+	padding: 3px 0!important;
+	display: block;
+	font-size: 13px;
+	white-space: nowrap;
+	width: 100%;
+	color: #222;
+	cursor: pointer
+}
+.isermons-download-files li:last-child a{
+	border-bottom: 0
+}
+.isermons-sermons-grid-item .isermons-sermon-actions{
+	margin-top: 40px!important
+}
+.plyr__control--overlaid{
+	background: none
+}
+.plyr__control--overlaid:before {
+	background: #1aafff;
+	content: "";
+	width: 100%;
+	height: 100%;
+	opacity: .8;
+	position: absolute;
+	left: 0;
+	top: 0;
+	border-radius: 100%
+}
+.isermons-modal-static{
+	display: none;
+	position: fixed;
+	width: 100vw;
+	height: 100vh;
+	z-index: 9999;
+	left: 0;
+	top: 0
+}
+.isermons-modal-static:before{
+	background: rgba(0,0,0,.75);
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	content: '';
+	z-index: 1
+}
+.isermons-modal-body{
+	position: absolute;
+	width: 800px;
+	height: 400px;
+	left: 50%;
+	top: 50%;
+	margin-left: -400px;
+	margin-top: -200px;
+	z-index: 2
+}
+.isermons-modal-body input[type="text"],.isermons-modal-body input[type="email"], .isermons-modal-body select, .isermons-modal-body textarea, .isermons-modal-body label.isermons-checkbox{
+	margin-bottom: 20px!important
+}
+.isermons-modal-body h3{
+	margin-bottom: 30px!important
+}
+.isermons a.isermons-modal-close{
+	background: red;
+	position:absolute;
+	top:0;
+	right:-40px;
+	display:block;
+	width:40px;
+	height:40px;
+	line-height: 40px;
+	text-align: center;
+	font-size: 0;
+	color: #fff
+}
+
+.isermons a.isermons-modal-close:before{
+	font-family:simple-line-icons;
+	speak:none;
+	font-weight:400;
+	font-variant:normal;
+	text-transform:none;
+	-webkit-font-smoothing:antialiased;
+	-moz-osx-font-smoothing:grayscale;
+	content:"\e082";
+	font-size: 20px
+}
+@media all and (max-width:767px){
+	.isermons a.isermons-modal-close{
+		right: 0;
+		top: -40px
+	}
+}
+.isermons-pagination{
+	width: 100%;
+	display: block;
+	font-size: 13px
+}
+.isermons-pagination .navigation{
+	margin: 0;
+	padding: 0;
+	min-height: 50px;
+	margin-top: 40px!important
+}
+.isermons-pagination a,.isermons-pagination span.current,.isermons-pagination .dots{
+	text-align: center;
+	width: 50px;
+	height: 50px;
+	line-height: 50px;
+	background: #eee;
+	color: #333;
+	display: inline-block;
+	cursor: default
+}
+.isermons-pagination a{
+	cursor: pointer;
+	text-decoration: none
+}
+.isermons-pagination a:hover{
+	background-color: #ddd;
+	color: #333
+}
+.isermons-pagination span.current{
+	color: #fff
+}
+.isermons-pagination a.next,.isermons-pagination a.prev{
+	width: auto;
+	padding: 0 20px!important
+}
+
+/* MEJS */
+.isermons .mejs-button button{
+	min-height: 0;
+}
+.mejs-container{
+	margin-bottom: 0!important
+}
+
+/* Responsive Definition */
+@media screen and (min-width:767px){
+}
+@media only screen and (max-width:992px){
+	.isermons-grid .isermons-grid-item{
+		width: 47%
+	}
+	.isermons-grid-item .isermons-media-box{
+		min-height: 200px
+	}
+}
+@media screen and (max-width:767px){
+	.isermons-grid .isermons-grid-item{
+		width: 100%;
+		margin-left: 0!important;
+		margin-bottom: 20px!important
+	}
+	.isermons-grid > ul{
+		margin-left: 0!important;
+		width: 100%!important
+	}
+	.isermons-modal-body{
+		width: 90%;
+		margin-left: -45%
+	}
+	.isermons-row .isermons-col1,.isermons-row .isermons-col2,.isermons-row .isermons-col3,.isermons-row .isermons-col4,.isermons-row .isermons-col5,.isermons-row .isermons-col6,.isermons-row .isermons-col7,.isermons-row .isermons-col8,.isermons-row .isermons-col9,.isermons-row .isermons-col10,.isermons-row .isermons-col1by3,.isermons-row .isermons-col1by4{
+		width: 100%
+	}
+	.isermons-row .isermons-col1-xs{
+		width: 10%
+	}
+	.isermons-row .isermons-col2-xs{
+		width: 20%
+	}
+	.isermons-row .isermons-col3-xs{
+		width: 30%
+	}
+	.isermons-row .isermons-col4-xs{
+		width: 40%
+	}
+	.isermons-row .isermons-col5-xs{
+		width: 50%
+	}
+	.isermons-row .isermons-col6-xs{
+		width: 60%
+	}
+	.isermons-row .isermons-col7-xs{
+		width: 70%
+	}
+	.isermons-row .isermons-col8-xs{
+		width: 80%
+	}
+	.isermons-row .isermons-col9-xs{
+		width: 90%
+	}
+	.isermons-row .isermons-col10-xs{
+		width: 100%
+	}
+	.isermons-row .isermons-col1by3-xs{
+		width: 33.33333333%
+	}
+	.isermons-row .isermons-col1by4-xs{
+		width: 25%
+	}
+	.isermons-hidden-xs{
+		display: none!important
+	}
+	.isermons-tabs .isermons-tabs-label{
+		padding-left: 10px!important;
+		padding-right: 10px!important
+	}
+	.isermons-single-downloads li{
+		display: block;
+		margin-bottom: 25px!important;
+		margin-right: 0!important
+	}
+	.isermons .isermons-single-downloads li a{
+		display: block
+	}
+	.isermons-single-header .isermons-feed-link{
+		float: none!important;
+		margin-bottom: 20px!important;
+		display: block
+	}
+	.isermons .isermons-single-header .isermons-btn{
+		display: block
+	}
+	.isermons-single-speakers{
+		position: static;
+		margin-top: 30px!important;
+		margin-bottom: 30px!important
+	}
+	.isermons-single-content .isermons-media{
+		margin-bottom: 30px!important
+	}
+    .isermons-sermons-list-minimal .isermons-sermon-actions-wrapper{
+        text-align: left!important
+    }
+    .isermons-sermons-list .isermons-list-item .isermons-media{
+        margin-bottom: 30px!important
+    }
+}
+@media screen and (max-width:400px){
+	.isermons-sermons-list-minimal .isermons-sermons-list-item{
+		justify-content: center;
+		text-align: center
+	}
+	.isermons-sermons-list-minimal .isermons-list-item > div:nth-child(4){
+		text-align: center;
+		padding-top: 20px!important
+	}
+}

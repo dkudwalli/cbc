@@ -1,0 +1,106 @@
+/* Create three equal columns that floats next to each other */
+.isermons-admin-column {
+    float: left;
+    width: 50%;
+    height: auto; /* Should be removed. Only for demonstration */
+}
+
+.isermons-admin-row{
+	padding: 10px 0
+}
+/* Clear floats after the columns */
+.isermons-admin-row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+#tinymce .isermons-admin-column{
+	width: 48%;
+	display: inline-block;
+	vertical-align: top;
+	margin-bottom: 10px;
+	background: #F1F1F1;
+}
+ 
+#tinymce .isermons-admin-column:nth-of-type(2n+2) {
+    margin-left: 4%;
+}
+ 
+ 
+#tinymce .isermons-admin-column img{
+    max-width: 100%;
+    margin: 0;
+    margin-bottom: 10px;
+}
+
+.isermons-admin-column .field-description{
+	display: block;
+	color: #999
+}
+
+.isermons-field-title{
+	font-weight: 700;
+	display: block
+}
+
+.isermons_media_field{
+	width: 97%;
+	max-width: 100%
+}
+.isermons_sermon_description{
+	max-width: 100%;
+	width: 100%
+}
+
+/* Compatibility with Total theme */
+.imi_isermons_page_isermons_settings_options .wpex-custom-admin-login-table tr {
+	display: block
+}
+/* License Registration */
+.about-wrap .isermons-message{
+	margin-top: 20px
+}
+.about-wrap .isermons-message .notice{
+	display: block!important
+}
+.imi_isermons_vals .imi-submit-btn{
+	background: orangered!important
+}
+.imi-theme-reg-box{
+	padding: 0 30px!important
+}
+.imi-theme-reg-box h3{
+	margin: 0!important
+}
+.isermons-validation-steps{background: #fff; margin-top: 20px; padding-top: 20px}
+.imi-box-content{padding: 30px}
+.imi-box-content form { position: relative; padding: 0; min-height: 50px; max-width: 680px; }
+.imi-box-content .imi_item_registration_input{position: relative}
+.imi-box-content input[type="text"] { min-height: 40px; box-shadow: inset 0 1px 2px rgba(0,0,0,.07); min-width: 220px; padding-right: 180px; background: #f4f4f4; border: none; border-radius: 33px; text-align: center;}
+.imi-box-content .imi-submit-btn { height: 40px; line-height: 40px; font-weight: 600; border: none; cursor: pointer; padding:0 30px; border-radius: 33px; color: #fff; letter-spacing: 1px; text-transform: uppercase; font-size: 12px; background: #5b58e6; transition: all 0.28s ease;}
+.imi-box-content .imi-submit-btn:hover,.imi-box-content .imi-submit-btn:disabled { background: #222;}
+.imi-box-content .imi-submit-btn:disabled{cursor: default}
+}
+.activation_welcome_box{padding: 0; background: #fff; margin-top: 20px}
+@media (min-width: 961px) {
+	.imi-box-content form { line-height: 50px; }
+	.imi-box-content input[type="text"] { min-height: 50px; margin: 0; padding-left: 20px; text-align: left; width: 550px; position: absolute; top: 0; right: 0; }
+	.imi-box-content .imi-submit-btn { position: absolute; right: 7px; top: 6px;  }
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+.imi-submit-btn.loading::after {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+    

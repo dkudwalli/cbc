@@ -1,0 +1,24 @@
+[19-Jan-2026 20:41:42 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function get_header() in /home/gwbvqnka/christbiblechurch.in/wp-content/themes/NativeChurch/index.php:2
+Stack trace:
+#0 {main}
+  thrown in /home/gwbvqnka/christbiblechurch.in/wp-content/themes/NativeChurch/index.php on line 2
+[20-Jan-2026 02:50:27 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function get_header() in /home/gwbvqnka/christbiblechurch.in/wp-content/themes/NativeChurch/index.php:2
+Stack trace:
+#0 {main}
+  thrown in /home/gwbvqnka/christbiblechurch.in/wp-content/themes/NativeChurch/index.php on line 2
+[30-Jan-2026 20:29:55 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function get_header() in /home/gwbvqnka/christbiblechurch.in/wp-content/themes/NativeChurch/index.php:2
+Stack trace:
+#0 {main}
+  thrown in /home/gwbvqnka/christbiblechurch.in/wp-content/themes/NativeChurch/index.php on line 2
+[01-Feb-2026 00:30:13 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function get_header() in /home/gwbvqnka/christbiblechurch.in/wp-content/themes/NativeChurch/index.php:2
+Stack trace:
+#0 {main}
+  thrown in /home/gwbvqnka/christbiblechurch.in/wp-content/themes/NativeChurch/index.php on line 2
+[01-Feb-2026 09:21:01 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function get_header() in /home/gwbvqnka/christbiblechurch.in/wp-content/themes/NativeChurch/index.php:2
+Stack trace:
+#0 {main}
+  thrown in /home/gwbvqnka/christbiblechurch.in/wp-content/themes/NativeChurch/index.php on line 2
+[17-Feb-2026 11:36:19 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function get_header() in /home/gwbvqnka/christbiblechurch.in/wp-content/themes/NativeChurch/index.php:2
+Stack trace:
+#0 {main}
+  thrown in /home/gwbvqnka/christbiblechurch.in/wp-content/themes/NativeChurch/index.php on line 2

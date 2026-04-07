@@ -1,0 +1,13 @@
+
+.isermons .isermons-btn-primary,.isermons .isermons-btn-primary:hover,.isermons input[type="radio"]:checked, .isermons input[type="checkbox"]:checked,.isermons-btn-default:hover{
+	border-color: #007F7B;
+}
+.isermons-loader,.isermons-btn-primary,.isermons .isermons-btn-primary:hover,.isermons input[type="radio"]:checked:before, .isermons input[type="checkbox"]:checked:before,.isermons .isermons-btn-default:hover,.isermons-default-placeholder{
+	background-color: #007F7B
+}
+.plyr--audio .plyr__control.plyr__tab-focus,.plyr--audio .plyr__control:hover,.plyr--audio .plyr__control[aria-expanded=true],.plyr__control--overlaid:before,.plyr__control--overlaid:focus,.plyr__control--overlaid:hover,.plyr--video .plyr__controls .plyr__control.plyr__tab-focus,.plyr--video .plyr__controls .plyr__control:hover,.plyr--video .plyr__controls .plyr__control[aria-expanded=true],.plyr__menu__container label.plyr__control input[type=radio]:checked+span,.isermons-single .isermons-sermons-list-minimal .isermons-list-item .isermons-media:before{
+	background: #007F7B
+}
+.isermons a,.isermons-media .isermons-feed-link:hover,.isermons-grid-item h4 a:hover, .isermons-list-item h4 a:hover,.isermons-sermon-actions > ul > li > a:hover,.isermons-download-files li a:hover,.plyr--full-ui input[type=range]{
+	color: #007F7B
+}

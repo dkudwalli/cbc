@@ -1,0 +1,116 @@
+/* LICENSE & DETAILS
+==================================================
+    Theme Name: Native Church
+	Theme URI: https://demo.imithemes.com/native-church-wp/
+	Author: imithemes
+	Author URI: www.imithemes.com
+	Description: <strong>Responsive WordPress Theme for Churches, Designed & Developed by imithemes</strong> - <a href="http://www.imithemes.com">www.imithemes.com</a>. Follow us for update notifications:<br/> <a href='http://twitter.com/imithemes'>Twitter</a><br/> | <a href='http://www.facebook.com/imithemes'>Facebook</a>
+	Version: 4.7.3
+	License: ThemeForest Split License for WP Themes
+	License URI: http://themeforest.net/licenses/standard
+	Text Domain: framework
+	Domain Path: /language
+	Requires at least: 5.0
+	Tested up to: 6.5.5
+	Requires PHP: 7.4
+			 
+/*  CSS definations for Native Church  */
+/*-------------------------------------------------------------------------------------------*/
+/* 0. RESET */
+/*-------------------------------------------------------------------------------------------*/
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font: inherit;
+	font-size: 100%
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
+	display: block
+}
+body {
+	line-height: 1
+}
+ol, ul {
+	list-style-position: outside;
+}
+blockquote, q {
+	quotes: none
+}
+blockquote:before, blockquote:after, q:before, q:after {
+	content: '';
+	content: none
+}
+table {
+	border-spacing: 0;
+	border-collapse: collapse
+}
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+	outline:none
+}
+iframe{
+   	border:0;
+	max-width: 100%
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6{
+	margin:0 0 15px 0;
+	color:#333;
+	font-weight:400;
+	line-height:1.5em;
+	font-family: 'Roboto', sans-serif
+}
+h1{
+	font-size:36px
+}
+h2{
+	font-size:30px
+}
+h3{
+	font-size:24px
+}
+h4{
+	font-size:16px;
+	text-transform:uppercase;
+	font-weight:700;
+	letter-spacing:2px;
+	font-family: 'Roboto Condensed', sans-serif
+}
+h5{
+	font-size:16px;
+	font-weight:700
+}
+h6{
+	font-size:12px
+}
+h1.short, h2.short, h3.short, h4.short, h5.short, h6.short, p.short{
+	margin-bottom:5px
+}
+h1.spaced, h2.spaced, h3.spaced, h4.spaced, h5.spaced, h6.spaced {
+    margin-top: 22px
+}
+h1 a, h2 a, h3 a, h5 a, h6 a{
+	color:#5e5e5e;
+	text-decoration:none
+}
+.container {
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto
+}
+.row {
+    margin-right: -15px;
+    margin-left: -15px
+}
+.elementor-page .main-content-row{
+	display: block
+}
