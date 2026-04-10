@@ -1730,16 +1730,34 @@ function eventer_filtering_values($status = 'monthly', $get_month_act = '', $i =
 if (!function_exists('eventer_month_wise_events')) {
   function eventer_month_wise_events()
   {
-    if (!wp_verify_nonce($_REQUEST['nonce'], "eventer_create_nonce_for_month")) {
-      exit();
+    $request_nonce = isset($_REQUEST['nonce']) ? sanitize_text_field(wp_unslash($_REQUEST['nonce'])) : '';
+    if (!wp_verify_nonce($request_nonce, "eventer_create_nonce_for_month")) {
+      wp_send_json_error(array('message' => esc_html__('Invalid request.', 'eventer')), 403);
     }
     $halfyear = $fullyear = $halfyear_msg = $fullyear_msg = $next_class = $next_result = '';
     $output = $monthsgrid = array();
-    $get_month_act = $_REQUEST['get_month'];
-    $arrow = $_REQUEST['arrow'];
-    $shortcode_attr = (isset($_REQUEST['shortcode_attr'])) ? $_REQUEST['shortcode_attr'] : array();
-    $filters = (isset($_REQUEST['filters'])) ? $_REQUEST['filters'] : array();
-    $status = (isset($_REQUEST['stat'])) ? $_REQUEST['stat'] : '';
+    $get_month_act = isset($_REQUEST['get_month']) ? sanitize_text_field(wp_unslash($_REQUEST['get_month'])) : '';
+    $arrow = isset($_REQUEST['arrow']) ? sanitize_text_field(wp_unslash($_REQUEST['arrow'])) : '';
+    $shortcode_attr_raw = (isset($_REQUEST['shortcode_attr']) && is_array($_REQUEST['shortcode_attr'])) ? wp_unslash($_REQUEST['shortcode_attr']) : array();
+    $filters = (isset($_REQUEST['filters']) && is_array($_REQUEST['filters'])) ? wp_unslash($_REQUEST['filters']) : array();
+    $status = (isset($_REQUEST['stat'])) ? sanitize_text_field(wp_unslash($_REQUEST['stat'])) : '';
+    $shortcode_attr = array(
+      'count' => isset($shortcode_attr_raw['count']) ? max(1, absint($shortcode_attr_raw['count'])) : 1,
+      'view' => isset($shortcode_attr_raw['view']) ? sanitize_text_field($shortcode_attr_raw['view']) : '',
+      'ids' => isset($shortcode_attr_raw['ids']) ? eventer_sanitize_id_list($shortcode_attr_raw['ids']) : array(),
+      'efrom' => isset($shortcode_attr_raw['efrom']) ? eventer_sanitize_date_input($shortcode_attr_raw['efrom']) : '',
+      'eto' => isset($shortcode_attr_raw['eto']) ? eventer_sanitize_date_input($shortcode_attr_raw['eto']) : '',
+      'terms_cats' => isset($shortcode_attr_raw['terms_cats']) ? eventer_sanitize_id_list($shortcode_attr_raw['terms_cats']) : array(),
+      'terms_tags' => isset($shortcode_attr_raw['terms_tags']) ? eventer_sanitize_id_list($shortcode_attr_raw['terms_tags']) : array(),
+      'terms_venue' => isset($shortcode_attr_raw['terms_venue']) ? eventer_sanitize_id_list($shortcode_attr_raw['terms_venue']) : array(),
+      'terms_organizer' => isset($shortcode_attr_raw['terms_organizer']) ? eventer_sanitize_id_list($shortcode_attr_raw['terms_organizer']) : array(),
+      'eventerid' => isset($shortcode_attr_raw['eventerid']) ? eventer_sanitize_id_list($shortcode_attr_raw['eventerid']) : array(),
+      'pagination' => isset($shortcode_attr_raw['pagination']) ? sanitize_text_field($shortcode_attr_raw['pagination']) : '',
+      'month_filter' => isset($shortcode_attr_raw['month_filter']) ? sanitize_text_field($shortcode_attr_raw['month_filter']) : '',
+      'type' => isset($shortcode_attr_raw['type']) ? sanitize_text_field($shortcode_attr_raw['type']) : '',
+      'event_until' => isset($shortcode_attr_raw['event_until']) ? sanitize_text_field($shortcode_attr_raw['event_until']) : '',
+      'pass' => isset($shortcode_attr_raw['pass']) ? sanitize_text_field($shortcode_attr_raw['pass']) : '',
+    );
     $event_count = $shortcode_attr['count'];
     if ($status == "month") {
       $event_count = 1000;
@@ -1747,22 +1765,17 @@ if (!function_exists('eventer_month_wise_events')) {
     global $wp_locale;
     $date_array = '';
     $list_layout = $shortcode_attr['view'];
-    $ids = (isset($shortcode_attr['ids'])) ? $shortcode_attr['ids'] : array();
+    $ids = $shortcode_attr['ids'];
     $from_date = (isset($shortcode_attr['efrom'])) ? $shortcode_attr['efrom'] : '';
     $to_date = (isset($shortcode_attr['eto'])) ? $shortcode_attr['eto'] : '';
-    $terms_cats = (isset($shortcode_attr['terms_cats'])) ? $shortcode_attr['terms_cats'] : array();
-    $terms_cats = (isset($filters['terms_cats'])) ? array_merge($terms_cats, (array) $filters['terms_cats']) : $terms_cats;
-    $terms_tags = (isset($shortcode_attr['terms_tags'])) ? $shortcode_attr['terms_tags'] : array();
-    $terms_tags = (isset($filters['terms_tags'])) ? array_merge($terms_tags, (array) $filters['terms_tags']) : $terms_tags;
-    $terms_venue = (isset($shortcode_attr['terms_venue'])) ? $shortcode_attr['terms_venue'] : array();
-    $terms_venue = (isset($filters['terms_venue'])) ? array_merge($terms_venue, (array) $filters['terms_venue']) : $terms_venue;
-    $terms_organizer = (isset($shortcode_attr['terms_organizer'])) ? $shortcode_attr['terms_organizer'] : array();
-    $terms_organizer = (isset($filters['terms_organizer'])) ? array_merge($terms_organizer, (array) $filters['terms_organizer']) : $terms_organizer;
+    $terms_cats = (isset($filters['terms_cats'])) ? array_merge($shortcode_attr['terms_cats'], eventer_sanitize_id_list($filters['terms_cats'])) : $shortcode_attr['terms_cats'];
+    $terms_tags = (isset($filters['terms_tags'])) ? array_merge($shortcode_attr['terms_tags'], eventer_sanitize_id_list($filters['terms_tags'])) : $shortcode_attr['terms_tags'];
+    $terms_venue = (isset($filters['terms_venue'])) ? array_merge($shortcode_attr['terms_venue'], eventer_sanitize_id_list($filters['terms_venue'])) : $shortcode_attr['terms_venue'];
+    $terms_organizer = (isset($filters['terms_organizer'])) ? array_merge($shortcode_attr['terms_organizer'], eventer_sanitize_id_list($filters['terms_organizer'])) : $shortcode_attr['terms_organizer'];
     $event_ids = eventer_merge_all_ids($ids, $terms_cats, $terms_tags, $terms_venue, $terms_organizer);
-    $eventer_keyword_id = (isset($shortcode_attr['eventerid'])) ? array_map('trim', explode(',', $shortcode_attr['eventerid'])) : array();
-    $eventer_keyword_id = array_unique(array_filter($eventer_keyword_id));
+    $eventer_keyword_id = $shortcode_attr['eventerid'];
     $eventer_new_ids = array_merge($event_ids, (array) $eventer_keyword_id);
-    $jump = (isset($_REQUEST['datajump'])) ? $_REQUEST['datajump'] : '0';
+    $jump = (isset($_REQUEST['datajump'])) ? min(11, absint($_REQUEST['datajump'])) : 0;
     $pagination = $shortcode_attr['pagination'];
     $pagin = ($pagination) ? get_query_var('pagin') : 1;
     $last_event_date = get_option('eventer_extreme_last_event_date');
@@ -1857,8 +1870,7 @@ if (!function_exists('eventer_month_wise_events')) {
       $title_data_passed['event_cdate'] = strtotime($key);
       $title_data_passed['event_edate'] = strtotime($keyend);
       $title_data_passed['all_dates'] = get_post_meta($value, 'eventer_all_dates', true);
-      eventer_update_date_wise_bookings_table($value, date_i18n('Y-m-d 00:00:00', strtotime($key)), array());
-      $title_data_passed['booked_tickets'] = eventer_update_date_wise_bookings_table($value, date_i18n('Y-m-d 00:00:00', strtotime($key)), array(), 2);
+      $title_data_passed['booked_tickets'] = eventer_get_date_wise_ticket_snapshot($value, date_i18n('Y-m-d 00:00:00', strtotime($key)));
       $event_title = apply_filters('eventer_styled_listing_title', $title = '', $value, $title_data_passed);
       if ($eventer_data['elocation'] != '') {
         $event_venue = $eventer_data['elocation'];
@@ -1885,8 +1897,7 @@ if (!function_exists('eventer_month_wise_events')) {
       $confirm_data = 1;
     }
 
-    echo wp_send_json(array('layout' => $shortcode_attr['view'], 'lidata' => $output, 'noresult' => $datacon, 'thismonth' => $label_month, 'thisyear' => $label_year, 'prevmonth' => $prevmonth, 'nextmonth' => $nextmonth, 'blank' => esc_html__('Sorry, no more events available for this month.', 'eventer'), 'halfyear' => '<a class="eventer-btn show_month_events ' . $next_class . '" data-jump="5" data-arrow="' . $longjump . '">' . $halfyear_msg . '</a>', 'fullyear' => '<a class="eventer-btn show_month_events ' . $next_class . '" data-jump="11" data-arrow="' . $longjump . '">' . $fullyear_msg . '</a>', 'showmsg' => esc_html__('Sorry, there no more events found for your request.', 'eventer'), 'monthsgrid' => $monthsgrid, 'next_result' => $next_result, 'previous_result' => $previous_result));
-    wp_die();
+    wp_send_json(array('layout' => $shortcode_attr['view'], 'lidata' => $output, 'noresult' => $datacon, 'thismonth' => $label_month, 'thisyear' => $label_year, 'prevmonth' => $prevmonth, 'nextmonth' => $nextmonth, 'blank' => esc_html__('Sorry, no more events available for this month.', 'eventer'), 'halfyear' => '<a class="eventer-btn show_month_events ' . $next_class . '" data-jump="5" data-arrow="' . $longjump . '">' . $halfyear_msg . '</a>', 'fullyear' => '<a class="eventer-btn show_month_events ' . $next_class . '" data-jump="11" data-arrow="' . $longjump . '">' . $fullyear_msg . '</a>', 'showmsg' => esc_html__('Sorry, there no more events found for your request.', 'eventer'), 'monthsgrid' => $monthsgrid, 'next_result' => $next_result, 'previous_result' => $previous_result));
   }
   add_action('wp_ajax_eventer_month_wise_events', 'eventer_month_wise_events');
   add_action('wp_ajax_nopriv_eventer_month_wise_events', 'eventer_month_wise_events');
@@ -2137,18 +2148,23 @@ function eventer_search_ticket($name, $array, $loop = 1, $pid = '')
 if (!function_exists('eventer_registrant_tickets')) {
   function eventer_registrant_tickets()
   {
-    if (check_ajax_referer('eventer_create_nonce_for_registrant', 'booking_nonce', false)) {
-      echo 'there is something went wrong.';
-      exit();
+    if (!check_ajax_referer('eventer_create_nonce_for_registrant', 'booking_nonce', false)) {
+      wp_send_json_error(array('message' => esc_html__('Invalid booking request.', 'eventer')), 403);
     }
 
     //$email_cookie = (isset($_COOKIE["reg_email"]))?$_COOKIE["reg_email"]:'';
     $new_already_booked = array();
     $reg_email = (isset($_POST['reg_mail'])) ? sanitize_email(wp_unslash($_POST['reg_mail'])) : '';
     $eventer_id = isset($_POST['eventer_id']) ? absint($_POST['eventer_id']) : 0;
-    $tickets = (isset($_REQUEST['tickets'])) ? $_REQUEST['tickets'] : array();
-    $eventer_date = isset($_POST['reg_event_date']) ? sanitize_text_field(wp_unslash($_POST['reg_event_date'])) : '';
-    $eventer_time = (isset($_POST['reg_event_time']) && $_POST['reg_event_time'] != '') ? sanitize_text_field(wp_unslash($_POST['reg_event_time'])) : '00:00:00';
+    $tickets = isset($_REQUEST['tickets']) ? eventer_sanitize_ticket_rows(wp_unslash($_REQUEST['tickets'])) : array();
+    $eventer_date = isset($_POST['reg_event_date']) ? eventer_sanitize_date_input($_POST['reg_event_date']) : '';
+    $eventer_time = (isset($_POST['reg_event_time']) && $_POST['reg_event_time'] != '') ? eventer_sanitize_time_input($_POST['reg_event_time']) : '00:00:00';
+    if ($eventer_time === '') {
+      $eventer_time = '00:00:00';
+    }
+    if ($eventer_id <= 0 || get_post_type($eventer_id) !== 'eventer' || $eventer_date === '') {
+      wp_send_json_error(array('message' => esc_html__('Invalid event registration request.', 'eventer')), 400);
+    }
     global $wpdb;
     $table_name = $wpdb->prefix . "eventer_registrant";
     $file = 'eventer_booking_csv';
@@ -2181,29 +2197,28 @@ if (!function_exists('eventer_registrant_tickets')) {
             ARRAY_A
           );
           if ($saved_ticket) {
-            echo json_encode(['reg_invalid' => '1', 'ticket_name' => $ticket_booked_name]);
-            wp_die();
+            wp_send_json(array('reg_invalid' => '1', 'ticket_name' => $ticket_booked_name));
           }
         }
       }
     }
 
     $tickets_ser = (!empty($tickets)) ? serialize($tickets) : '';
-    $formdata = (isset($_POST['reg_data'])) ? $_POST['reg_data'] : array();
-    $services = (isset($_POST['services'])) ? $_POST['services'] : array();
-    $registrants = (isset($_POST['registrants'])) ? $_POST['registrants'] : array();
+    $formdata = isset($_POST['reg_data']) ? eventer_sanitize_form_rows(wp_unslash($_POST['reg_data'])) : array();
+    $services = isset($_POST['services']) ? eventer_sanitize_service_rows(wp_unslash($_POST['services'])) : array();
+    $registrants = isset($_POST['registrants']) ? eventer_sanitize_registrant_rows(wp_unslash($_POST['registrants'])) : array();
     $user_filled_data = array_column($formdata, 'value', 'name');
     $reg_details = serialize($formdata);
-    $current_date = date_i18n('Y-m-d G:i');
-    $amount = (isset($_POST['amount'])) ? $_POST['amount'] : '';
+    $current_date = date_i18n('Y-m-d H:i:s');
+    $amount = (isset($_POST['amount'])) ? eventer_sanitize_decimal_value($_POST['amount']) : 0.0;
 
     $original_event = eventer_wpml_original_post_id($eventer_id);
 
-    $cart_status = (isset($_POST['cart_status'])) ? $_POST['cart_status'] : '';
+    $cart_status = (isset($_POST['cart_status'])) ? absint($_POST['cart_status']) : 0;
 
-    $eventer_time_slot = (isset($_POST['reg_event_slot'])) ? $_POST['reg_event_slot'] : '';
+    $eventer_time_slot = (isset($_POST['reg_event_slot'])) ? sanitize_text_field(wp_unslash($_POST['reg_event_slot'])) : '';
     $status = 'Pending';
-    $book_type = (isset($_REQUEST['book_type'])) ? $_REQUEST['book_type'] : 'eventer';
+    $book_type = (isset($_REQUEST['book_type'])) ? sanitize_text_field(wp_unslash($_REQUEST['book_type'])) : 'eventer';
     $eventer_start_time = get_post_meta($eventer_id, 'eventer_event_start_dt', true);
     $eventer_allday = get_post_meta($eventer_id, 'eventer_event_all_day', true);
     $event_start_time_str = strtotime($eventer_start_time);
@@ -2331,12 +2346,14 @@ if (!function_exists('eventer_registrant_tickets')) {
     }
 
     $stripe_status_success = '2';
-    $reg_email = (isset($_POST['reg_mail'])) ? $_POST['reg_mail'] : '';
-    $reg_name = (isset($_POST['reg_name'])) ? $_POST['reg_name'] : '';
+    $reg_name = (isset($_POST['reg_name'])) ? sanitize_text_field(wp_unslash($_POST['reg_name'])) : '';
     $secret = '';
     if ($book_type == 'stripe') {
-      $card_credentials = (isset($_REQUEST['card_cred'])) ? $_REQUEST['card_cred'] : '';
-      $token = $card_credentials['token'];
+      $card_credentials = (isset($_REQUEST['card_cred']) && is_array($_REQUEST['card_cred'])) ? wp_unslash($_REQUEST['card_cred']) : array();
+      $token = isset($card_credentials['token']) ? sanitize_text_field($card_credentials['token']) : '';
+      if ($token === '') {
+        wp_send_json_error(array('message' => esc_html__('Missing Stripe payment token.', 'eventer')), 400);
+      }
       $stripe_publishable_key = eventer_get_settings('eventer_stripe_publishable_key');
       $stripe_secret_key = eventer_get_settings('eventer_stripe_secret_key');
       $itemName = get_the_title($eventer_id);
@@ -2410,12 +2427,12 @@ if (!function_exists('eventer_registrant_tickets')) {
     $ip = eventer_client_ip();
     $user_reg_id = get_current_user_id();
     $user_system_data = serialize(array('ip' => $ip, 'services' => $services, 'email_pre' => "1", 'registrants' => $registrants, 'time_slot' => $eventer_time, 'slot_title' => $eventer_time_slot));
-    $paymentMode = $user_filled_data['chosen-payment-option'];
+    $paymentMode = isset($user_filled_data['chosen-payment-option']) ? sanitize_text_field($user_filled_data['chosen-payment-option']) : sanitize_text_field($book_type);
     global $wpdb;
     $table_name = $wpdb->prefix . "eventer_registrant";
     $wpdb->query(
       $wpdb->prepare(
-        "INSERT INTO $table_name
+				"INSERT INTO $table_name
 				( eventer, eventer_date, username, email, user_details, tickets, ctime, status, amount, user_system, user_id, paymentmode)
 				VALUES ( %d, %s, %s, %s, %s, %s, %s, %s, %s, %s, %d, %s )",
         array($eventer_id, $eventer_date, $reg_name, $reg_email, $reg_details, $tickets_ser, $current_date, $status, $amount, $user_system_data, $user_reg_id, $paymentMode)
@@ -2428,6 +2445,7 @@ if (!function_exists('eventer_registrant_tickets')) {
     $dont_show_ticket = eventer_encode_security_registration($lastid, 6, 8);
     $show_ticket = eventer_encode_security_registration($lastid, 9, 8);
     $registration_id = ($amount > 0 && $autocomplete_orders != '1') ? $dont_show_ticket : $show_ticket;
+    $confirm_token = ($lastid > 0) ? eventer_create_registrant_action_nonce('eventer-confirm-payment-stripe', $lastid) : '';
 
     if ($lastid && $book_type == 'stripe' && $stripe_status_success == '1') {
       $update_in = array('transaction_id' => $transaction_id, 'status' => "Success", 'paypal_details' => serialize($stripe_response), 'paymentmode' => 'Stripe', 'amount' => ($verified_amount_received / 100));
@@ -2437,8 +2455,7 @@ if (!function_exists('eventer_registrant_tickets')) {
     }
 
     eventer_pass_email_registration($lastid, "1");
-    echo wp_json_encode(array('reg' => $registration_id, 'woo' => '', 'stripe_error' => '', 'stripe_msg' => '', 'secret' => $secret, 'reg_id' => $lastid, 'reg_invalid' => '0'));
-    wp_die();
+    wp_send_json(array('reg' => $registration_id, 'woo' => '', 'stripe_error' => '', 'stripe_msg' => '', 'secret' => $secret, 'reg_id' => $lastid, 'confirm_token' => $confirm_token, 'reg_invalid' => '0'));
   }
   add_action('wp_ajax_eventer_registrant_tickets', 'eventer_registrant_tickets');
   add_action('wp_ajax_nopriv_eventer_registrant_tickets', 'eventer_registrant_tickets');
@@ -2446,47 +2463,62 @@ if (!function_exists('eventer_registrant_tickets')) {
 
 function eventer_confirm_payment_stripe()
 {
-  $secret = (isset($_REQUEST['secret'])) ? $_REQUEST['secret'] : '';
-  $lastid = (isset($_REQUEST['reg_id'])) ? $_REQUEST['reg_id'] : '';
+  $secret = (isset($_REQUEST['secret'])) ? sanitize_text_field(wp_unslash($_REQUEST['secret'])) : '';
+  $lastid = (isset($_REQUEST['reg_id'])) ? absint($_REQUEST['reg_id']) : 0;
+  $confirm_token = (isset($_REQUEST['confirm_token'])) ? sanitize_text_field(wp_unslash($_REQUEST['confirm_token'])) : '';
+  if ($lastid <= 0 || $secret === '' || !eventer_verify_registrant_action_nonce('eventer-confirm-payment-stripe', $lastid, $confirm_token)) {
+    wp_send_json_error(array('message' => esc_html__('Invalid Stripe confirmation request.', 'eventer')), 403);
+  }
+  $registrant = eventer_get_registrant_details('id', $lastid);
+  if (!$registrant) {
+    wp_send_json_error(array('message' => esc_html__('Registration not found.', 'eventer')), 404);
+  }
+  $registrant_status = strtolower(sanitize_text_field($registrant->status));
+  $payment_mode = sanitize_text_field($registrant->paymentmode);
+  if ($registrant_status !== 'pending' || !in_array($payment_mode, array('2', 'Stripe', 'stripe'), true)) {
+    wp_send_json_error(array('message' => esc_html__('Registration is not eligible for Stripe confirmation.', 'eventer')), 400);
+  }
+
   $stripe_secret_key = eventer_get_settings('eventer_stripe_secret_key');
+  $currency = eventer_get_settings('eventer_paypal_currency');
   \Stripe\Stripe::setApiKey($stripe_secret_key);
   $intent = \Stripe\PaymentIntent::retrieve($secret);
   try {
     $intent->confirm();
-  } catch (\Stripe\Error\InvalidRequest $err) {
-    die(json_error($err->getMessage()));
-  } catch (\Stripe\Error\Card $err) {
-    die(json_error($err->getMessage()));
+  } catch (\Exception $err) {
+    wp_send_json_error(array('message' => $err->getMessage()), 400);
   }
   $stripe_response = $intent->jsonSerialize();
   $verified_amount_received = $stripe_response['amount_received'];
   $verified_status = $stripe_response['status'];
   $transaction_id = $stripe_response['charges']['data'][0]['balance_transaction'];
-  if ($lastid && $verified_status == 'succeeded') {
-    $update_in = array('transaction_id' => $transaction_id, 'status' => "Success", 'paypal_details' => serialize($stripe_response), 'paymentmode' => 'Stripe', 'amount' => ($verified_amount_received / 100));
+  $received_amount = ($currency != 'JPY') ? ($verified_amount_received / 100) : $verified_amount_received;
+  $expected_amount = eventer_sanitize_decimal_value($registrant->amount);
+  if ($lastid && $verified_status == 'succeeded' && abs((float) $received_amount - (float) $expected_amount) < 0.01) {
+    $update_in = array('transaction_id' => $transaction_id, 'status' => "Success", 'paypal_details' => serialize($stripe_response), 'paymentmode' => 'Stripe', 'amount' => $received_amount);
     $vals_in = array("%s", "%s", "%s", "%f");
     eventer_update_registrant_details($update_in, $lastid, $vals_in);
     $registration_id = eventer_encode_security_registration($lastid, 9, 8);
+  } elseif ($verified_status == 'succeeded') {
+    wp_send_json_error(array('message' => esc_html__('Stripe amount verification failed.', 'eventer')), 400);
   }
   if (
     $intent->status == 'requires_action' &&
     $intent->next_action->type == 'use_stripe_sdk'
   ) {
     # Tell the client to handle the action
-    echo json_encode([
+    wp_send_json([
       'requires_action' => true,
       'payment_intent_client_secret' => $intent->client_secret
     ]);
   } else if ($intent->status == 'succeeded') {
     # The payment didn’t need any additional actions and completed!
     # Handle post-payment fulfillment
-    echo wp_json_encode(array('reg' => $registration_id, 'woo' => '', 'stripe_error' => '', 'stripe_msg' => '', 'secret' => '', 'success' => true));
+    wp_send_json(array('reg' => $registration_id, 'woo' => '', 'stripe_error' => '', 'stripe_msg' => '', 'secret' => '', 'success' => true));
   } else {
     # Invalid status
-    http_response_code(500);
-    echo json_encode(['error' => 'Invalid PaymentIntent status']);
+    wp_send_json_error(array('message' => 'Invalid PaymentIntent status'), 500);
   }
-  wp_die();
 }
 add_action('wp_ajax_eventer_confirm_payment_stripe', 'eventer_confirm_payment_stripe');
 add_action('wp_ajax_nopriv_eventer_confirm_payment_stripe', 'eventer_confirm_payment_stripe');
@@ -4452,19 +4484,36 @@ function generatePdfTicket($data, $event_id)
 }
 function eventer_generate_ticket_qrcode()
 {
-  $nonce = $_REQUEST['nonce'];
-  if (!wp_verify_nonce($nonce, 'eventer-qrcode-nonce')) {
-    wp_die();
+  $registrant_id = (isset($_REQUEST['reg'])) ? absint($_REQUEST['reg']) : 0;
+  $nonce = isset($_REQUEST['nonce']) ? sanitize_text_field(wp_unslash($_REQUEST['nonce'])) : '';
+  if (!eventer_verify_registrant_action_nonce('eventer-qrcode-nonce', $registrant_id, $nonce)) {
+    wp_send_json_error(array('message' => esc_html__('Invalid ticket generation request.', 'eventer')), 403);
   }
 
-  $qrdata = (isset($_REQUEST['qrdata'])) ? $_REQUEST['qrdata'] : '';
-  $event_id = (isset($_REQUEST['eid'])) ? $_REQUEST['eid'] : '';
-  $event_title = apply_filters('eventer_raw_event_title', '', $event_id);
-  $get_event = get_post($event_id); 
+  $qrdata = isset($_REQUEST['qrdata']) ? eventer_sanitize_ticket_image_rows(wp_unslash($_REQUEST['qrdata'])) : array();
+  $event_id = (isset($_REQUEST['eid'])) ? absint($_REQUEST['eid']) : 0;
+  $registrants = eventer_get_registrant_details('id', $registrant_id);
+  if (!$registrants) {
+    wp_send_json_error(array('message' => esc_html__('Registration not found.', 'eventer')), 404);
+  }
+
+  $original_event = eventer_wpml_original_post_id($event_id);
+  if ($original_event <= 0 || eventer_wpml_original_post_id($registrants->eventer) !== $original_event) {
+    wp_send_json_error(array('message' => esc_html__('Registration does not match the requested event.', 'eventer')), 403);
+  }
+
+  if (empty($qrdata)) {
+    wp_send_json_error(array('message' => esc_html__('No ticket payload was provided.', 'eventer')), 400);
+  }
+
+  $event_title = apply_filters('eventer_raw_event_title', '', $original_event);
+  $get_event = get_post($original_event);
+  if (!$get_event) {
+    wp_send_json_error(array('message' => esc_html__('Event not found.', 'eventer')), 404);
+  }
   $event_slug = $get_event->post_name;
   $folder_name = eventer_clean_string($event_title);
-  $folder_name = ($folder_name != '') ? $folder_name : $event_id;
-  $registrant_id = (isset($_REQUEST['reg'])) ? $_REQUEST['reg'] : '';
+  $folder_name = ($folder_name != '') ? $folder_name : $original_event;
   $ticket_front = (isset($_REQUEST['front'])) ? $_REQUEST['front'] : '';
   $ticket_reverse = (isset($_REQUEST['reverse'])) ? $_REQUEST['reverse'] : '';
   $main_reg = (isset($_REQUEST['mainreg'])) ? $_REQUEST['mainreg'] : '';
@@ -4487,7 +4536,6 @@ function eventer_generate_ticket_qrcode()
   $woocommerce_ticketing = eventer_get_settings('eventer_enable_woocommerce_ticketing');
 
   $updated_registrants = $tickets_created = $user_system = array();
-  $registrants = eventer_get_registrant_details('id', $registrant_id);
   if ($wp_filesystem) {
     $key = $file_name_back = '';
     $start_time = 30;
@@ -4497,16 +4545,13 @@ function eventer_generate_ticket_qrcode()
       $start_key = 1;
       foreach ($qrdata as $data) {
         $random_name = date_i18n('Y-m-d-H-i-s');
-        if (!isset($data['src'])) {
-          continue;
-        }
 		$data['attendee_name'] = $data['name'];
         $image_validate = eventer_check_base64_image($data['src']);
         $ticket_name_clean = eventer_clean_string($data['ticket']);
         $qrcode_name = eventer_clean_string($data['email']);
-        $eventer_venue = get_the_terms( $event_id, 'eventer-venue' );
-        $filename_first = $registrant_id . '-' . $event_slug . '-' .$qrcode_name. '-' . $ticket_name_clean . '-' . $event_id . '-' . $random_name . '.png';
-		$filename_pdf = $registrant_id . '-' . $event_slug . '-' .$qrcode_name. '-' . $ticket_name_clean . '-' . $event_id . '-' . $random_name . '.pdf';
+        $eventer_venue = get_the_terms( $original_event, 'eventer-venue' );
+        $filename_first = $registrant_id . '-' . $event_slug . '-' .$qrcode_name. '-' . $ticket_name_clean . '-' . $original_event . '-' . $random_name . '.png';
+		$filename_pdf = $registrant_id . '-' . $event_slug . '-' .$qrcode_name. '-' . $ticket_name_clean . '-' . $original_event . '-' . $random_name . '.pdf';
         $filename = $upload_dir . '/' . $filename_first;
 		$filenamePdf = $upload_dir . '/' . $filename_pdf;
         if (!$image_validate || $image_validate < 110) {
@@ -4525,11 +4570,15 @@ function eventer_generate_ticket_qrcode()
 		
 		$pdfAttachment = 'on'; //eventer_get_settings('eventer_pdf_ticket');
 		if ($pdfAttachment == 'on') {
-        	generatePdfTicket($data, $event_id);
+          generatePdfTicket($data, $original_event);
 		} else {
+			$image_binary = eventer_decode_data_image_uri($data['src']);
+			if ($image_binary === false) {
+				continue;
+			}
 			$wp_filesystem->put_contents(
 			  $filename,
-			  file_get_contents($data['src']),
+			  $image_binary,
 			  FS_CHMOD_FILE // predefined mode settings for WP files
 			);
 		}
@@ -4539,7 +4588,7 @@ function eventer_generate_ticket_qrcode()
         $tickets_created[$email][] = $filename_first;
 
         if ($reg_pos > 14 && isset($data['email']) && $data['email'] != '' && $data['email'] != $main_reg && $source == '') {
-		  $args = array($data['email'], $registrant_id, $registrants, $event_id, array($filename_first), $organizer_email);
+		  $args = array($data['email'], $registrant_id, $registrants, $original_event, array($filename_first), $organizer_email);
 		  if (!wp_next_scheduled('generate_ticket_for_registrants', $args)) {
 				wp_schedule_single_event(time() + ($start_time), 'generate_ticket_for_registrants', $args);
 		  }
@@ -4549,7 +4598,7 @@ function eventer_generate_ticket_qrcode()
       }
     }
     if ($reg_pos > 14 && $source == '') {
-		$args = array($main_reg, $registrant_id, $registrants, $event_id, $sub_tickets, $organizer_email);
+		$args = array($main_reg, $registrant_id, $registrants, $original_event, $sub_tickets, $organizer_email);
 		if (!wp_next_scheduled('generate_ticket_for_registrants', $args)) {
 				wp_schedule_single_event(time(), 'generate_ticket_for_registrants', $args);
 		}
@@ -4611,7 +4660,7 @@ function eventer_generate_ticket_qrcode()
         }
       }
     } else {
-      $order_event_url = (isset($_REQUEST['backorder'])) ? $_REQUEST['backorder'] : '';
+      $order_event_url = (isset($_REQUEST['backorder'])) ? esc_url_raw(wp_unslash($_REQUEST['backorder'])) : '';
       $order_event_url = ($order_event_url != '') ? add_query_arg('allow', $registrants->id, $order_event_url) : '';
     }
 
@@ -4630,9 +4679,9 @@ function eventer_generate_ticket_qrcode()
 		}
 	}
 
-    echo wp_json_encode(array('tickets' => $qrcode_name_new_ticket, 'event_url' => $order_event_url, 'ticket_arr' => $send_tickets, 'url' => $upload_blog_url . '/eventer', 'allow' => wp_create_nonce('eventer-tickets-download')));
+    wp_send_json(array('tickets' => $qrcode_name_new_ticket, 'event_url' => $order_event_url, 'ticket_arr' => $send_tickets, 'url' => $upload_blog_url . '/eventer', 'allow' => wp_create_nonce('eventer-tickets-download')));
   }
-  wp_die();
+  wp_send_json_error(array('message' => esc_html__('Unable to generate tickets.', 'eventer')), 500);
 }
 add_action('wp_ajax_eventer_generate_ticket_qrcode', 'eventer_generate_ticket_qrcode');
 add_action('wp_ajax_nopriv_eventer_generate_ticket_qrcode', 'eventer_generate_ticket_qrcode');

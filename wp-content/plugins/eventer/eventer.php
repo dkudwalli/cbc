@@ -90,6 +90,379 @@ if (!function_exists('eventer_decode_array_payload')) {
     }
 }
 
+if (!function_exists('eventer_create_registrant_action_nonce')) {
+    function eventer_create_registrant_action_nonce($action, $registrant_id) {
+        return wp_create_nonce(sanitize_key($action) . '_' . absint($registrant_id));
+    }
+}
+
+if (!function_exists('eventer_verify_registrant_action_nonce')) {
+    function eventer_verify_registrant_action_nonce($action, $registrant_id, $nonce) {
+        $registrant_id = absint($registrant_id);
+        if ($registrant_id <= 0 || !is_string($nonce) || $nonce === '') {
+            return false;
+        }
+
+        return (bool) wp_verify_nonce($nonce, sanitize_key($action) . '_' . $registrant_id);
+    }
+}
+
+if (!function_exists('eventer_sanitize_decimal_value')) {
+    function eventer_sanitize_decimal_value($value) {
+        if (is_float($value) || is_int($value)) {
+            return (float) $value;
+        }
+
+        if (!is_scalar($value)) {
+            return 0.0;
+        }
+
+        $value = preg_replace('/[^0-9.\-]/', '', sanitize_text_field(wp_unslash((string) $value)));
+
+        return is_numeric($value) ? (float) $value : 0.0;
+    }
+}
+
+if (!function_exists('eventer_sanitize_date_input')) {
+    function eventer_sanitize_date_input($value, $format = 'Y-m-d') {
+        if (!is_scalar($value)) {
+            return '';
+        }
+
+        $value = sanitize_text_field(wp_unslash((string) $value));
+        $date = DateTime::createFromFormat('!' . $format, $value);
+
+        if (!$date || $date->format($format) !== $value) {
+            return '';
+        }
+
+        return $date->format($format);
+    }
+}
+
+if (!function_exists('eventer_sanitize_time_input')) {
+    function eventer_sanitize_time_input($value) {
+        if (!is_scalar($value)) {
+            return '';
+        }
+
+        $value = sanitize_text_field(wp_unslash((string) $value));
+
+        if (!preg_match('/^\d{2}:\d{2}(?::\d{2})?$/', $value)) {
+            return '';
+        }
+
+        $time = DateTime::createFromFormat('!H:i:s', strlen($value) === 5 ? $value . ':00' : $value);
+
+        return $time ? $time->format('H:i:s') : '';
+    }
+}
+
+if (!function_exists('eventer_sanitize_id_list')) {
+    function eventer_sanitize_id_list($values) {
+        if (is_string($values)) {
+            $values = explode(',', $values);
+        }
+
+        if (!is_array($values)) {
+            return array();
+        }
+
+        $ids = array_map('absint', $values);
+
+        return array_values(array_filter(array_unique($ids)));
+    }
+}
+
+if (!function_exists('eventer_sanitize_form_rows')) {
+    function eventer_sanitize_form_rows($rows) {
+        if (!is_array($rows)) {
+            return array();
+        }
+
+        $sanitized = array();
+        foreach ($rows as $row) {
+            if (!is_array($row) || !isset($row['name'])) {
+                continue;
+            }
+
+            $name = sanitize_text_field(wp_unslash((string) $row['name']));
+            if ($name === '') {
+                continue;
+            }
+
+            $value = isset($row['value']) ? $row['value'] : '';
+            if (is_array($value)) {
+                $value = implode(', ', array_map('sanitize_text_field', wp_unslash($value)));
+            } elseif (stripos($name, 'email') !== false) {
+                $value = sanitize_email(wp_unslash((string) $value));
+            } else {
+                $value = sanitize_textarea_field(wp_unslash((string) $value));
+            }
+
+            $sanitized[] = array(
+                'name' => $name,
+                'value' => $value,
+            );
+        }
+
+        return $sanitized;
+    }
+}
+
+if (!function_exists('eventer_sanitize_ticket_rows')) {
+    function eventer_sanitize_ticket_rows($rows) {
+        if (!is_array($rows)) {
+            return array();
+        }
+
+        $sanitized = array();
+        foreach ($rows as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+
+            $ticket = array(
+                'id' => isset($row['id']) ? absint($row['id']) : 0,
+                'pid' => isset($row['pid']) ? absint($row['pid']) : 0,
+                'primary' => isset($row['primary']) ? absint($row['primary']) : 0,
+                'name' => isset($row['name']) ? sanitize_text_field(wp_unslash($row['name'])) : '',
+                'number' => isset($row['number']) ? absint($row['number']) : 0,
+                'price' => isset($row['price']) ? eventer_sanitize_decimal_value($row['price']) : 0.0,
+                'restrict' => isset($row['restrict']) ? sanitize_text_field(wp_unslash($row['restrict'])) : '',
+                'featured' => isset($row['featured']) ? sanitize_text_field(wp_unslash($row['featured'])) : '',
+                'badge' => isset($row['badge']) ? sanitize_text_field(wp_unslash($row['badge'])) : '',
+                'enabled' => isset($row['enabled']) ? sanitize_text_field(wp_unslash($row['enabled'])) : '',
+            );
+
+            if ($ticket['name'] === '' && $ticket['id'] === 0 && $ticket['pid'] === 0) {
+                continue;
+            }
+
+            $sanitized[] = $ticket;
+        }
+
+        return $sanitized;
+    }
+}
+
+if (!function_exists('eventer_sanitize_service_rows')) {
+    function eventer_sanitize_service_rows($rows) {
+        if (!is_array($rows)) {
+            return array();
+        }
+
+        $sanitized = array();
+        foreach ($rows as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+
+            $service = array(
+                'name' => isset($row['name']) ? sanitize_text_field(wp_unslash($row['name'])) : '',
+                'value' => isset($row['value']) ? sanitize_text_field(wp_unslash($row['value'])) : '',
+                'pid' => isset($row['pid']) ? absint($row['pid']) : 0,
+                'cost' => isset($row['cost']) ? eventer_sanitize_decimal_value($row['cost']) : 0.0,
+            );
+
+            if ($service['name'] === '' && $service['pid'] === 0) {
+                continue;
+            }
+
+            $sanitized[] = $service;
+        }
+
+        return $sanitized;
+    }
+}
+
+if (!function_exists('eventer_sanitize_registrant_rows')) {
+    function eventer_sanitize_registrant_rows($rows) {
+        if (!is_array($rows)) {
+            return array();
+        }
+
+        $sanitized = array();
+        foreach ($rows as $ticket_name => $attendees) {
+            if (!is_array($attendees)) {
+                continue;
+            }
+
+            $clean_ticket_name = sanitize_text_field(wp_unslash((string) $ticket_name));
+            if ($clean_ticket_name === '') {
+                continue;
+            }
+
+            $sanitized[$clean_ticket_name] = array();
+            foreach ($attendees as $attendee) {
+                if (!is_array($attendee)) {
+                    continue;
+                }
+
+                $clean_attendee = array();
+                foreach ($attendee as $key => $value) {
+                    $clean_key = sanitize_text_field(wp_unslash((string) $key));
+                    if ($clean_key === '') {
+                        continue;
+                    }
+
+                    if (stripos($clean_key, 'email') !== false) {
+                        $clean_attendee[$clean_key] = sanitize_email(wp_unslash((string) $value));
+                    } elseif (stripos($clean_key, 'quantity') !== false) {
+                        $clean_attendee[$clean_key] = absint($value);
+                    } else {
+                        $clean_attendee[$clean_key] = sanitize_text_field(wp_unslash((string) $value));
+                    }
+                }
+
+                if (!empty($clean_attendee)) {
+                    $sanitized[$clean_ticket_name][] = $clean_attendee;
+                }
+            }
+        }
+
+        return $sanitized;
+    }
+}
+
+if (!function_exists('eventer_is_valid_data_image_uri')) {
+    function eventer_is_valid_data_image_uri($value) {
+        if (!is_string($value) || $value === '') {
+            return false;
+        }
+
+        return (bool) preg_match('/^data:image\/(?:png|jpe?g);base64,[A-Za-z0-9+\/=\s]+$/', trim($value));
+    }
+}
+
+if (!function_exists('eventer_decode_data_image_uri')) {
+    function eventer_decode_data_image_uri($value) {
+        if (!eventer_is_valid_data_image_uri($value)) {
+            return false;
+        }
+
+        $parts = explode(',', trim($value), 2);
+        if (count($parts) !== 2) {
+            return false;
+        }
+
+        $binary = base64_decode($parts[1], true);
+
+        return ($binary === false) ? false : $binary;
+    }
+}
+
+if (!function_exists('eventer_sanitize_ticket_image_rows')) {
+    function eventer_sanitize_ticket_image_rows($rows) {
+        if (!is_array($rows)) {
+            return array();
+        }
+
+        $sanitized = array();
+        foreach ($rows as $row) {
+            if (!is_array($row) || empty($row['src']) || !eventer_is_valid_data_image_uri($row['src'])) {
+                continue;
+            }
+
+            $ticket = array(
+                'src' => trim($row['src']),
+                'barcode' => (!empty($row['barcode']) && eventer_is_valid_data_image_uri($row['barcode'])) ? trim($row['barcode']) : '',
+                'code' => isset($row['code']) ? absint($row['code']) : 0,
+                'email' => isset($row['email']) ? sanitize_email(wp_unslash($row['email'])) : '',
+                'name' => isset($row['name']) ? sanitize_text_field(wp_unslash($row['name'])) : '',
+                'ticket' => isset($row['ticket']) ? sanitize_text_field(wp_unslash($row['ticket'])) : '',
+                'time' => isset($row['time']) ? sanitize_text_field(wp_unslash($row['time'])) : '',
+                'location' => isset($row['location']) ? sanitize_text_field(wp_unslash($row['location'])) : '',
+                'event_name' => isset($row['event_name']) ? sanitize_text_field(wp_unslash($row['event_name'])) : '',
+            );
+
+            if ($ticket['code'] <= 0 || $ticket['ticket'] === '') {
+                continue;
+            }
+
+            $ticket['attendee_name'] = $ticket['name'];
+            $sanitized[] = $ticket;
+        }
+
+        return $sanitized;
+    }
+}
+
+if (!function_exists('eventer_get_date_wise_ticket_snapshot')) {
+    function eventer_get_date_wise_ticket_snapshot($event, $date) {
+        $event = absint($event);
+        $date_value = is_scalar($date) ? (string) $date : '';
+        $date = eventer_sanitize_date_input($date_value, 'Y-m-d H:i:s') ?: eventer_sanitize_date_input($date_value, 'Y-m-d');
+
+        if ($event <= 0 || $date === '') {
+            return array();
+        }
+
+        if (strlen($date) === 10) {
+            $date .= ' 00:00:00';
+        }
+
+        $original_event = eventer_wpml_original_post_id($event);
+        $woo_payment = eventer_get_settings('eventer_enable_woocommerce_ticketing');
+        $ticket_type = ($woo_payment == 'on') ? 'woo-ticket' : 'ticket';
+
+        global $wpdb;
+        $table_name_tickets = $wpdb->prefix . 'eventer_tickets';
+        $saved_ticket = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT * FROM $table_name_tickets WHERE event = %d AND date = %s AND type = %s ORDER BY ticket_id ASC",
+                absint($original_event),
+                $date,
+                $ticket_type
+            ),
+            ARRAY_A
+        );
+
+        if (!empty($saved_ticket)) {
+            return $saved_ticket;
+        }
+
+        $specific_tickets = get_post_meta($original_event, 'specific_eventer_tickets', true);
+        $event_tickets = !empty($specific_tickets) ? $specific_tickets : get_post_meta($original_event, 'eventer_tickets', true);
+        $fallback_key = date_i18n('Y-m-d', strtotime($date));
+        $tickets_created = array();
+
+        if (is_array($event_tickets) && array_key_exists($fallback_key, $event_tickets)) {
+            $tickets_created = $event_tickets[$fallback_key];
+        } elseif (is_array(get_post_meta($original_event, 'eventer_tickets', true))) {
+            $tickets_created = get_post_meta($original_event, 'eventer_tickets', true);
+        }
+
+        if (!is_array($tickets_created)) {
+            return array();
+        }
+
+        $snapshot = array();
+        foreach ($tickets_created as $ticket) {
+            if (!is_array($ticket)) {
+                continue;
+            }
+
+            $snapshot[] = array(
+                'dynamic' => isset($ticket['id']) ? absint($ticket['id']) : 0,
+                'pid' => isset($ticket['pid']) ? absint($ticket['pid']) : 0,
+                'event' => $original_event,
+                'name' => isset($ticket['name']) ? sanitize_text_field($ticket['name']) : '',
+                'date' => $date,
+                'type' => $ticket_type,
+                'tickets' => isset($ticket['number']) ? absint($ticket['number']) : 0,
+                'price' => isset($ticket['price']) ? eventer_sanitize_decimal_value($ticket['price']) : 0.0,
+                'restricts' => isset($ticket['restrict']) ? sanitize_text_field($ticket['restrict']) : '',
+                'featured' => isset($ticket['featured']) ? sanitize_text_field($ticket['featured']) : '',
+                'label' => isset($ticket['badge']) ? sanitize_text_field($ticket['badge']) : '',
+                'enabled' => isset($ticket['enabled']) ? sanitize_text_field($ticket['enabled']) : '',
+            );
+        }
+
+        return $snapshot;
+    }
+}
+
 if (!function_exists('eventer_get_registrant_lookup_schema')) {
     function eventer_get_registrant_lookup_schema($field) {
         $allowed_fields = array(

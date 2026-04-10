@@ -113,22 +113,48 @@ class RegistrationProcess {
   }
 
   function generateTicketsImage( $order_id ) {
-    $nonce = $_REQUEST[ 'nonce' ];
-    if ( !wp_verify_nonce( $nonce, 'eventer-qrcode-nonce' ) ) {
-      wp_die();
+    $registrant_id = ( isset( $_REQUEST[ 'reg' ] ) ) ? absint( $_REQUEST[ 'reg' ] ) : 0;
+    $nonce = isset( $_REQUEST[ 'nonce' ] ) ? sanitize_text_field( wp_unslash( $_REQUEST[ 'nonce' ] ) ) : '';
+    if ( !eventer_verify_registrant_action_nonce( 'eventer-qrcode-nonce', $registrant_id, $nonce ) ) {
+      wp_send_json_error( array( 'message' => esc_html__( 'Invalid ticket generation request.', 'eventer' ) ), 403 );
     }
+
 	$pdfAttachment = 'on'; //eventer_get_settings('eventer_pdf_ticket');
-    $qrdata = ( isset( $_REQUEST[ 'qrdata' ] ) ) ? $_REQUEST[ 'qrdata' ] : '';
-    $event_id = ( isset( $_REQUEST[ 'eid' ] ) ) ? $_REQUEST[ 'eid' ] : '';
-    $event_cdate = ( isset( $_REQUEST[ 'dateTime' ] ) ) ? $_REQUEST[ 'dateTime' ] : '';
+    $qrdata = isset( $_REQUEST[ 'qrdata' ] ) ? eventer_sanitize_ticket_image_rows( wp_unslash( $_REQUEST[ 'qrdata' ] ) ) : array();
+    $event_id = ( isset( $_REQUEST[ 'eid' ] ) ) ? absint( $_REQUEST[ 'eid' ] ) : 0;
+    $event_cdate = ( isset( $_REQUEST[ 'dateTime' ] ) ) ? sanitize_text_field( wp_unslash( $_REQUEST[ 'dateTime' ] ) ) : '';
+    $booking = getRegistration( $registrant_id );
+    $tickets_for_booking = getRegistrationTickets( $registrant_id, 500, 0 );
+    if ( !$booking || empty( $tickets_for_booking ) ) {
+      wp_send_json_error( array( 'message' => esc_html__( 'Registration not found.', 'eventer' ) ), 404 );
+    }
+
+    $has_matching_event = false;
+    foreach ( $tickets_for_booking as $ticket_item ) {
+      if ( isset( $ticket_item->event_id ) && absint( $ticket_item->event_id ) === $event_id ) {
+        $has_matching_event = true;
+        break;
+      }
+    }
+
+    if ( $event_id <= 0 || !$has_matching_event ) {
+      wp_send_json_error( array( 'message' => esc_html__( 'Registration does not match the requested event.', 'eventer' ) ), 403 );
+    }
+
+    if ( empty( $qrdata ) ) {
+      wp_send_json_error( array( 'message' => esc_html__( 'No ticket payload was provided.', 'eventer' ) ), 400 );
+    }
+
     $event_title = apply_filters( 'eventer_raw_event_title', '', $event_id );
 	$get_event = get_post($event_id); 
+    if ( !$get_event ) {
+      wp_send_json_error( array( 'message' => esc_html__( 'Event not found.', 'eventer' ) ), 404 );
+    }
 	$event_slug = $get_event->post_name;
     $folder_name = eventer_clean_string( $event_title );
     $folder_name = ( $folder_name != '' ) ? $folder_name : $event_id;
-    $registrant_id = ( isset( $_REQUEST[ 'reg' ] ) ) ? $_REQUEST[ 'reg' ] : '';
-    $source = ( isset( $_REQUEST[ 'source' ] ) ) ? $_REQUEST[ 'source' ] : '';
-    $reg_pos = ( isset( $_REQUEST[ 'regpos' ] ) ) ? $_REQUEST[ 'regpos' ] : '';
+    $source = ( isset( $_REQUEST[ 'source' ] ) ) ? sanitize_text_field( wp_unslash( $_REQUEST[ 'source' ] ) ) : '';
+    $reg_pos = ( isset( $_REQUEST[ 'regpos' ] ) ) ? absint( $_REQUEST[ 'regpos' ] ) : 0;
     global $wp_filesystem;
     if ( empty( $wp_filesystem ) ) {
       require_once ABSPATH . '/wp-admin/includes/file.php';
@@ -161,9 +187,6 @@ class RegistrationProcess {
         $ticketSend = [];
         foreach ( $qrdata as $data ) {
           $random_name = date_i18n( 'Y-m-d-H-i-s' );
-          if ( !isset( $data[ 'src' ] ) ) {
-            continue;
-          }
 		  $data['attendee_name'] = $data['name'];
           $image_validate = eventer_check_base64_image($data['src']);
           $ticket_name_clean = eventer_clean_string($data['ticket']);
@@ -190,14 +213,19 @@ class RegistrationProcess {
           if ($pdfAttachment == 'on') {
         	generatePdfTicket($data, $event_id);
 		  } else {
+			$image_binary = eventer_decode_data_image_uri($data['src']);
+			if ($image_binary === false) {
+				continue;
+			}
 			$wp_filesystem->put_contents(
 			  $filename,
-			  file_get_contents($data['src']),
+			  $image_binary,
 			  FS_CHMOD_FILE // predefined mode settings for WP files
 			);
 		  }
 
-          $ticketSend[ $data[ 'email' ] ][] = $filename_first;
+          $email = ( isset( $data[ 'email' ] ) && $data[ 'email' ] != '' ) ? $data[ 'email' ] : wp_rand( 10, 1000000000000000000 );
+          $ticketSend[ $email ][] = $filename_first;
           updateTicketMeta( $data[ 'code' ], 'ticket_url', get_bloginfo( 'wpurl' ) . '/wp-content/uploads/eventer/' . $filename_first );
           updateTicketMeta( $data[ 'code' ], 'ticket_path', $filename_first );
           $tickets_created[ $email ][] = $filename_first;
@@ -226,9 +254,8 @@ class RegistrationProcess {
 			}
         }
       }
-      $booking = getRegistration( $registrant_id );
       $order = wc_get_order( $booking->order_id );
-      $back_order_tickets = ( isset( $_REQUEST[ 'backorder' ] ) ) ? $_REQUEST[ 'backorder' ] : '';
+      $back_order_tickets = ( isset( $_REQUEST[ 'backorder' ] ) ) ? esc_url_raw( wp_unslash( $_REQUEST[ 'backorder' ] ) ) : '';
       $back_order_tickets = ( $back_order_tickets != '' ) ? add_query_arg( 'allow', $registrant_id, $back_order_tickets ) : '';
 
       $woocommerce_thanks_redirect = eventer_get_settings( 'eventer_thanks_redirect' );
@@ -243,9 +270,9 @@ class RegistrationProcess {
       }
       $order_event_url = ( $back_order_tickets != '' ) ? $back_order_tickets : $order_event_url;
 
-      echo wp_json_encode( array( 'tickets' => $qrcode_name_new_ticket, 'event_url' => $order_event_url, 'ticket_arr' => $send_tickets, 'url' => $upload_blog_url . '/eventer', 'allow' => wp_create_nonce( 'eventer-tickets-download' ) ) );
+      wp_send_json( array( 'tickets' => $qrcode_name_new_ticket, 'event_url' => $order_event_url, 'ticket_arr' => $send_tickets, 'url' => $upload_blog_url . '/eventer', 'allow' => wp_create_nonce( 'eventer-tickets-download' ) ) );
     }
-    wp_die();
+    wp_send_json_error( array( 'message' => esc_html__( 'Unable to generate tickets.', 'eventer' ) ), 500 );
   }
 
   public function createTickets( $order_id ) {
@@ -272,7 +299,7 @@ class RegistrationProcess {
             $ticketEmail = getTicketMeta( $ticket->id, 'email' );
             $ticketName = !empty( $ticketName ) ? $ticketName : $registrant_uname;
             $ticketEmail = !empty( $ticketEmail ) ? $ticketEmail : $registrant_email;
-            $ticketData = [ 'data-nonce' => wp_create_nonce( 'eventer-qrcode-nonce' ), 'default' => [ 'data-uname' => $registrant_uname, 'data-regv2' => 'v2', 'data-uemail' => $registrant_email, 'data-registrant' => $bookingId, 'data-eid' => '', 'data-regpos' => $position ], 'data-mainreg' => $registrant_email, 'data-registrant' => $bookingId, 'data-eid' => '', 'data-organizer' => '', 'individual' => [ 0 => [ 'data-ticket' => $ticket->ticket_name, 'data-elocation' => $ticket->venue, 'data-datetime' => date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $ticket->ticket_date ) ), 'data-eventid' => $ticket->event_id, 'data-eventname' => get_the_title( $ticket->event_id ), 'data-email' => $ticketEmail, 'data-name' => $ticketName, 'data-qrcode' => $ticket->id, 'data-regv2' => 'v2', 'data-img' => '' ] ], 'data-regpos' => $position, 'data-backorder' => $backorder ];
+            $ticketData = [ 'data-nonce' => eventer_create_registrant_action_nonce( 'eventer-qrcode-nonce', $bookingId ), 'default' => [ 'data-uname' => $registrant_uname, 'data-regv2' => 'v2', 'data-uemail' => $registrant_email, 'data-registrant' => $bookingId, 'data-eid' => '', 'data-regpos' => $position ], 'data-mainreg' => $registrant_email, 'data-registrant' => $bookingId, 'data-eid' => '', 'data-organizer' => '', 'individual' => [ 0 => [ 'data-ticket' => $ticket->ticket_name, 'data-elocation' => $ticket->venue, 'data-datetime' => date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $ticket->ticket_date ) ), 'data-eventid' => $ticket->event_id, 'data-eventname' => get_the_title( $ticket->event_id ), 'data-email' => $ticketEmail, 'data-name' => $ticketName, 'data-qrcode' => $ticket->id, 'data-regv2' => 'v2', 'data-img' => '' ] ], 'data-regpos' => $position, 'data-backorder' => $backorder ];
             do_action( 'eventer_ticket_raw_design', '', $ticketData );
           }
         }

@@ -7,7 +7,7 @@ if (get_post_type($registrant) == 'shop_order' && $woocommerce_ticketing == 'on'
 } else {
   $order_status = 0;
   $order_num = $registrant;
-  $user_system = unserialize($usersystem);
+  $user_system = eventer_decode_array_payload($usersystem);
   $registrant_uname = (isset($username)) ? $username : '';
   $registrant_firstname = (isset($user_details['Name'])) ? $user_details['Name'] : '';
   $registrant_lastname = (isset($user_details['LAST NAME'])) ? $user_details['LAST NAME'] : '';

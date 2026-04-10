@@ -690,6 +690,7 @@ function eventer_validate_dateFormat(input_D) {
         dataType: 'json',
         data: {
           action: 'eventer_registrant_tickets',
+          booking_nonce: booking_nonce,
           reg_data: $all_fields,
           eventer_id: $(closest_booking).find("#eventer_id").text(),
           amount: amount,
@@ -770,7 +771,8 @@ function eventer_validate_dateFormat(input_D) {
                   data: {
                     action: 'eventer_confirm_payment_stripe',
                     secret: result.paymentIntent.id,
-                    reg_id: response.reg_id
+                    reg_id: response.reg_id,
+                    confirm_token: response.confirm_token
                   },
                   success: function (response) {
                     e.preventDefault();

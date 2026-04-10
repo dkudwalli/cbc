@@ -39,7 +39,7 @@ else
 }
 $eventer_organizer = get_the_terms(get_the_ID(), 'eventer-organizer');
 $eventer_venue = get_the_terms(get_the_ID(), 'eventer-venue');
-$usersystem = unserialize($usersystem);
+$usersystem = eventer_decode_array_payload($usersystem);
 $time_slot_set = (isset($usersystem['time_slot']))?$usersystem['time_slot']:'00:00:00';
 
 $event_time_show = ($time_slot_set=='00:00:00')?$event_time_show:date_i18n(get_option('time_format'), strtotime($time_slot_set));

@@ -181,30 +181,86 @@ function isermons_extract_video_info($url)
     }
 }
 
-function isermons_download_files() {
-	$nonce = $_REQUEST[ 'captcha' ];
-	if ( !wp_verify_nonce( $nonce, 'isermons-files-download' ) ) {
-		wp_die( 'Security check failed' );
-	} else {
-		$type = ( isset( $_REQUEST[ 'file' ] ) && $_REQUEST[ 'file' ] != '' ) ? $_REQUEST[ 'file' ] : '';
-		$sermon = ( isset( $_REQUEST[ 'sermon' ] ) && $_REQUEST[ 'sermon' ] != '' ) ? $_REQUEST[ 'sermon' ] : '';
-		$file = get_post_meta( $sermon, 'isermons_' . $type . '_file', true );
-		$file = get_attached_file(attachment_url_to_postid($file));
-		$ext = pathinfo( $file, PATHINFO_EXTENSION );
-		$ext = ( $ext ) ? $ext : 'mp3';
-		$match_array = array( 'pdf', 'mp3', 'mpa', 'ra', 'wav', 'wma', 'mid', 'm4a', 'm3u', 'iff', 'aif' );
-		if ( in_array( $ext, $match_array ) ) {
-			$mime_type = "audio/mpeg, audio/x-mpeg, audio/x-mpeg-3, audio/mpeg3";
-			if ( $ext != 'pdf' ) {
-				header( 'Content-type: ' . $mime_type );
-			} else {
-				header( "Content-type: application/" . $ext );
-			}
-			header( "Content-Disposition: attachment; filename=" . pathinfo( $file, PATHINFO_FILENAME ) . '.' . $ext );
-			readfile( $file );
-			wp_die();
+function isermons_get_download_path($sermon_id, $type) {
+	$meta_value = get_post_meta($sermon_id, 'isermons_' . $type . '_file', true);
+	if (empty($meta_value)) {
+		return false;
+	}
+
+	$uploads = wp_upload_dir();
+	$uploads_dir = realpath($uploads['basedir']);
+	if (!$uploads_dir) {
+		return false;
+	}
+
+	$attachment_id = 0;
+	if (is_numeric($meta_value)) {
+		$attachment_id = absint($meta_value);
+	} elseif (is_string($meta_value)) {
+		$attachment_id = attachment_url_to_postid($meta_value);
+	}
+
+	$file = '';
+	if ($attachment_id > 0) {
+		$file = get_attached_file($attachment_id);
+	} elseif (is_string($meta_value)) {
+		$meta_value = esc_url_raw($meta_value);
+		if (strpos($meta_value, $uploads['baseurl']) === 0) {
+			$relative_path = ltrim(substr($meta_value, strlen($uploads['baseurl'])), '/');
+			$file = trailingslashit($uploads['basedir']) . $relative_path;
 		}
 	}
+
+	if (empty($file)) {
+		return false;
+	}
+
+	$real_file = realpath($file);
+	if (!$real_file || !is_file($real_file) || strpos($real_file, trailingslashit($uploads_dir)) !== 0) {
+		return false;
+	}
+
+	return $real_file;
+}
+
+function isermons_download_files() {
+	$nonce = isset($_REQUEST['captcha']) ? sanitize_text_field(wp_unslash($_REQUEST['captcha'])) : '';
+	if (!wp_verify_nonce($nonce, 'isermons-files-download')) {
+		wp_die('Security check failed', '', array('response' => 403));
+	}
+
+	$type = (isset($_REQUEST['file']) && $_REQUEST['file'] != '') ? sanitize_key(wp_unslash($_REQUEST['file'])) : '';
+	$sermon = (isset($_REQUEST['sermon']) && $_REQUEST['sermon'] != '') ? absint($_REQUEST['sermon']) : 0;
+	$allowed_types = array('audio', 'bulletin', 'notes');
+	if ($sermon <= 0 || !in_array($type, $allowed_types, true)) {
+		wp_die('Invalid download request', '', array('response' => 400));
+	}
+
+	$file = isermons_get_download_path($sermon, $type);
+	if (!$file) {
+		wp_die('Requested file not found', '', array('response' => 404));
+	}
+
+	$ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+	$allowed_extensions = array('pdf', 'mp3', 'mpa', 'ra', 'wav', 'wma', 'mid', 'm4a', 'm3u', 'iff', 'aif');
+	if (!in_array($ext, $allowed_extensions, true)) {
+		wp_die('Unsupported file type', '', array('response' => 400));
+	}
+
+	$filetype = wp_check_filetype($file);
+	$mime_type = !empty($filetype['type']) ? $filetype['type'] : 'application/octet-stream';
+	nocache_headers();
+	header('Content-Description: File Transfer');
+	header('Content-Type: ' . $mime_type);
+	header('Content-Disposition: attachment; filename="' . basename($file) . '"');
+	header('Content-Length: ' . filesize($file));
+
+	while (ob_get_level()) {
+		ob_end_clean();
+	}
+
+	readfile($file);
+	exit;
 }
 add_action('wp_ajax_isermons_download_files', 'isermons_download_files');
 add_action('wp_ajax_nopriv_isermons_download_files', 'isermons_download_files');

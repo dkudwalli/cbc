@@ -1085,7 +1085,6 @@ if (!function_exists('eventer_add_form_fields_venue')) {
     }
     add_action('publish_eventer',  'eventer_status_transitions', 999, 2);
 
-    add_action('wp_ajax_nopriv_eventer_dynamic_ticket_area', 'eventer_dynamic_ticket_area');
     add_action('wp_ajax_eventer_export_registrants', 'eventer_export_registrants');
     function eventer_export_registrants()
     {

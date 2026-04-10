@@ -19,17 +19,21 @@ class Bookings
   }
 
   public function eventer_export_bookings() {
+    if ( !current_user_can( 'manage_options' ) ) {
+      wp_die( -1, 403 );
+    }
+    check_admin_referer( 'eventer_export_bookings', 'eventer_export_bookings_nonce' );
     global $wpdb;
     $tickets_table = $wpdb->prefix . "eventer_registration_tickets";
     $registrations_table = $wpdb->prefix . "eventer_registrations";
-    $specific_event = isset($_REQUEST['eventer']) ? $_REQUEST['eventer'] : '';
-    $start_date = isset($_REQUEST['start_date']) ? $_REQUEST['start_date'] : '';
-    $end_date = isset($_REQUEST['end_date']) ? $_REQUEST['end_date'] : '';
-    $event_date = isset($_REQUEST['event_date']) ? $_REQUEST['event_date'] : '';
+    $specific_event = isset($_REQUEST['eventer']) ? absint($_REQUEST['eventer']) : 0;
+    $start_date = isset($_REQUEST['start_date']) ? sanitize_text_field(wp_unslash($_REQUEST['start_date'])) : '';
+    $end_date = isset($_REQUEST['end_date']) ? sanitize_text_field(wp_unslash($_REQUEST['end_date'])) : '';
+    $event_date = isset($_REQUEST['event_date']) ? sanitize_text_field(wp_unslash($_REQUEST['event_date'])) : '';
     $bookings_list = isset($_REQUEST['multipleslect']) ? array_map('intval', $_REQUEST['multipleslect']) : [];
 
     $where = [];
-    if ($specific_event != '') {
+    if ($specific_event > 0) {
         $where[] = $wpdb->prepare("t.event_id = %d", $specific_event);
     }
     if (!empty($start_date)) {
@@ -57,10 +61,9 @@ class Bookings
         $where_sql
     ";
 
-    $wpdb->show_errors();
     $export_query = $wpdb->get_results($query, ARRAY_A);
 
-    if (!$export_query) {
+    if ($wpdb->last_error) {
         $Error = $wpdb->print_error();
         die("The following error was found: $Error");
     } else {
@@ -75,7 +78,7 @@ class Bookings
             $final_data['user_name'] = getTicketMeta($data['id'], 'name');
             $final_data['user_email'] = getTicketMeta($data['id'], 'email');
             $final_data['qr_code'] = $data['id'];
-            $registrants = @unserialize(getTicketMeta($data['id'], 'reg_details'));
+            $registrants = eventer_decode_array_payload(getTicketMeta($data['id'], 'reg_details'));
 
             if (is_array($registrants)) {
                 foreach ($registrants as $field_key => $value) {
@@ -268,9 +271,10 @@ class Bookings
 	  <?php if (!empty($reg_details)) : ?>
 		<form class="woo-csv-export-form" action="<?php echo esc_url(admin_url('admin-ajax.php')); ?>" method="post">
 		<input type="hidden" name="action" value="eventer_export_bookings">
-		<input type="hidden" name="date" value="<?php echo (isset($_REQUEST['booking'])) ? $_REQUEST['booking'] : ''; ?>">
-		<input type="hidden" name="eventer" value="<?php echo (isset($_REQUEST['eventer'])) ? $_REQUEST['eventer'] : ''; ?>">
-		<input type="hidden" name="eventer_all" value="<?php echo (isset($_REQUEST['eventer_id'])) ? $_REQUEST['eventer_id'] : ''; ?>">
+		<?php wp_nonce_field('eventer_export_bookings', 'eventer_export_bookings_nonce'); ?>
+		<input type="hidden" name="date" value="<?php echo isset($_REQUEST['booking']) ? esc_attr(wp_unslash($_REQUEST['booking'])) : ''; ?>">
+		<input type="hidden" name="eventer" value="<?php echo isset($_REQUEST['eventer']) ? esc_attr(wp_unslash($_REQUEST['eventer'])) : ''; ?>">
+		<input type="hidden" name="eventer_all" value="<?php echo isset($_REQUEST['eventer_id']) ? esc_attr(wp_unslash($_REQUEST['eventer_id'])) : ''; ?>">
 		<input type="submit" value="<?php esc_html_e('Download csv', 'eventer'); ?>" class="button eventer-download-bulk-downloading">
 		</form>
 	  <?php endif; ?>
@@ -297,11 +301,11 @@ class Bookings
     global $wpdb;
     $tickets_table = $wpdb->prefix . "eventer_registration_tickets";
     $registrations_table = $wpdb->prefix . "eventer_registrations";
-    $specific_event = isset($_REQUEST['eventer']) ? $_REQUEST['eventer'] : '';
-    $bookings = isset($_REQUEST['multipleslect']) ? $_REQUEST['multipleslect'] : [];
-    $start_date = isset($_REQUEST['start_date']) ? $_REQUEST['start_date'] : '';
-    $end_date = isset($_REQUEST['end_date']) ? $_REQUEST['end_date'] : '';
-	$event_date = isset($_REQUEST['event_date']) ? $_REQUEST['event_date'] : '';
+    $specific_event = isset($_REQUEST['eventer']) ? absint($_REQUEST['eventer']) : 0;
+    $bookings = isset($_REQUEST['multipleslect']) ? (array) $_REQUEST['multipleslect'] : [];
+    $start_date = isset($_REQUEST['start_date']) ? sanitize_text_field(wp_unslash($_REQUEST['start_date'])) : '';
+    $end_date = isset($_REQUEST['end_date']) ? sanitize_text_field(wp_unslash($_REQUEST['end_date'])) : '';
+	$event_date = isset($_REQUEST['event_date']) ? sanitize_text_field(wp_unslash($_REQUEST['event_date'])) : '';
     $bookings_list = [];
 
     if ($bookings) {
@@ -314,7 +318,7 @@ class Bookings
     }
 
     $where = [];
-    if ($specific_event != '') {
+    if ($specific_event > 0) {
         $where[] = $wpdb->prepare("t.event_id = %d", $specific_event);
     }
     if (!empty($bookings_list)) {

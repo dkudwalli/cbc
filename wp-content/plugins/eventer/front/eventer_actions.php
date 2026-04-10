@@ -786,7 +786,7 @@ function eventer_prepare_tickets_data($field, $registrant, $atts)
         }
       }
     }
-    $all_data = array('data-nonce' => wp_create_nonce('eventer-qrcode-nonce'), 'default' => array('data-uname' => $reg->username, 'data-uemail' => $reg->email, 'data-registrant' => $reg->id), 'data-mainreg' => $reg->email, 'data-registrant' => $registrant, 'data-eid' => '', 'data-organizer' => (isset($eventer_organizer['metas'])) ? $eventer_organizer['metas']['organizer_email'] : '', 'individual' => $individual);
+    $all_data = array('data-nonce' => eventer_create_registrant_action_nonce('eventer-qrcode-nonce', $reg->id), 'default' => array('data-uname' => $reg->username, 'data-uemail' => $reg->email, 'data-registrant' => $reg->id), 'data-mainreg' => $reg->email, 'data-registrant' => $reg->id, 'data-eid' => '', 'data-organizer' => (isset($eventer_organizer['metas'])) ? $eventer_organizer['metas']['organizer_email'] : '', 'individual' => $individual);
   }
   return $all_data;
 }

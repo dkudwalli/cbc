@@ -130,7 +130,7 @@ function eventer_get_attendees($request = null)
             }
             if (!empty($result)) {
                 foreach ($result as $res) {
-                    $userSystem = maybe_unserialize($res->user_system);
+                    $userSystem = eventer_decode_array_payload($res->user_system);
                     if (!empty($time) && $userSystem['time_slot'] != $time) {
                         continue;
                     }
@@ -236,7 +236,7 @@ function eventer_process_checkin($request = null)
         $status = $registrant->status;
         $event_date = $registrant->eventer_date;
         $event_id = $registrant->eventer;
-        $user = maybe_unserialize($registrant->user_system);
+        $user = eventer_decode_array_payload($registrant->user_system);
         $tickets = (isset($user['tickets'])) ? $user['tickets'] : '';
         $services = (isset($user['services'])) ? $user['services'] : '';
         $serviceOpted = [];
@@ -288,7 +288,7 @@ function eventer_process_checkin_after($registrant = null)
     if ($woocommerce_events == 'on') {
 
     } else {
-        $user_system = unserialize($registrants->user_system);
+        $user_system = eventer_decode_array_payload($registrants->user_system);
         if (isset($user_system['checkin']) && $user_system['checkin'] == '1') {
             $msg = "This ticket has already been checked in";
             $status = -3;

@@ -1,0 +1,1076 @@
+body.cbc-modern {
+    --cbc-bg: #f7f2eb;
+    --cbc-surface: #fbf7f2;
+    --cbc-surface-strong: #fffdf9;
+    --cbc-surface-dark: #2a211b;
+    --cbc-text: #201a17;
+    --cbc-muted: #6e6963;
+    --cbc-accent: #a67c3d;
+    --cbc-accent-deep: #7f5d28;
+    --cbc-border: #e6dccf;
+    --cbc-shadow: 0 18px 48px rgba(42, 29, 18, 0.08);
+    --cbc-shadow-soft: 0 12px 28px rgba(42, 29, 18, 0.05);
+    --cbc-radius: 12px;
+    --cbc-radius-lg: 28px;
+    --cbc-header-height: 108px;
+    --cbc-serif: "Cormorant Garamond", Georgia, serif;
+    --cbc-sans: "Source Sans 3", "Helvetica Neue", Arial, sans-serif;
+    background: var(--cbc-bg);
+    color: var(--cbc-text);
+    font-family: var(--cbc-sans) !important;
+    line-height: 1.65;
+}
+
+body.cbc-modern.cbc-mobile-open {
+    overflow: hidden;
+}
+
+body.cbc-modern,
+body.cbc-modern p,
+body.cbc-modern li,
+body.cbc-modern input,
+body.cbc-modern textarea,
+body.cbc-modern select,
+body.cbc-modern button {
+    font-family: var(--cbc-sans) !important;
+}
+
+body.cbc-modern h1,
+body.cbc-modern h2,
+body.cbc-modern h3,
+body.cbc-modern h4,
+body.cbc-modern h5,
+body.cbc-modern h6,
+body.cbc-modern .elementor-widget-heading .elementor-heading-title,
+body.cbc-modern .page-header h1,
+body.cbc-modern .cbc-logo,
+body.cbc-modern .eventer-event-title,
+body.cbc-modern .series-title {
+    color: var(--cbc-text);
+    font-family: var(--cbc-serif) !important;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    text-transform: none;
+}
+
+body.cbc-modern h1,
+body.cbc-modern .page-header h1 {
+    font-size: clamp(2.9rem, 6vw, 4.8rem);
+}
+
+body.cbc-modern h2 {
+    font-size: clamp(2.4rem, 4.8vw, 4rem);
+}
+
+body.cbc-modern h3 {
+    font-size: clamp(1.75rem, 3vw, 2.6rem);
+}
+
+body.cbc-modern h4,
+body.cbc-modern h5,
+body.cbc-modern h6 {
+    font-size: clamp(1.15rem, 2vw, 1.5rem);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+body.cbc-modern a {
+    color: var(--cbc-accent-deep);
+    transition: color 0.25s ease, opacity 0.25s ease;
+}
+
+body.cbc-modern a:hover,
+body.cbc-modern a:focus {
+    color: var(--cbc-accent);
+}
+
+body.cbc-modern .body {
+    position: relative;
+}
+
+body.cbc-modern .container {
+    max-width: 1240px;
+    padding-right: 24px;
+    padding-left: 24px;
+}
+
+body.cbc-modern .page-section {
+    padding: 56px 0 72px;
+}
+
+body.cbc-modern .page-content {
+    color: var(--cbc-text);
+}
+
+body.cbc-modern .page-content p,
+body.cbc-modern .elementor-widget-text-editor {
+    color: var(--cbc-muted);
+    font-size: 1.125rem;
+    line-height: 1.8;
+}
+
+body.cbc-modern .btn,
+body.cbc-modern .button,
+body.cbc-modern button,
+body.cbc-modern input[type="submit"],
+body.cbc-modern .woocommerce a.button,
+body.cbc-modern .woocommerce button.button,
+body.cbc-modern .woocommerce input.button,
+body.cbc-modern .elementor-button,
+body.cbc-modern .eventer-btn {
+    border: 1px solid var(--cbc-accent);
+    border-radius: 999px;
+    background: var(--cbc-accent);
+    box-shadow: none;
+    color: #fff;
+    font-family: var(--cbc-sans) !important;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    line-height: 1.1;
+    padding: 0.95rem 1.45rem;
+    text-transform: uppercase;
+    transition: transform 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+
+body.cbc-modern .btn-default,
+body.cbc-modern .eventer-btn.eventer-btn-plain,
+body.cbc-modern .elementor-button.elementor-size-md,
+body.cbc-modern .elementor-button.elementor-size-sm {
+    background: transparent;
+    color: var(--cbc-text);
+}
+
+body.cbc-modern .btn:hover,
+body.cbc-modern .button:hover,
+body.cbc-modern button:hover,
+body.cbc-modern input[type="submit"]:hover,
+body.cbc-modern .woocommerce a.button:hover,
+body.cbc-modern .woocommerce button.button:hover,
+body.cbc-modern .woocommerce input.button:hover,
+body.cbc-modern .elementor-button:hover,
+body.cbc-modern .eventer-btn:hover {
+    background: var(--cbc-accent-deep);
+    border-color: var(--cbc-accent-deep);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+body.cbc-modern .btn-default:hover,
+body.cbc-modern .eventer-btn.eventer-btn-plain:hover {
+    background: var(--cbc-text);
+    border-color: var(--cbc-text);
+}
+
+body.cbc-modern input[type="text"],
+body.cbc-modern input[type="email"],
+body.cbc-modern input[type="search"],
+body.cbc-modern input[type="password"],
+body.cbc-modern textarea,
+body.cbc-modern select,
+body.cbc-modern .form-control {
+    min-height: 52px;
+    border: 1px solid var(--cbc-border);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: none;
+    color: var(--cbc-text);
+    padding: 0.85rem 1rem;
+}
+
+body.cbc-modern .input-group-addon,
+body.cbc-modern .input-group-btn .btn {
+    border-radius: 18px;
+}
+
+body.cbc-modern .cbc-site-header {
+    position: sticky;
+    top: 0;
+    z-index: 1100;
+}
+
+body.cbc-modern .cbc-header-shell {
+    border-bottom: 1px solid rgba(230, 220, 207, 0.72);
+    background: rgba(251, 247, 242, 0.92);
+    backdrop-filter: blur(18px);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+    transition: background-color 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+body.cbc-modern .cbc-site-header.is-scrolled .cbc-header-shell {
+    box-shadow: var(--cbc-shadow-soft);
+}
+
+body.cbc-modern.cbc-home-modern .cbc-site-header {
+    margin-bottom: calc(var(--cbc-header-height) * -1);
+}
+
+body.cbc-modern.cbc-home-modern .cbc-header-shell {
+    background: linear-gradient(180deg, rgba(23, 18, 15, 0.52) 0%, rgba(23, 18, 15, 0.18) 100%);
+    border-bottom-color: rgba(255, 255, 255, 0.12);
+    box-shadow: none;
+}
+
+body.cbc-modern.cbc-home-modern .cbc-site-header.is-scrolled .cbc-header-shell {
+    background: rgba(251, 247, 242, 0.96);
+    border-bottom-color: rgba(230, 220, 207, 0.72);
+    box-shadow: var(--cbc-shadow-soft);
+}
+
+body.cbc-modern .cbc-header-container {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 2rem;
+    align-items: center;
+    min-height: var(--cbc-header-height);
+}
+
+body.cbc-modern .cbc-header-brand {
+    min-width: 0;
+}
+
+body.cbc-modern .cbc-logo {
+    margin: 0;
+}
+
+body.cbc-modern .cbc-logo-link {
+    display: inline-flex;
+    align-items: center;
+    color: inherit;
+    text-decoration: none;
+}
+
+body.cbc-modern .cbc-logo-link--text {
+    font-size: 2rem;
+}
+
+body.cbc-modern .cbc-logo-image {
+    display: block;
+    max-height: 64px;
+    width: auto;
+}
+
+body.cbc-modern .cbc-header-desktop {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.7rem;
+    min-width: 0;
+}
+
+body.cbc-modern .cbc-utility-nav,
+body.cbc-modern .cbc-primary-nav {
+    width: 100%;
+}
+
+body.cbc-modern .cbc-menu {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.9rem 1.6rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+body.cbc-modern .cbc-menu li {
+    position: relative;
+    margin: 0;
+}
+
+body.cbc-modern .cbc-menu a {
+    display: inline-flex;
+    align-items: center;
+    color: var(--cbc-text);
+    font-family: var(--cbc-sans) !important;
+    font-size: 0.98rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 0;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+body.cbc-modern .cbc-menu-utility a {
+    color: var(--cbc-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+}
+
+body.cbc-modern.cbc-home-modern .cbc-menu a,
+body.cbc-modern.cbc-home-modern .cbc-mobile-toggle {
+    color: #fff;
+}
+
+body.cbc-modern.cbc-home-modern .cbc-menu-utility a {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+body.cbc-modern.cbc-home-modern .cbc-site-header.is-scrolled .cbc-menu a,
+body.cbc-modern.cbc-home-modern .cbc-site-header.is-scrolled .cbc-mobile-toggle {
+    color: var(--cbc-text);
+}
+
+body.cbc-modern.cbc-home-modern .cbc-site-header.is-scrolled .cbc-menu-utility a {
+    color: var(--cbc-muted);
+}
+
+body.cbc-modern .cbc-menu li.current-menu-item > a,
+body.cbc-modern .cbc-menu li.current-menu-ancestor > a,
+body.cbc-modern .cbc-menu a:hover,
+body.cbc-modern .cbc-menu a:focus {
+    color: var(--cbc-accent);
+}
+
+body.cbc-modern .cbc-menu .sub-menu {
+    position: absolute;
+    top: calc(100% + 1rem);
+    left: auto;
+    right: 0;
+    display: none;
+    min-width: 240px;
+    padding: 1rem;
+    border: 1px solid var(--cbc-border);
+    border-radius: 20px;
+    background: rgba(255, 253, 249, 0.98);
+    box-shadow: var(--cbc-shadow-soft);
+    list-style: none;
+}
+
+body.cbc-modern .cbc-menu li:hover > .sub-menu,
+body.cbc-modern .cbc-menu li:focus-within > .sub-menu {
+    display: block;
+}
+
+body.cbc-modern .cbc-menu .sub-menu a {
+    padding: 0.45rem 0;
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
+    text-transform: none;
+}
+
+body.cbc-modern .cbc-mobile-toggle {
+    display: none;
+    align-items: center;
+    gap: 0.75rem;
+    border: 0;
+    background: transparent;
+    color: var(--cbc-text);
+    font-family: var(--cbc-sans) !important;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 0;
+    text-transform: uppercase;
+}
+
+body.cbc-modern .cbc-mobile-toggle__icon {
+    position: relative;
+    display: inline-block;
+    width: 22px;
+    height: 2px;
+    background: currentColor;
+}
+
+body.cbc-modern .cbc-mobile-toggle__icon::before,
+body.cbc-modern .cbc-mobile-toggle__icon::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 22px;
+    height: 2px;
+    background: currentColor;
+}
+
+body.cbc-modern .cbc-mobile-toggle__icon::before {
+    top: -6px;
+}
+
+body.cbc-modern .cbc-mobile-toggle__icon::after {
+    top: 6px;
+}
+
+body.cbc-modern .cbc-mobile-panel {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+}
+
+body.cbc-modern .cbc-mobile-panel__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(18, 13, 10, 0.56);
+}
+
+body.cbc-modern .cbc-mobile-panel__dialog {
+    position: relative;
+    z-index: 1;
+    margin-left: auto;
+    display: flex;
+    height: 100%;
+    width: min(420px, 100%);
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1.5rem 1.5rem 2rem;
+    background: var(--cbc-surface-strong);
+    box-shadow: -18px 0 48px rgba(23, 16, 12, 0.16);
+    overflow-y: auto;
+}
+
+body.cbc-modern .cbc-mobile-panel__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+body.cbc-modern .cbc-mobile-panel__title,
+body.cbc-modern .cbc-mobile-secondary__label {
+    color: var(--cbc-muted);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+body.cbc-modern .cbc-mobile-panel__close,
+body.cbc-modern .cbc-submenu-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--cbc-border);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--cbc-text);
+}
+
+body.cbc-modern .cbc-mobile-panel__close {
+    width: 42px;
+    height: 42px;
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+body.cbc-modern .cbc-mobile-nav,
+body.cbc-modern .cbc-mobile-secondary nav {
+    border-top: 1px solid var(--cbc-border);
+    padding-top: 1.25rem;
+}
+
+body.cbc-modern .cbc-mobile-menu {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+body.cbc-modern .cbc-mobile-menu li {
+    position: relative;
+    padding: 0.25rem 0;
+}
+
+body.cbc-modern .cbc-mobile-menu a {
+    display: block;
+    padding: 0.75rem 3rem 0.75rem 0;
+    color: var(--cbc-text);
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+body.cbc-modern .cbc-mobile-menu .sub-menu {
+    display: none;
+    margin: 0.5rem 0 0 0;
+    padding: 0 0 0 1rem;
+    border-left: 1px solid var(--cbc-border);
+    list-style: none;
+}
+
+body.cbc-modern .cbc-mobile-menu .is-open > .sub-menu,
+body.cbc-modern .cbc-mobile-menu .menu-item-has-children.is-open > .sub-menu {
+    display: block;
+}
+
+body.cbc-modern .cbc-submenu-toggle {
+    position: absolute;
+    top: 0.7rem;
+    right: 0;
+    width: 2rem;
+    height: 2rem;
+}
+
+body.cbc-modern .cbc-submenu-toggle .screen-reader-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+}
+
+body.cbc-modern .nav-backed-header {
+    position: relative;
+    overflow: hidden;
+    min-height: 220px;
+    background-position: center;
+    background-size: cover;
+}
+
+body.cbc-modern .nav-backed-header::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(24, 17, 13, 0.78) 0%, rgba(24, 17, 13, 0.52) 55%, rgba(24, 17, 13, 0.4) 100%);
+}
+
+body.cbc-modern .nav-backed-header .container {
+    position: relative;
+    z-index: 1;
+}
+
+body.cbc-modern .breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    margin: 0;
+    padding-bottom: 2.25rem;
+    color: rgba(255, 255, 255, 0.8);
+    list-style: none;
+}
+
+body.cbc-modern .breadcrumb a,
+body.cbc-modern .breadcrumb li {
+    color: inherit;
+    font-size: 0.92rem;
+}
+
+body.cbc-modern .page-header {
+    padding: 3.5rem 0 1rem;
+    border-bottom: 1px solid var(--cbc-border);
+    background: transparent;
+}
+
+body.cbc-modern .page-header .custom-desc,
+body.cbc-modern .page-header .meta-data {
+    color: var(--cbc-muted);
+    font-size: 1rem;
+}
+
+body.cbc-modern .main {
+    background: transparent;
+}
+
+body.cbc-modern .cbc-site-footer {
+    border-top: 1px solid var(--cbc-border);
+    background: #efe5d9;
+    padding: 4.5rem 0 3rem;
+}
+
+body.cbc-modern .cbc-footer-widgets > div,
+body.cbc-modern .cbc-site-footer .widget {
+    height: 100%;
+}
+
+body.cbc-modern .cbc-site-footer .widget {
+    margin-bottom: 1.5rem;
+    padding: 1.6rem;
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    border-radius: 24px;
+    background: rgba(255, 253, 249, 0.62);
+    box-shadow: var(--cbc-shadow-soft);
+}
+
+body.cbc-modern .cbc-site-footer .widget-title {
+    margin-bottom: 0.9rem;
+    font-size: 1.65rem;
+}
+
+body.cbc-modern .cbc-site-footer-bottom {
+    background: var(--cbc-surface-dark);
+    color: rgba(255, 245, 235, 0.9);
+    padding: 2.2rem 0;
+}
+
+body.cbc-modern .cbc-footer-bottom-inner {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr auto;
+    gap: 2rem;
+    align-items: center;
+}
+
+body.cbc-modern .cbc-footer-kicker {
+    display: inline-block;
+    margin-bottom: 0.35rem;
+    color: #fff;
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+}
+
+body.cbc-modern .cbc-footer-description,
+body.cbc-modern .cbc-footer-copy p {
+    margin: 0;
+    color: rgba(255, 245, 235, 0.74);
+    font-size: 0.98rem;
+    line-height: 1.7;
+}
+
+body.cbc-modern .cbc-social-icons,
+body.cbc-modern .social-icons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: flex-end;
+}
+
+body.cbc-modern .social-icons a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+    text-decoration: none;
+}
+
+body.cbc-modern .social-icons a:hover,
+body.cbc-modern .social-icons a:focus {
+    background: var(--cbc-accent);
+    border-color: var(--cbc-accent);
+    color: #fff;
+}
+
+body.cbc-modern.cbc-home-modern .page-section {
+    padding: 0;
+}
+
+body.cbc-modern.cbc-home-modern .page-content > .elementor {
+    width: 100vw;
+    max-width: 100vw;
+    margin-right: calc(50% - 50vw);
+    margin-left: calc(50% - 50vw);
+    overflow: hidden;
+}
+
+body.cbc-modern.cbc-home-modern .page-content > .elementor > .elementor-section:first-child {
+    min-height: 86vh;
+}
+
+body.cbc-modern.cbc-home-modern .page-content > .elementor > .elementor-section:first-child > .elementor-container {
+    max-width: 1240px;
+    padding: clamp(8rem, 12vw, 10.5rem) 24px clamp(4rem, 8vw, 6rem);
+}
+
+body.cbc-modern.cbc-home-modern .page-content > .elementor > .elementor-section:first-child .elementor-background-overlay {
+    background: linear-gradient(180deg, rgba(24, 17, 13, 0.32) 0%, rgba(24, 17, 13, 0.58) 100%) !important;
+    opacity: 1 !important;
+}
+
+body.cbc-modern.cbc-home-modern .page-content > .elementor > .elementor-section:first-child .elementor-heading-title {
+    color: #fff;
+    font-size: clamp(3.8rem, 8vw, 6.6rem);
+    max-width: 9ch;
+    text-wrap: balance;
+}
+
+body.cbc-modern.cbc-home-modern .page-content > .elementor > .elementor-section:nth-of-type(2) {
+    position: relative;
+    z-index: 2;
+}
+
+body.cbc-modern.cbc-home-modern .page-content > .elementor > .elementor-section:nth-of-type(2) .elementor-widget-heading {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+body.cbc-modern.cbc-home-modern .page-content > .elementor > .elementor-section:nth-of-type(2) .elementor-heading-title {
+    color: #fff;
+    font-family: var(--cbc-sans) !important;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    line-height: 1.6;
+    text-transform: none;
+}
+
+body.cbc-modern.cbc-home-modern .page-content > .elementor > .elementor-section:not(:first-child):not(:nth-of-type(2)) {
+    padding-top: clamp(3.5rem, 8vw, 6rem);
+    padding-bottom: clamp(3.5rem, 8vw, 6rem);
+}
+
+body.cbc-modern.cbc-home-modern .elementor-widget-heading .elementor-heading-title {
+    text-wrap: balance;
+}
+
+body.cbc-modern.cbc-home-modern .elementor-widget-text-editor p {
+    max-width: 62ch;
+}
+
+body.cbc-modern.cbc-home-modern .elementor-widget-icon .elementor-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 5rem;
+    height: 5rem;
+    border: 1px solid var(--cbc-border);
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: var(--cbc-shadow-soft);
+    color: var(--cbc-accent) !important;
+}
+
+body.cbc-modern.cbc-home-modern .elementor-widget-button .elementor-button {
+    min-width: 0;
+    border-radius: 999px;
+    padding: 1rem 1.4rem;
+}
+
+body.cbc-modern.cbc-home-modern .elementor-column:has(.elementor-widget-icon):has(.elementor-widget-button) > .elementor-widget-wrap,
+body.cbc-modern.cbc-home-modern .elementor-column:has(.elementor-widget-image):has(.elementor-widget-heading):has(.elementor-widget-button) > .elementor-widget-wrap {
+    padding: 2.1rem 2rem;
+    border: 1px solid var(--cbc-border);
+    border-radius: 30px;
+    background: rgba(255, 253, 249, 0.88);
+    box-shadow: var(--cbc-shadow);
+    height: 100%;
+}
+
+body.cbc-modern.cbc-home-modern .eventer,
+body.cbc-modern.cbc-home-modern .isermons {
+    color: var(--cbc-text);
+}
+
+body.cbc-modern.cbc-home-modern .eventer-countdown {
+    padding: 2rem;
+    border: 1px solid var(--cbc-border);
+    border-radius: 32px;
+    background: linear-gradient(145deg, rgba(255, 253, 249, 0.95), rgba(247, 242, 235, 0.9));
+    box-shadow: var(--cbc-shadow);
+}
+
+body.cbc-modern.cbc-home-modern .eventer-countdown .eventer-event-date {
+    min-width: 100px;
+    padding: 1.25rem 1rem;
+    border-radius: 24px;
+    background: var(--cbc-surface-dark);
+    color: #fff;
+    text-align: center;
+}
+
+body.cbc-modern.cbc-home-modern .eventer-countdown .eventer-event-date .eventer-event-day {
+    display: block;
+    font-size: 2.3rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+body.cbc-modern.cbc-home-modern .eventer-countdown .eventer-event-date .eventer-event-month,
+body.cbc-modern.cbc-home-modern .eventer-countdown .eventer-event-date .eventer-event-year {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.88rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+body.cbc-modern.cbc-home-modern .eventer-countdown .eventer-event-details {
+    padding-left: 1.25rem;
+}
+
+body.cbc-modern.cbc-home-modern .eventer-countdown .eventer-event-title {
+    display: block;
+    margin: 0.35rem 0 0.5rem;
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+}
+
+body.cbc-modern.cbc-home-modern .eventer-countdown .eventer-event-venue,
+body.cbc-modern.cbc-home-modern .eventer-countdown .eventer-event-time,
+body.cbc-modern.cbc-home-modern .eventer-countdown .eventer-labeler,
+body.cbc-modern.cbc-home-modern .eventer-countdown .eventer-event-details label {
+    color: var(--cbc-muted);
+}
+
+body.cbc-modern.cbc-home-modern .eventer-countdown-timer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+    margin-top: 1.4rem;
+}
+
+body.cbc-modern.cbc-home-modern .eventer-countdown-timer > .eventer-timer-col {
+    min-width: 86px;
+    padding: 0.95rem 0.75rem;
+    border: 1px solid var(--cbc-border);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.88);
+    text-align: center;
+}
+
+body.cbc-modern.cbc-home-modern .eventer-countdown-timer > .eventer-timer-col span {
+    color: var(--cbc-text);
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+body.cbc-modern.cbc-home-modern .eventer-countdown-timer > .eventer-timer-col strong {
+    color: var(--cbc-muted);
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+body.cbc-modern.cbc-home-modern .eventer-list ul {
+    display: grid;
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+body.cbc-modern.cbc-home-modern .eventer-event-list-item,
+body.cbc-modern.cbc-home-modern .eventer-modern-row {
+    padding: 0;
+    border: 1px solid var(--cbc-border);
+    border-radius: 26px;
+    background: rgba(255, 255, 255, 0.78);
+    box-shadow: var(--cbc-shadow-soft);
+    overflow: hidden;
+}
+
+body.cbc-modern.cbc-home-modern .eventer-event-item-link {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 1rem;
+    align-items: center;
+    padding: 1rem;
+    color: inherit;
+    text-decoration: none;
+}
+
+body.cbc-modern.cbc-home-modern .eventer-event-date {
+    min-width: 86px;
+    padding: 1rem 0.85rem;
+    border-radius: 20px;
+    background: #fff;
+    text-align: center;
+}
+
+body.cbc-modern.cbc-home-modern .eventer-event-day {
+    display: block;
+    color: var(--cbc-text);
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+body.cbc-modern.cbc-home-modern .eventer-event-month,
+body.cbc-modern.cbc-home-modern .eventer-event-year,
+body.cbc-modern.cbc-home-modern .eventer-event-time,
+body.cbc-modern.cbc-home-modern .eventer-event-venue {
+    color: var(--cbc-muted);
+}
+
+body.cbc-modern.cbc-home-modern .eventer-event-image {
+    display: block;
+    width: 84px;
+    height: 84px;
+    border-radius: 18px;
+    background-position: center;
+    background-size: cover;
+}
+
+body.cbc-modern.cbc-home-modern .eventer-event-details-side {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+body.cbc-modern.cbc-home-modern .eventer-cl-details-cont {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+body.cbc-modern.cbc-home-modern .eventer-event-title {
+    font-size: 1.55rem;
+}
+
+body.cbc-modern.cbc-home-modern .eventer-icon-arrow-right {
+    color: var(--cbc-accent);
+}
+
+body.cbc-modern.cbc-home-modern .isermons-series-grid-modern .isermons-grid-layout {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+body.cbc-modern.cbc-home-modern .isermons-series-grid-item {
+    margin: 0;
+}
+
+body.cbc-modern.cbc-home-modern .isermons-media {
+    position: relative;
+    overflow: hidden;
+    border-radius: 30px;
+    background: #1e1714;
+    box-shadow: var(--cbc-shadow);
+}
+
+body.cbc-modern.cbc-home-modern .isermons-media-box {
+    display: block;
+    min-height: 360px;
+}
+
+body.cbc-modern.cbc-home-modern .isermons-term-image,
+body.cbc-modern.cbc-home-modern .isermons-default-placeholder {
+    width: 100%;
+    height: 100%;
+    min-height: 360px;
+    object-fit: cover;
+}
+
+body.cbc-modern.cbc-home-modern .isermons-default-placeholder {
+    background: linear-gradient(135deg, rgba(166, 124, 61, 0.9), rgba(42, 33, 27, 0.82));
+}
+
+body.cbc-modern.cbc-home-modern .isermons-series-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 1.75rem;
+    background: linear-gradient(180deg, rgba(24, 17, 13, 0.05) 0%, rgba(24, 17, 13, 0.78) 100%);
+}
+
+body.cbc-modern.cbc-home-modern .isermons-series-overlay h4,
+body.cbc-modern.cbc-home-modern .isermons-series-overlay .series-title {
+    color: #fff;
+    font-size: 1.7rem;
+    margin: 0;
+}
+
+body.cbc-modern.cbc-home-modern .isermons-fbtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.65rem 1rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+body.cbc-modern.cbc-home-modern .isermons-feed-link {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.88);
+    color: var(--cbc-text);
+    text-decoration: none;
+}
+
+body.cbc-modern .notice-bar,
+body.cbc-modern .event-ticket,
+body.cbc-modern .post-comment-block,
+body.cbc-modern .woocommerce div.product,
+body.cbc-modern .woocommerce ul.products li.product {
+    border-radius: 24px;
+}
+
+@media (max-width: 1200px) {
+    body.cbc-modern .cbc-footer-bottom-inner {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    body.cbc-modern .cbc-social-icons,
+    body.cbc-modern .social-icons {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 991px) {
+    body.cbc-modern .cbc-header-container {
+        grid-template-columns: auto 1fr auto;
+        min-height: 88px;
+    }
+
+    body.cbc-modern .cbc-header-desktop {
+        display: none;
+    }
+
+    body.cbc-modern .cbc-mobile-toggle {
+        display: inline-flex;
+    }
+
+    body.cbc-modern.cbc-home-modern .cbc-site-header {
+        margin-bottom: -88px;
+    }
+
+    body.cbc-modern.cbc-home-modern .page-content > .elementor > .elementor-section:first-child > .elementor-container {
+        padding-top: 8.5rem;
+    }
+}
+
+@media (max-width: 767px) {
+    body.cbc-modern .container {
+        padding-right: 18px;
+        padding-left: 18px;
+    }
+
+    body.cbc-modern .page-section {
+        padding: 42px 0 56px;
+    }
+
+    body.cbc-modern .page-header {
+        padding-top: 2.5rem;
+    }
+
+    body.cbc-modern .cbc-site-footer {
+        padding-top: 3.5rem;
+    }
+
+    body.cbc-modern.cbc-home-modern .eventer-event-item-link {
+        grid-template-columns: 1fr;
+        justify-items: flex-start;
+    }
+
+    body.cbc-modern.cbc-home-modern .eventer-event-details-side {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    body.cbc-modern.cbc-home-modern .isermons-series-grid-modern .isermons-grid-layout {
+        grid-template-columns: 1fr;
+    }
+
+    body.cbc-modern.cbc-home-modern .eventer-countdown {
+        padding: 1.5rem;
+    }
+
+    body.cbc-modern.cbc-home-modern .eventer-countdown-timer {
+        gap: 0.65rem;
+    }
+
+    body.cbc-modern.cbc-home-modern .eventer-countdown-timer > .eventer-timer-col {
+        min-width: calc(50% - 0.35rem);
+    }
+}

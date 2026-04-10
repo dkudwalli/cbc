@@ -23,10 +23,10 @@ class RegistrationTable extends WP_List_Table
     function extra_tablenav($which)
     {
         if ($which == "top") {
-            $specific_event = isset($_REQUEST["eventer"]) ? $_REQUEST["eventer"] : "";
-            $start_date = isset($_REQUEST["start_date"]) ? $_REQUEST["start_date"] : "";
-            $end_date = isset($_REQUEST["end_date"]) ? $_REQUEST["end_date"] : "";
-			$event_date = isset($_REQUEST["event_date"]) ? $_REQUEST["event_date"] : "";
+            $specific_event = isset($_REQUEST["eventer"]) ? absint($_REQUEST["eventer"]) : 0;
+            $start_date = isset($_REQUEST["start_date"]) ? sanitize_text_field(wp_unslash($_REQUEST["start_date"])) : "";
+            $end_date = isset($_REQUEST["end_date"]) ? sanitize_text_field(wp_unslash($_REQUEST["end_date"])) : "";
+			$event_date = isset($_REQUEST["event_date"]) ? sanitize_text_field(wp_unslash($_REQUEST["event_date"])) : "";
 
             ?>
             <form method="get" class="form-eventer_bookings">
@@ -52,8 +52,8 @@ class RegistrationTable extends WP_List_Table
                         wp_reset_postdata();
 
                         foreach ($all_registered_events as $key => $value) {
-                            $selected = $specific_event == $key ? "selected" : "";
-                            echo "<option " . $selected . ' value="' . $key . '">' . $value . "</option>";
+                            $selected = $specific_event === absint($key) ? "selected" : "";
+                            echo "<option " . $selected . ' value="' . absint($key) . '">' . esc_html($value) . "</option>";
                         }
                         ?>
                     </select>
@@ -66,10 +66,10 @@ class RegistrationTable extends WP_List_Table
 					<?php
 					// Include other query parameters to maintain context
 					foreach ($_GET as $key => $value) {
-						if (!in_array($key, ['eventer', 'start_date', 'end_date', 'event_date', 'filter_eventer_bookings'])) {
-							echo '<input type="hidden" name="' . esc_attr($key) . '" value="' . esc_attr($value) . '">';
-						}
-					}
+                        if (!in_array($key, ['eventer', 'start_date', 'end_date', 'event_date', 'filter_eventer_bookings'], true)) {
+                            echo '<input type="hidden" name="' . esc_attr($key) . '" value="' . esc_attr($value) . '">';
+                        }
+                    }
                     ?>
                 </div>
             </form>
@@ -128,12 +128,12 @@ class RegistrationTable extends WP_List_Table
         global $wpdb;
         $table_name = $wpdb->prefix . "eventer_registration_tickets";
         $registration_table = $wpdb->prefix . "eventer_registrations";
-        $specific_event = isset($_REQUEST["eventer"]) ? $_REQUEST["eventer"] : "";
-        $start_date = isset($_REQUEST["start_date"]) ? $_REQUEST["start_date"] : "";
-        $end_date = isset($_REQUEST["end_date"]) ? $_REQUEST["end_date"] : "";
+        $specific_event = isset($_REQUEST["eventer"]) ? absint($_REQUEST["eventer"]) : 0;
+        $start_date = isset($_REQUEST["start_date"]) ? sanitize_text_field(wp_unslash($_REQUEST["start_date"])) : "";
+        $end_date = isset($_REQUEST["end_date"]) ? sanitize_text_field(wp_unslash($_REQUEST["end_date"])) : "";
 
         $where = [];
-        if ($specific_event != "") {
+        if ($specific_event > 0) {
             $where[] = $wpdb->prepare("t.event_id = %d", $specific_event);
         }
         if (!empty($start_date)) {
@@ -171,14 +171,14 @@ class RegistrationTable extends WP_List_Table
         global $wpdb;
         $table_name = $wpdb->prefix . "eventer_registration_tickets";
         $registration_table = $wpdb->prefix . "eventer_registrations";
-        $specific_event = isset($_REQUEST["eventer"]) ? $_REQUEST["eventer"] : "";
-        $start_date = isset($_REQUEST["start_date"]) ? $_REQUEST["start_date"] : "";
-        $end_date = isset($_REQUEST["end_date"]) ? $_REQUEST["end_date"] : "";
+        $specific_event = isset($_REQUEST["eventer"]) ? absint($_REQUEST["eventer"]) : 0;
+        $start_date = isset($_REQUEST["start_date"]) ? sanitize_text_field(wp_unslash($_REQUEST["start_date"])) : "";
+        $end_date = isset($_REQUEST["end_date"]) ? sanitize_text_field(wp_unslash($_REQUEST["end_date"])) : "";
 
         $offset = ($page_number - 1) * $per_page;
 
         $where = [];
-        if ($specific_event != "") {
+        if ($specific_event > 0) {
             $where[] = $wpdb->prepare("t.event_id = %d", $specific_event);
         }
         if (!empty($start_date)) {
@@ -193,7 +193,6 @@ class RegistrationTable extends WP_List_Table
             $where_sql = 'WHERE ' . implode(' AND ', $where);
         }
 
-        $wpdb->show_errors();
         $query = "
             SELECT t.*, r.reg_date 
             FROM $table_name AS t 
@@ -298,7 +297,7 @@ class RegistrationTable extends WP_List_Table
             case 'check_in':
                 return $this->eventer_get_registrant_data($item['id'], 'check_in');
             default:
-                return print_r($item, true); // Show the whole array for troubleshooting purposes
+                return '';
         }
     }
 
@@ -313,6 +312,9 @@ class RegistrationTable extends WP_List_Table
     {
         $bookingDetails = getRegistration($bookingId);
         $tickets = getRegistrationTickets($bookingId);
+        if (empty($tickets)) {
+            return '';
+        }
 
         $return = [];
         foreach ($tickets as $ticket)
@@ -351,7 +353,7 @@ class RegistrationTable extends WP_List_Table
 
             if ($reg_details)
             {
-                $reg_details = unserialize($reg_details);
+                $reg_details = eventer_decode_array_payload($reg_details);
 
                 if (isset($reg_details[$field]))
                 {

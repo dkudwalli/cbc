@@ -21,6 +21,8 @@
 !/wp-content/themes/
 !/wp-content/themes/NativeChurch/
 !/wp-content/themes/NativeChurch/**
+!/wp-content/themes/cbc-modern/
+!/wp-content/themes/cbc-modern/**
 !/wp-content/plugins/
 !/wp-content/plugins/nativechurch-core/
 !/wp-content/plugins/nativechurch-core/**
