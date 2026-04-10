@@ -8,6 +8,7 @@ jQuery(document).ready(function() {
             url: urlajax.ajaxurl,
             data: {
                 action: 'imic_event_grid',
+                nonce: urlajax.nonce,
                 date: dateEvent,
 				term: termEvent,
             },

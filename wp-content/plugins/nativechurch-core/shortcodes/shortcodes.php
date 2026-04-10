@@ -1215,7 +1215,7 @@ function nativehcurch_event_calendar($atts)
         }
         $term_output .= '</div>';
     }
-    wp_localize_script('imic_calender_events', 'calenderEvents', array('homeurl' => get_template_directory_uri(), 'time_format' => $format, 'start_of_week' => get_option('start_of_week'), 'googlekey' => $google_api_key, 'googlecalid' => $google_calendar_id, 'googlecalid1' => $google_calendar_id1, 'googlecalid2' => $google_calendar_id2, 'calheadview' => $calendar_header_view, 'eventLimit' => $calendar_event_limit, 'today' => $calendar_today, 'month' => $calendar_month, 'week' => $calendar_week, 'day' => $calendar_day, 'view' => $view, 'google_target' => $event_google_open_link, 'sitelan' => substr(get_locale(), 0, 2)));
+    wp_localize_script('imic_calender_events', 'calenderEvents', array('ajaxurl' => admin_url('admin-ajax.php'), 'homeurl' => get_template_directory_uri(), 'time_format' => $format, 'start_of_week' => get_option('start_of_week'), 'googlekey' => $google_api_key, 'googlecalid' => $google_calendar_id, 'googlecalid1' => $google_calendar_id1, 'googlecalid2' => $google_calendar_id2, 'calheadview' => $calendar_header_view, 'eventLimit' => $calendar_event_limit, 'today' => $calendar_today, 'month' => $calendar_month, 'week' => $calendar_week, 'day' => $calendar_day, 'view' => $view, 'google_target' => $event_google_open_link, 'sitelan' => substr(get_locale(), 0, 2), 'feed_nonce' => wp_create_nonce('nativechurch-calendar-feed')));
     return $term_output . '<div class="col-md-12"><div id ="' . $category_id . '" class ="event_calendar calendar"></div></div>';
 }
 add_shortcode('event_calendar', 'nativehcurch_event_calendar');

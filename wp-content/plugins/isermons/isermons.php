@@ -103,8 +103,12 @@ function disallowed_isermons_admin_pages()
 
   function isermonsProcessAuthentication()
   {
-    $status = $_REQUEST['status'];
-    $authCode = $_REQUEST['authCode'];
+    check_ajax_referer('isermons_process_authentication', 'nonce');
+    if (!current_user_can('manage_options')) {
+      wp_die(-1, 403);
+    }
+    $status = isset($_REQUEST['status']) ? sanitize_text_field(wp_unslash($_REQUEST['status'])) : '';
+    $authCode = isset($_REQUEST['authCode']) ? sanitize_text_field(wp_unslash($_REQUEST['authCode'])) : '';
     update_option('isermons_authenticate', $status);
     update_option('isermons_auth_code', $authCode);
     wp_die();

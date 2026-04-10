@@ -23,9 +23,10 @@ if (!function_exists('load_custom_wp_admin_scripts')) {
     $remove_btn = esc_html__('Remove', 'eventer');
     $time_format = eventer_get_settings('eventer_datepicker_format');
     $eventer_id = (isset($_REQUEST['post'])) ? get_post_meta($_REQUEST['post'], 'eventer_primary_term', true) : '';
-	$plugin_data = get_plugin_data(__FILE__);
+    $plugin_data = get_plugin_data(__FILE__);
 	$plugin_version = $plugin_data['Version'];
     $shortcode_copy = esc_html__('shortcode copied to clipboard', 'eventer');
+    $admin_nonce = wp_create_nonce('eventer_admin_nonce');
     wp_enqueue_script('jquery-ui-datepicker');
     if (isset($_REQUEST['taxonomy']) == 'eventer-venue') {
       wp_enqueue_media();
@@ -46,8 +47,8 @@ if (!function_exists('load_custom_wp_admin_scripts')) {
     wp_enqueue_script('eventer_admin_gmap_autocomplete', '//maps.googleapis.com/maps/api/js?libraries=places&key=' . $google_map_api);
     wp_enqueue_script('eventer_admin_scripts', EVENTER__PLUGIN_URL . 'js/admin_scripts.js', array('jquery'), $plugin_version, true);
     wp_enqueue_script('eventer_admin_checkin', EVENTER__PLUGIN_URL . 'js/admin_checkin.js', array('jquery'), $plugin_version, true);
-    wp_localize_script('eventer_admin_checkin', 'checkin', array('ajax_url' => admin_url('admin-ajax.php')));
-    wp_localize_script('eventer_admin_scripts', 'dynamicval', array('multiplemsg' => $multiple_days_message, 'ajax_url' => admin_url('admin-ajax.php'), 'venue_nonce' => wp_create_nonce("eventer_make_event_primary_venue_nonce"), 'eventer' => $eventer_id, 'event_cat' => $category_eventer, 'woocommerce_payment' => $woocommerce_ticketing, 'registrant_remove_nonce' => wp_create_nonce("eventer_remove_registrant_nonce"), 'shortcode_copied' => $shortcode_copy, 'primary_btn' => $primary_button, 'gmap_api' => $google_map_api, 'screen_tax' => $screen_taxonomy, 'saving_btn' => $saving_btn, 'save_btn' => $save_btn, 'remove_btn' => $remove_btn, 'time_format' => $time_format, 'load_coupons' => $coupons_load, 'week_start' => get_option('start_of_week')));
+    wp_localize_script('eventer_admin_checkin', 'checkin', array('ajax_url' => admin_url('admin-ajax.php'), 'nonce' => $admin_nonce));
+    wp_localize_script('eventer_admin_scripts', 'dynamicval', array('multiplemsg' => $multiple_days_message, 'ajax_url' => admin_url('admin-ajax.php'), 'venue_nonce' => wp_create_nonce("eventer_make_event_primary_venue_nonce"), 'admin_nonce' => $admin_nonce, 'eventer' => $eventer_id, 'event_cat' => $category_eventer, 'woocommerce_payment' => $woocommerce_ticketing, 'registrant_remove_nonce' => wp_create_nonce("eventer_remove_registrant_nonce"), 'auth_nonce' => wp_create_nonce('eventer_process_authentication'), 'shortcode_copied' => $shortcode_copy, 'primary_btn' => $primary_button, 'gmap_api' => $google_map_api, 'screen_tax' => $screen_taxonomy, 'saving_btn' => $saving_btn, 'save_btn' => $save_btn, 'remove_btn' => $remove_btn, 'time_format' => $time_format, 'load_coupons' => $coupons_load, 'week_start' => get_option('start_of_week')));
     wp_enqueue_style('eventer_admin_style', EVENTER__PLUGIN_URL . 'css/admin_style.css', array(), $plugin_version, 'all');
 	// Add JS for standard bookings record page
     if (isset($_REQUEST['page']) == 'eventer_settings_options&tab=bookings') {
@@ -61,6 +62,26 @@ if (!function_exists('load_custom_wp_admin_scripts')) {
   	}
   }
   add_action('admin_enqueue_scripts', 'load_custom_wp_admin_scripts');
+}
+
+if (!function_exists('eventer_verify_admin_ajax_request')) {
+  function eventer_verify_admin_ajax_request()
+  {
+    if (!current_user_can('manage_options')) {
+      wp_die(-1, 403);
+    }
+
+    $nonce = '';
+    if (isset($_REQUEST['nonce'])) {
+      $nonce = sanitize_text_field(wp_unslash($_REQUEST['nonce']));
+    } elseif (isset($_REQUEST['_wpnonce'])) {
+      $nonce = sanitize_text_field(wp_unslash($_REQUEST['_wpnonce']));
+    }
+
+    if (!wp_verify_nonce($nonce, 'eventer_admin_nonce')) {
+      wp_die(-1, 403);
+    }
+  }
 }
 
 function eventer_store_default_form_settings()
@@ -447,12 +468,15 @@ if (!function_exists('eventer_add_form_fields_venue')) {
       function eventer_make_event_primary_venue()
       {
         $status = '';
-        if (!wp_verify_nonce($_REQUEST['nonce'], "eventer_make_event_primary_venue_nonce")) {
+        if (!current_user_can('manage_options')) {
+          wp_die(-1, 403);
+        }
+        if (!isset($_REQUEST['nonce']) || !wp_verify_nonce($_REQUEST['nonce'], "eventer_make_event_primary_venue_nonce")) {
           exit();
         }
-        $eventer_id = $_REQUEST['post_id'];
-        $term_id = $_REQUEST['term'];
-        $uncheck = $_REQUEST['uncheck'];
+        $eventer_id = isset($_REQUEST['post_id']) ? absint($_REQUEST['post_id']) : 0;
+        $term_id = isset($_REQUEST['term']) ? sanitize_text_field(wp_unslash($_REQUEST['term'])) : '';
+        $uncheck = isset($_REQUEST['uncheck']) ? sanitize_text_field(wp_unslash($_REQUEST['uncheck'])) : '';
         $terms = explode("-", $term_id);
 
         if (defined('DOING_AJAX') && DOING_AJAX) {
@@ -482,18 +506,21 @@ if (!function_exists('eventer_add_form_fields_venue')) {
       function eventer_update_registrant_status()
       {
         $nonce = (isset($_REQUEST['nonce'])) ? $_REQUEST['nonce'] : '';
+        if (!current_user_can('manage_options')) {
+          wp_die(-1, 403);
+        }
         if (!wp_verify_nonce($nonce, 'eventer_update_registrant_status')) {
           wp_die();
         }
-        $registrant_id = (isset($_REQUEST['id'])) ? $_REQUEST['id'] : '';
+        $registrant_id = (isset($_REQUEST['id'])) ? absint($_REQUEST['id']) : 0;
         $registrants = eventer_get_registrant_details('id', $registrant_id);
-        $status = (isset($_REQUEST['status'])) ? $_REQUEST['status'] : 'woo';
+        $status = (isset($_REQUEST['status'])) ? sanitize_text_field(wp_unslash($_REQUEST['status'])) : 'woo';
         if ($status == "woo") {
           echo apply_filters('eventer_status_changed_completed', $registrants, 'admin');
           wp_die();
         }
 
-        $user_system = unserialize($registrants->user_system);
+        $user_system = eventer_decode_array_payload($registrants->user_system);
         $user_system['email_post'] = "1";
 
         eventer_update_registrant_details(array('status' => $status), $registrant_id, array("%s", "%s"));
@@ -501,7 +528,7 @@ if (!function_exists('eventer_add_form_fields_venue')) {
           $new_user_system_restore = (isset($user_system['restore'])) ? $user_system['restore'] : '';
           //if ($new_user_system_restore == 1) {
           $tickets = $registrants->tickets;
-          $tickets = unserialize($tickets);
+          $tickets = eventer_decode_array_payload($tickets);
           $time_slot = (isset($user_system['time_slot']) && $user_system['time_slot'] != '') ? $user_system['time_slot'] : '00:00:00';
           $ticket_date = $registrants->eventer_date . ' ' . $time_slot;
           if (!empty($tickets)) {
@@ -529,7 +556,7 @@ if (!function_exists('eventer_add_form_fields_venue')) {
         } else {
 
           $tickets = $registrants->tickets;
-          $tickets = unserialize($tickets);
+          $tickets = eventer_decode_array_payload($tickets);
           $restore_status = (isset($user_system['restore'])) ? $user_system['restore'] : '';
           $time_slot = (isset($user_system['time_slot']) && $user_system['time_slot'] != '') ? $user_system['time_slot'] : '00:00:00';
           $ticket_date = $registrants->eventer_date . ' ' . $time_slot;
@@ -567,10 +594,13 @@ if (!function_exists('eventer_add_form_fields_venue')) {
       function eventer_send_tickets_again()
       {
         $nonce = (isset($_REQUEST['nonce'])) ? $_REQUEST['nonce'] : '';
+        if (!current_user_can('manage_options')) {
+          wp_die(-1, 403);
+        }
         if (!wp_verify_nonce($nonce, 'eventer_send_tickets_again')) {
           wp_die();
         }
-        $registrant_id = (isset($_REQUEST['id'])) ? $_REQUEST['id'] : '';
+        $registrant_id = (isset($_REQUEST['id'])) ? absint($_REQUEST['id']) : 0;
         $registrants = eventer_get_registrant_details('id', $registrant_id);
         echo apply_filters('eventer_status_changed_completed', $registrants, 'admin');
         wp_die();
@@ -587,20 +617,23 @@ if (!function_exists('eventer_add_form_fields_venue')) {
 	*/
       function eventer_remove_registrant()
       {
-        if (!wp_verify_nonce($_REQUEST['nonce'], "eventer_remove_registrant_nonce")) {
+        if (!current_user_can('manage_options')) {
+          wp_die(-1, 403);
+        }
+        if (!isset($_REQUEST['nonce']) || !wp_verify_nonce($_REQUEST['nonce'], "eventer_remove_registrant_nonce")) {
           exit();
         }
-        $reg_id = $_REQUEST['reg_id'];
-        $reg_email = $_REQUEST['reg_email'];
+        $reg_id = isset($_REQUEST['reg_id']) ? absint($_REQUEST['reg_id']) : 0;
+        $reg_email = isset($_REQUEST['reg_email']) ? sanitize_email(wp_unslash($_REQUEST['reg_email'])) : '';
         $new_already_booked = array();
         if ($reg_id != '' && $reg_email != '') {
           global $wpdb;
           $table_name = $wpdb->prefix . "eventer_registrant";
-          $reg_details = $wpdb->get_row("SELECT * FROM $table_name WHERE id = $reg_id");
+          $reg_details = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table_name WHERE id = %d", $reg_id));
           if ($reg_details) {
-            $user_system = unserialize($reg_details->user_system);
+            $user_system = maybe_unserialize($reg_details->user_system);
             $tickets = $reg_details->tickets;
-            $tickets = unserialize($tickets);
+            $tickets = maybe_unserialize($tickets);
             $restore_status = (isset($user_system['restore'])) ? $user_system['restore'] : '';
             $time_slot = (isset($user_system['time_slot']) && $user_system['time_slot'] != '') ? $user_system['time_slot'] : '00:00:00';
             $ticket_date = $reg_details->eventer_date . ' ' . $time_slot;
@@ -637,22 +670,28 @@ if (!function_exists('eventer_add_form_fields_venue')) {
       add_action('wp_ajax_eventer_export_bookings_csv', 'eventer_export_bookings_csv');
       function eventer_export_bookings_csv()
       {
+        eventer_verify_admin_ajax_request();
         global $wpdb;
-        $booking_status = (isset($_REQUEST['status'])) ? $_REQUEST['status'] : '';
-        $specific_event = (isset($_REQUEST['eventer'])) ? $_REQUEST['eventer'] : '';
+        $booking_status = (isset($_REQUEST['status'])) ? sanitize_text_field(wp_unslash($_REQUEST['status'])) : '';
+        $specific_event = (isset($_REQUEST['eventer'])) ? absint($_REQUEST['eventer']) : 0;
         $where = "";
+        $query_args = array();
         if ($booking_status != '' && $specific_event != '') {
-          $where = "WHERE status = '$booking_status' AND eventer = $specific_event";
+          $where = "WHERE status = %s AND eventer = %d";
+          $query_args = array($booking_status, $specific_event);
         } elseif ($booking_status != '' && $specific_event == '') {
-          $where = "WHERE status = '$booking_status'";
+          $where = "WHERE status = %s";
+          $query_args = array($booking_status);
         } elseif ($booking_status == '' && $specific_event != '') {
-          $where = "WHERE eventer = '$specific_event'";
+          $where = "WHERE eventer = %d";
+          $query_args = array($specific_event);
         }
         $wpdb->show_errors();
         $table_name = $wpdb->prefix . "eventer_registrant";
         $file = 'eventer_booking_csv';
-        $export_query = $wpdb->get_results("SELECT * FROM $table_name $where", ARRAY_A);
-        if (!$export_query) {
+        $sql = "SELECT * FROM $table_name $where";
+        $export_query = empty($query_args) ? $wpdb->get_results($sql, ARRAY_A) : $wpdb->get_results($wpdb->prepare($sql, $query_args), ARRAY_A);
+        if (!empty($wpdb->last_error)) {
           $Error = $wpdb->print_error();
           die("The following error was found: $Error");
         } else {
@@ -686,8 +725,11 @@ if (!function_exists('eventer_add_form_fields_venue')) {
           foreach ($export_query as $Result) {
             $sb = array();
             foreach ($Result as $key => $value) {
-              $new_data = @unserialize($value);
-              $show_data = ($new_data !== false) ? unserialize($value) : $value;
+              $show_data = $value;
+              if (in_array($key, array('user_details', 'user_system', 'tickets', 'paypal_details'), true)) {
+                $decoded_value = eventer_decode_array_payload($value);
+                $show_data = !empty($decoded_value) ? $decoded_value : $value;
+              }
               if (is_array($show_data) && $key == 'user_details') {
                 $user_details = '';
                 foreach ($show_data as $data) {
@@ -784,9 +826,10 @@ if (!function_exists('eventer_add_form_fields_venue')) {
 	*/
       function eventer_get_booked_tickets()
       {
-        $eventer_id = ($_REQUEST['eventer_id']) ? $_REQUEST['eventer_id'] : '';
-        $booked_date = ($_REQUEST['booked_date']) ? $_REQUEST['booked_date'] : '';
-        $booked_time = (isset($_REQUEST['booked_time']) && $_REQUEST['booked_time']) ? $_REQUEST['booked_time'] : '';
+        eventer_verify_admin_ajax_request();
+        $eventer_id = isset($_REQUEST['eventer_id']) ? absint($_REQUEST['eventer_id']) : 0;
+        $booked_date = (isset($_REQUEST['booked_date']) && $_REQUEST['booked_date']) ? sanitize_text_field(wp_unslash($_REQUEST['booked_date'])) : '';
+        $booked_time = (isset($_REQUEST['booked_time']) && $_REQUEST['booked_time']) ? sanitize_text_field(wp_unslash($_REQUEST['booked_time'])) : '';
         $original_event = eventer_wpml_original_post_id($eventer_id);
         $default_featured = get_post_meta($original_event, 'eventer_event_featured', true);
         $tickets = get_post_meta($original_event, 'eventer_tickets', true);
@@ -796,7 +839,7 @@ if (!function_exists('eventer_add_form_fields_venue')) {
         $featured_events = (!empty($featured_events)) ? $featured_events : array();
         $saved_data = (isset($featured_events[$booked_date])) ? $featured_events[$booked_date] : array();
         $saved_data = array_unique($saved_data);
-        if ($updated_tickets_new[0]['featured'] == 1) {
+        if (!empty($updated_tickets_new) && isset($updated_tickets_new[0]['featured']) && $updated_tickets_new[0]['featured'] == 1) {
           $saved_data[] = $eventer_id;
         } else {
           $saved_data = array_diff($saved_data, (is_array($eventer_id) ? $eventer_id : array($eventer_id)));
@@ -837,7 +880,15 @@ if (!function_exists('eventer_add_form_fields_venue')) {
       $ticket_type = ($woo_payment == 'on') ? 'woo-ticket' : 'ticket';
       global $wpdb;
       $table_name_tickets = $wpdb->prefix . "eventer_tickets";
-      $saved_ticket = $wpdb->get_results("SELECT * FROM $table_name_tickets WHERE event = $original_event AND date = '$booked_date' AND type = '$ticket_type'", ARRAY_A);
+      $saved_ticket = $wpdb->get_results(
+        $wpdb->prepare(
+          "SELECT * FROM $table_name_tickets WHERE event = %d AND date = %s AND type = %s",
+          absint($original_event),
+          $booked_date,
+          $ticket_type
+        ),
+        ARRAY_A
+      );
       $saved_ticket = (!empty($tickets) && $insert == 2) ? array() : $saved_ticket;
       if (empty($saved_ticket) && $insert <= 2 && $tickets_created) {
         foreach ($tickets_created as $ticket_new) {
@@ -858,23 +909,55 @@ if (!function_exists('eventer_add_form_fields_venue')) {
           $ticket_featured = (isset($ticket_new['featured'])) ? $ticket_new['featured'] : '';
           $ticket_badge = (isset($ticket_new['badge'])) ? $ticket_new['badge'] : '';
           $ticket_enabled = (isset($ticket_new['enabled'])) ? $ticket_new['enabled'] : '';
-          $escaped_title = esc_sql($ticket_name);
-          $saved_ticket_verify = $wpdb->get_results("SELECT * FROM $table_name_tickets WHERE event = $original_event AND date = '$booked_date' AND type = '$ticket_type' AND dynamic = '$dynamic_ids' AND name = '$escaped_title'", ARRAY_A);
+          $saved_ticket_verify = $wpdb->get_results(
+            $wpdb->prepare(
+              "SELECT * FROM $table_name_tickets WHERE event = %d AND date = %s AND type = %s AND dynamic = %d AND name = %s",
+              absint($original_event),
+              $booked_date,
+              $ticket_type,
+              absint($dynamic_ids),
+              stripslashes($ticket_name)
+            ),
+            ARRAY_A
+          );
           if (empty($saved_ticket_verify)) {
             $wpdb->query($wpdb->prepare("INSERT INTO $table_name_tickets ( dynamic, pid, event, name, date, type, tickets, price, restricts, featured, label, enabled, `cust_val1` ) VALUES ( %d, %d, %d, %s, %s, %s, %s, %f, %s, %s, %s, %s, %s ) ", $dynamic_ids, $ticket_pid, $original_event, stripslashes($ticket_name), $booked_date, $ticket_type, $ticket_number, $ticket_price, $ticket_restrict, $ticket_featured, $ticket_badge, $ticket_enabled, json_encode([$locale => stripslashes($ticket_name)])));
           }
         }
       } else if ($insert == 2) {
-        $saved_ticket = $wpdb->get_results("SELECT * FROM $table_name_tickets WHERE event = $original_event AND date = '$booked_date' AND type = '$ticket_type' ORDER BY ticket_id ASC", ARRAY_A);
+        $saved_ticket = $wpdb->get_results(
+          $wpdb->prepare(
+            "SELECT * FROM $table_name_tickets WHERE event = %d AND date = %s AND type = %s ORDER BY ticket_id ASC",
+            absint($original_event),
+            $booked_date,
+            $ticket_type
+          ),
+          ARRAY_A
+        );
         return $saved_ticket;
       } else if (!empty($tickets)) {
         foreach ($tickets as $save_ticket) {
           $dynamic_ids = (isset($save_ticket['id']) && $save_ticket['id'] != '') ? $save_ticket['id'] : '';
           $validate_ticket_name = (isset($save_ticket['name'])) ? $save_ticket['name'] : '';
           if ($dynamic_ids != '') {
-            $saved_ticket = $wpdb->get_row("SELECT * FROM $table_name_tickets WHERE event = $original_event AND date = '$booked_date' AND dynamic = $dynamic_ids AND type = '$ticket_type'");
+            $saved_ticket = $wpdb->get_row(
+              $wpdb->prepare(
+                "SELECT * FROM $table_name_tickets WHERE event = %d AND date = %s AND dynamic = %d AND type = %s",
+                absint($original_event),
+                $booked_date,
+                absint($dynamic_ids),
+                $ticket_type
+              )
+            );
           } else {
-            $saved_ticket = $wpdb->get_row("SELECT * FROM $table_name_tickets WHERE event = $original_event AND date = '$booked_date' AND type = '$ticket_type'");
+            $saved_ticket = $wpdb->get_row(
+              $wpdb->prepare(
+                "SELECT * FROM $table_name_tickets WHERE event = %d AND date = %s AND type = %s",
+                absint($original_event),
+                $booked_date,
+                $ticket_type
+              )
+            );
           }
 
           if ($saved_ticket) {
@@ -919,16 +1002,17 @@ if (!function_exists('eventer_add_form_fields_venue')) {
 	*/
       function eventer_update_booked_tickets()
       {
-        $eventer_id = (isset($_REQUEST['eventer_id'])) ? $_REQUEST['eventer_id'] : '';
-        $booked_date = (isset($_REQUEST['booked_date'])) ? $_REQUEST['booked_date'] : '';
-        $eventer_position = (isset($_REQUEST['position'])) ? $_REQUEST['position'] : '';
+        eventer_verify_admin_ajax_request();
+        $eventer_id = (isset($_REQUEST['eventer_id'])) ? absint($_REQUEST['eventer_id']) : 0;
+        $booked_date = (isset($_REQUEST['booked_date'])) ? sanitize_text_field(wp_unslash($_REQUEST['booked_date'])) : '';
+        $eventer_position = (isset($_REQUEST['position'])) ? sanitize_text_field(wp_unslash($_REQUEST['position'])) : '';
         if ($eventer_position == 'reset') {
           global $wpdb;
           $table_name_tickets = $wpdb->prefix . "eventer_tickets";
-          $wpdb->delete($table_name_tickets, array('event' => $eventer_id));
+          $wpdb->delete($table_name_tickets, array('event' => $eventer_id), array('%d'));
           wp_die();
         }
-        $time_slot = (isset($_REQUEST['time']) && $_REQUEST['time'] != 'undefined' && $_REQUEST['time'] != '') ? $_REQUEST['time'] : '00:00:00';
+        $time_slot = (isset($_REQUEST['time']) && $_REQUEST['time'] != 'undefined' && $_REQUEST['time'] != '') ? sanitize_text_field(wp_unslash($_REQUEST['time'])) : '00:00:00';
         $booked_date = $booked_date . ' ' . $time_slot;
         $original_event = eventer_wpml_original_post_id($eventer_id);
         $tickets_new = (isset($_REQUEST['updated_detail'])) ? $_REQUEST['updated_detail'] : '';
@@ -962,8 +1046,9 @@ if (!function_exists('eventer_add_form_fields_venue')) {
 
     function eventer_get_term_details()
     {
-      $term_id = (isset($_REQUEST['term_id'])) ? $_REQUEST['term_id'] : '';
-      $taxonomy = (isset($_REQUEST['taxonomy'])) ? $_REQUEST['taxonomy'] : '';
+      eventer_verify_admin_ajax_request();
+      $term_id = (isset($_REQUEST['term_id'])) ? absint($_REQUEST['term_id']) : 0;
+      $taxonomy = (isset($_REQUEST['taxonomy'])) ? sanitize_text_field(wp_unslash($_REQUEST['taxonomy'])) : '';
       if ($taxonomy == 'list:eventer-venue') {
         $location = get_term_meta($term_id, 'venue_address', true);
         echo '<div id="misc-publishing-actions" class="eventer-admin-term-metas-show"><div class="">' . esc_html__('Location', 'eventer') . ': <span id="post-status-display">' . esc_attr($location) . '</span></div>';
@@ -1004,22 +1089,43 @@ if (!function_exists('eventer_add_form_fields_venue')) {
     add_action('wp_ajax_eventer_export_registrants', 'eventer_export_registrants');
     function eventer_export_registrants()
     {
+      eventer_verify_admin_ajax_request();
       global $wpdb;
-      $booking_date = (isset($_REQUEST['date'])) ? $_REQUEST['date'] : '';
-      $booking_status = (isset($_REQUEST['status'])) ? $_REQUEST['status'] : '';
-      $specific_event = (isset($_REQUEST['eventer'])) ? $_REQUEST['eventer'] : '';
-      $event_all = (isset($_REQUEST['eventer_all'])) ? $_REQUEST['eventer_all'] : '';
+      $booking_date = (isset($_REQUEST['date'])) ? sanitize_text_field(wp_unslash($_REQUEST['date'])) : '';
+      $booking_status = (isset($_REQUEST['status'])) ? sanitize_text_field(wp_unslash($_REQUEST['status'])) : '';
+      $specific_event = (isset($_REQUEST['eventer'])) ? absint($_REQUEST['eventer']) : 0;
+      $event_all = (isset($_REQUEST['eventer_all'])) ? sanitize_text_field(wp_unslash($_REQUEST['eventer_all'])) : '';
       $woocommerce_events = eventer_get_settings('eventer_enable_woocommerce_ticketing');
       $where = '';
-      if ($woocommerce_events != 'on' && $event_all == '' && $specific_event != '') {
-        $where = "WHERE eventer = '$specific_event' AND eventer_date = '$booking_date'";
+      $query_args = array();
+      if ($woocommerce_events != 'on') {
+        $where_clauses = array();
+        if ($specific_event) {
+          $where_clauses[] = 'eventer = %d';
+          $query_args[] = $specific_event;
+        }
+        if ($booking_date != '') {
+          $where_clauses[] = 'eventer_date = %s';
+          $query_args[] = $booking_date;
+        }
+        if ($booking_status != '') {
+          $where_clauses[] = 'status = %s';
+          $query_args[] = $booking_status;
+        }
+        if (!empty($where_clauses)) {
+          $where = 'WHERE ' . implode(' AND ', $where_clauses);
+        }
+      } elseif ($booking_status != '') {
+        $where = 'WHERE status = %s';
+        $query_args[] = $booking_status;
       }
 
       $wpdb->show_errors();
       $table_name = $wpdb->prefix . "eventer_registrant";
       $file = 'eventer-registrant-csv';
-      $export_query = $wpdb->get_results("SELECT * FROM $table_name $where", ARRAY_A);
-      if (!$export_query) {
+      $sql = "SELECT * FROM $table_name $where";
+      $export_query = empty($query_args) ? $wpdb->get_results($sql, ARRAY_A) : $wpdb->get_results($wpdb->prepare($sql, $query_args), ARRAY_A);
+      if (!empty($wpdb->last_error)) {
         $Error = $wpdb->print_error();
         die("The following error was found: $Error");
       } else {
@@ -1039,16 +1145,9 @@ if (!function_exists('eventer_add_form_fields_venue')) {
         if ($woocommerce_events != 'on') {
           $csv_fields[] = 'Event Title';
           foreach ($export_query as $Result) {
-            if ($booking_status != '') {
-              if ($booking_status != $Result['status']) continue;
-            }
-            if ($specific_event != '') {
-              if ($specific_event != $Result['eventer']) continue;
-            }
             $user_info = $Result['user_details'];
-            $user_data = unserialize($user_info);
-            $user_system = $Result['user_system'];
-            $user_system = unserialize($user_system);
+            $user_data = eventer_decode_array_payload($user_info);
+            $user_system = eventer_decode_array_payload($Result['user_system']);
             $registrants = (isset($user_system['registrants'])) ? $user_system['registrants'] : array();
             $time_slot = (isset($user_system['slot_title'])) ? $user_system['slot_title'] : '';
             $services = isset($user_system['services']) && $user_system['services'] ? $user_system['services'] : [];
@@ -1061,7 +1160,7 @@ if (!function_exists('eventer_add_form_fields_venue')) {
               }
             }
             $tickets_booked = $Result['tickets'];
-            $tickets_booked = unserialize($tickets_booked);
+            $tickets_booked = eventer_decode_array_payload($tickets_booked);
             $new_booked = [];
             if ($tickets_booked) {
               foreach ($tickets_booked as $tbook) {
@@ -1072,6 +1171,9 @@ if (!function_exists('eventer_add_form_fields_venue')) {
             }
             $tickets_booked = $new_booked;
             $data_set = array();
+            $key = '';
+            $name = '';
+            $email = '';
 
             $ticket_showing = '';
             if (!empty($registrants)) {
@@ -1139,15 +1241,11 @@ if (!function_exists('eventer_add_form_fields_venue')) {
           $csv_fields[] = 'Registrants';
           fputcsv($output_handle, $csv_fields);
           foreach ($export_query as $Result) {
-            if ($booking_status != '') {
-              if ($booking_status != $Result['status']) continue;
-            }
             //if(get_post_type($Result['eventer'])=='eventer') continue;
             $woo_order = $Result['eventer'];
             $order = wc_get_order($woo_order);
             if (!$order) continue;
-            $user_system = $Result['user_system'];
-            $user_system = unserialize($user_system);
+            $user_system = eventer_decode_array_payload($Result['user_system']);
             $registrants = (isset($user_system['tickets'])) ? $user_system['tickets'] : array();
 
 
@@ -1208,12 +1306,16 @@ if (!function_exists('eventer_add_form_fields_venue')) {
 
     function eventer_checkin_process_ticket()
     {
-      $event_id = (isset($_REQUEST['event'])) ? $_REQUEST['event'] : '';
+      eventer_verify_admin_ajax_request();
+      $event_id = (isset($_REQUEST['event'])) ? absint($_REQUEST['event']) : 0;
       $msg = $name = $email = $ticket_info = '';
-      $event_date = (isset($_REQUEST['date'])) ? $_REQUEST['date'] : '';
-      $ticket_id = (isset($_REQUEST['ticket'])) ? $_REQUEST['ticket'] : '';
+      $event_date = (isset($_REQUEST['date'])) ? sanitize_text_field(wp_unslash($_REQUEST['date'])) : '';
+      $ticket_id = (isset($_REQUEST['ticket'])) ? absint($_REQUEST['ticket']) : 0;
       $woocommerce_events = eventer_get_settings('eventer_enable_woocommerce_ticketing');
       $registrants = eventer_get_registrant_details('id', $ticket_id);
+      if (!$registrants) {
+        wp_send_json(array('msg' => esc_html__('It seems like the ticket is not matching with the selected event details.', 'eventer'), 'ticket' => ''));
+      }
       $name = $registrants->username;
       $email = $registrants->email;
       if ($woocommerce_events == 'on') {
@@ -1234,7 +1336,7 @@ if (!function_exists('eventer_add_form_fields_venue')) {
         }
       } else {
         if ($event_id == $registrants->eventer && $event_date == $registrants->eventer_date) {
-          $user_system = unserialize($registrants->user_system);
+          $user_system = eventer_decode_array_payload($registrants->user_system);
           if (isset($user_system['checkin']) && $user_system['checkin'] == '1') {
             $msg = esc_html__('This ticket was already checked-in','eventer');
           } else {
@@ -1279,18 +1381,20 @@ if (!function_exists('eventer_add_form_fields_venue')) {
 
     function eventer_coupon_refresh()
     {
+      eventer_verify_admin_ajax_request();
       $coupons = (isset($_REQUEST['coupons'])) ? $_REQUEST['coupons'] : array();
+      $eventer_coupon_table = '';
       if ($coupons) {
         global $wpdb;
         $eventer_coupon_table = $wpdb->prefix . "eventer_coupons";
         foreach ($coupons as $coupon) {
-          $coupon_id = (isset($coupon['id'])) ? $coupon['id'] : '';
-          $coupon_title = (isset($coupon['title'])) ? $coupon['title'] : '';
-          $coupon_code = (isset($coupon['code'])) ? $coupon['code'] : '';
-          $coupon_amount = (isset($coupon['amount'])) ? $coupon['amount'] : '';
-          $coupon_validity = (isset($coupon['validity'])) ? $coupon['validity'] : '';
-          $coupon_status = (isset($coupon['status'])) ? $coupon['status'] : '';
-          $coupon_remove = (isset($coupon['remove'])) ? $coupon['remove'] : '';
+          $coupon_id = (isset($coupon['id'])) ? absint($coupon['id']) : 0;
+          $coupon_title = (isset($coupon['title'])) ? sanitize_text_field(wp_unslash($coupon['title'])) : '';
+          $coupon_code = (isset($coupon['code'])) ? sanitize_text_field(wp_unslash($coupon['code'])) : '';
+          $coupon_amount = (isset($coupon['amount'])) ? sanitize_text_field(wp_unslash($coupon['amount'])) : '';
+          $coupon_validity = (isset($coupon['validity'])) ? sanitize_text_field(wp_unslash($coupon['validity'])) : '';
+          $coupon_status = (isset($coupon['status'])) ? absint($coupon['status']) : 0;
+          $coupon_remove = (isset($coupon['remove'])) ? absint($coupon['remove']) : 0;
           if ($coupon_id == '' && $coupon_title != '' && $coupon_amount != '') {
             $wpdb->query($wpdb->prepare("INSERT INTO $eventer_coupon_table ( coupon_name, coupon_code, discounted, valid_till, coupon_status) VALUES ( %s, %s, %s, %s, %d) ", $coupon_title, $coupon_code, $coupon_amount, $coupon_validity, $coupon_status));
           } elseif ($coupon_remove == 1 && $coupon_id != '') {
@@ -1299,8 +1403,11 @@ if (!function_exists('eventer_add_form_fields_venue')) {
             $wpdb->update($eventer_coupon_table, array('coupon_name' => $coupon_title, 'coupon_code' => $coupon_code, 'discounted' => $coupon_amount, 'valid_till' => $coupon_validity, 'coupon_status' => $coupon_status), array('id' => $coupon_id), array('%s', '%s', '%s', '%s', '%d'), array('%d'));
           }
         }
+      } else {
+        global $wpdb;
+        $eventer_coupon_table = $wpdb->prefix . "eventer_coupons";
       }
-      echo json_encode($wpdb->get_results("SELECT * FROM $eventer_coupon_table"));
+      echo wp_json_encode($wpdb->get_results("SELECT * FROM $eventer_coupon_table"));
       wp_die();
     }
     add_action('wp_ajax_eventer_coupon_refresh', 'eventer_coupon_refresh');
@@ -1317,9 +1424,11 @@ if (!function_exists('eventer_add_form_fields_venue')) {
 
     function eventer_delete_bookings()
     {
-      $bookings = $_REQUEST['bookings'];
+      eventer_verify_admin_ajax_request();
+      $bookings = isset($_REQUEST['bookings']) ? (array) $_REQUEST['bookings'] : array();
       global $wpdb;
       $table_name = $wpdb->prefix . "eventer_registrant";
+      $bookings = array_filter(array_map('absint', $bookings));
       if ($bookings) {
         foreach ($bookings as $id) {
           $wpdb->delete($table_name, array('id' => $id), array('%d'));
@@ -1336,15 +1445,23 @@ if (!function_exists('eventer_add_form_fields_venue')) {
       $prev_date = date_i18n('Y-m-d H:i:s', strtotime('-1 hour', strtotime(date_i18n('Y-m-d H:i:s'))));
       $next_date = date_i18n('Y-m-d H:i:s', strtotime('-1 day', strtotime(date_i18n('Y-m-d H:i:s'))));
       $registration_table = $wpdb->prefix . "eventer_registrant";
-      $saved_ticket = $wpdb->get_results("SELECT * FROM $registration_table WHERE `status` = 'Pending' AND `ctime` <= '$prev_date' AND `ctime` >= '$next_date'", ARRAY_A);
+      $saved_ticket = $wpdb->get_results(
+        $wpdb->prepare(
+          "SELECT * FROM $registration_table WHERE status = %s AND ctime <= %s AND ctime >= %s",
+          'Pending',
+          $prev_date,
+          $next_date
+        ),
+        ARRAY_A
+      );
       if ($saved_ticket) {
 
         foreach ($saved_ticket as $reg) {
           $event = $reg['eventer'];
-          $tickets = unserialize($reg['tickets']);
+          $tickets = eventer_decode_array_payload($reg['tickets']);
           if ($tickets) {
             $new_tickets = [];
-            $user_details = unserialize($reg['user_details']);
+            $user_details = eventer_decode_array_payload($reg['user_details']);
             $time_slot = (isset($user_details['time_slot'])) ? $user_details['time_slot'] : '00:00:00';
             $event_date_booked = $reg['eventer_date'];
             foreach ($tickets as $ticket) {
@@ -1355,7 +1472,13 @@ if (!function_exists('eventer_add_form_fields_venue')) {
               $name = $ticket['name'];
               $dynamic = $ticket['id'];
               $table_name_tickets = $wpdb->prefix . "eventer_tickets";
-              $get_tickets = $wpdb->get_row("SELECT `tickets` from $table_name_tickets WHERE `name` = '$name' AND `dynamic` = $dynamic");
+              $get_tickets = $wpdb->get_row(
+                $wpdb->prepare(
+                  "SELECT tickets FROM $table_name_tickets WHERE name = %s AND dynamic = %d",
+                  $name,
+                  absint($dynamic)
+                )
+              );
               $total_tickets = $get_tickets->tickets + $ticket['number'];
               $wpdb->update($table_name_tickets, array('tickets' => $total_tickets), ['date' => $event_date_booked . ' ' . $time_slot, 'dynamic' => $dynamic], array('%s'), array('%s', '%d'));
             }
@@ -1392,7 +1515,13 @@ if (!function_exists('eventer_add_form_fields_venue')) {
 		global $wpdb;
 		$tableName = $wpdb->prefix . "eventer_default_ticket_meta";
 		if (!empty($regId)) {
-			$meta = $wpdb->get_row("SELECT * FROM $tableName WHERE reg_id = $regId AND meta = '$metaKey'");
+			$meta = $wpdb->get_row(
+        $wpdb->prepare(
+          "SELECT * FROM $tableName WHERE reg_id = %d AND meta = %s",
+          absint($regId),
+          sanitize_key($metaKey)
+        )
+      );
 			if (!empty($meta)) {
 				return $meta->value;
 			}

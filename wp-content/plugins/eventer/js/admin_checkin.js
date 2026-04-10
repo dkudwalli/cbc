@@ -19,6 +19,7 @@ jQuery(function ($) {
         event: event_id,
         date: event_date,
         ticket: ticket_id,
+        nonce: checkin.nonce,
       },
       beforeSend: function (xhr) {
         $('#postbox-container-2').find('.main').text('Loading...');

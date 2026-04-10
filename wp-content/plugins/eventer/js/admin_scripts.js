@@ -24,7 +24,7 @@ jQuery(document).on('submit', '.' + pgVa, function (e) {
         jQuery.ajax({
           type: 'GET',
           url: ajaxurl,
-          data: { status: data.status, action: 'eventerProcessAuthentication', authCode: purchaseCode },
+          data: { status: data.status, action: 'eventerProcessAuthentication', authCode: purchaseCode, nonce: dynamicval.auth_nonce },
           success: function (response) {
             jQuery('.imi_eventer_vals').show();
             jQuery('.imi_eventer_val').hide();
@@ -64,7 +64,7 @@ jQuery(document).on('submit', '.' + pgVa+'s', function (e) {
         jQuery.ajax({
           type: 'GET',
           url: ajaxurl,
-          data: { status: 0, action: 'eventerProcessAuthentication', authCode: 0, remove: 1 },
+          data: { status: 0, action: 'eventerProcessAuthentication', authCode: 0, remove: 1, nonce: dynamicval.auth_nonce },
           success: function (response) {
             jQuery('.imi_eventer_vals').hide();
             jQuery('.imi_eventer_val').show();
@@ -595,6 +595,7 @@ jQuery(document).on('submit', '.' + pgVa+'s', function (e) {
           data: {
             action: 'eventer_delete_bookings',
             bookings: bookings,
+            nonce: dynamicval.admin_nonce,
           },
           beforeSend: function (xhr) {
             //element.attr("disabled", true);
@@ -1010,6 +1011,7 @@ jQuery(document).on('submit', '.' + pgVa+'s', function (e) {
         eventer_id: eventer_id,
         booked_date: selected_date,
         booked_time: selected_time,
+        nonce: dynamicval.admin_nonce,
       },
       beforeSend: function (xhr) {
         selected_element.closest('.eventer-booked-tickets-record').find('.eventer-loading').show();
@@ -1134,6 +1136,7 @@ jQuery(document).on('submit', '.' + pgVa+'s', function (e) {
         updated_detail: Tickets,
         featured: featured,
         position: position,
+        nonce: dynamicval.admin_nonce,
       },
       beforeSend: function (xhr) {
         btn_element.text(dynamicval.saving_btn + '...');
@@ -1178,6 +1181,7 @@ jQuery(document).on('submit', '.' + pgVa+'s', function (e) {
           action: 'eventer_get_term_details',
           term_id: term_id,
           taxonomy: taxonomy,
+          nonce: dynamicval.admin_nonce,
         },
       });
       request.done(function (response, textStatus, jqXHR) {
@@ -1274,6 +1278,7 @@ jQuery(document).on('submit', '.' + pgVa+'s', function (e) {
       data: {
         action: 'eventer_coupon_refresh',
         coupons: coupons,
+        nonce: dynamicval.admin_nonce,
       },
       beforeSend: function (xhr) {
         $('.eventer-coupon-loading').show();

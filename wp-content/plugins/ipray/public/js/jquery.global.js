@@ -118,10 +118,15 @@ iPrayed: function(obj){
 	   /*disable for continue click */
 	   obj.addClass('locked');
 	   $thisInst = this;
+	   var ajaxUrl = (typeof iprayAjax !== 'undefined' && iprayAjax.ajaxurl) ? iprayAjax.ajaxurl : $thisInst.search.action;
+	   var ajaxNonce = $Jq('#ipray-notifications').data('nonce');
+	   if (!ajaxNonce && typeof iprayAjax !== 'undefined') {
+		   ajaxNonce = iprayAjax.nonce;
+	   }
         $Jq.ajax({
             type: "POST",
-            url: $thisInst.search.action,
-            data: {prayer_id:obj.data('id'),requesturi:$Jq('#ipray-notifications').data('requesturi'),action:'iprayed'},
+            url: ajaxUrl,
+            data: {prayer_id:obj.data('id'),requesturi:$Jq('#ipray-notifications').data('requesturi'),nonce:ajaxNonce,action:'iprayed'},
             dataType: 'json',
             success: function(data, textStatus){
                 if(data.prayer_count)

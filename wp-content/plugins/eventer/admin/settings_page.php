@@ -3554,23 +3554,39 @@ if (!class_exists('Eventer_Settings_Options')) {
               <div class="inside">
                 <?php global $wpdb;
 				$table_name = $wpdb->prefix . "eventer_registrant";
-				$booking_status = (isset($_REQUEST['booking_status'])) ? $_REQUEST['booking_status'] : '';
-				$specific_event = (isset($_REQUEST['eventer_id'])) ? $_REQUEST['eventer_id'] : '';
-				$specific_event_date = (isset($_REQUEST['booking'])) ? $_REQUEST['booking'] : '';
-				$booking_search = (isset($_REQUEST['booking_search'])) ? $_REQUEST['booking_search'] : '';
+				$booking_status = (isset($_REQUEST['booking_status'])) ? sanitize_text_field(wp_unslash($_REQUEST['booking_status'])) : '';
+				$specific_event = (isset($_REQUEST['eventer_id'])) ? absint($_REQUEST['eventer_id']) : 0;
+				$specific_event_date = (isset($_REQUEST['booking'])) ? sanitize_text_field(wp_unslash($_REQUEST['booking'])) : '';
+				$booking_search = (isset($_REQUEST['booking_search'])) ? sanitize_text_field(wp_unslash($_REQUEST['booking_search'])) : '';
+				$woocommerce_ticketing = eventer_get_settings('eventer_enable_woocommerce_ticketing');
 				$page_num = (isset($_REQUEST['pagenum']) && $_REQUEST['pagenum']) ? absint($_REQUEST['pagenum']) : 1;
 				$limit_result = 20; // Number of rows in page
 				$offset = ($page_num - 1) * $limit_result;
-				$total = $wpdb->get_results("SELECT * FROM $table_name");
-				$num_of_pages = ceil(count($total) / $limit_result);
-
-				if ($booking_status == '' && $specific_event == '' && $specific_event_date == '' && $booking_search == '') {
-				  $reg_details = $wpdb->get_results("SELECT * FROM $table_name ORDER BY ID DESC LIMIT $offset, $limit_result", OBJECT);
-				} elseif ($booking_search != '') {
-				  $reg_details = $wpdb->get_results("SELECT * FROM $table_name WHERE `transaction_id` LIKE '%$booking_search%' OR `user_details` LIKE '%$booking_search%' OR `user_system` LIKE '%$booking_search%' ORDER BY ID DESC", OBJECT);
-				} else {
-				  $reg_details = $wpdb->get_results("SELECT * FROM $table_name ORDER BY ID DESC", OBJECT);
+				$query_clauses = array();
+				$query_args = array();
+				if ($booking_status != '') {
+				  $query_clauses[] = 'status = %s';
+				  $query_args[] = $booking_status;
 				}
+				if ($booking_search != '') {
+				  $booking_like = '%' . $wpdb->esc_like($booking_search) . '%';
+				  $query_clauses[] = '(transaction_id LIKE %s OR user_details LIKE %s OR user_system LIKE %s)';
+				  array_push($query_args, $booking_like, $booking_like, $booking_like);
+				}
+				if ($woocommerce_ticketing != 'on' && $specific_event) {
+				  $query_clauses[] = 'eventer = %d';
+				  $query_args[] = $specific_event;
+				}
+				if ($woocommerce_ticketing != 'on' && $specific_event_date != '') {
+				  $query_clauses[] = 'eventer_date = %s';
+				  $query_args[] = $specific_event_date;
+				}
+				$where_sql = !empty($query_clauses) ? 'WHERE ' . implode(' AND ', $query_clauses) : '';
+				$count_sql = "SELECT COUNT(*) FROM $table_name $where_sql";
+				$total = empty($query_args) ? (int) $wpdb->get_var($count_sql) : (int) $wpdb->get_var($wpdb->prepare($count_sql, $query_args));
+				$num_of_pages = max(1, (int) ceil($total / $limit_result));
+				$select_sql = "SELECT * FROM $table_name $where_sql ORDER BY ID DESC LIMIT %d, %d";
+				$reg_details = $wpdb->get_results($wpdb->prepare($select_sql, array_merge($query_args, array($offset, $limit_result))), OBJECT);
 
 				$all_registered_events = array();
 				$event_arg = array('post_type' => 'eventer', 'posts_per_page' => -1, 'orderby' => 'name', 'order' => 'ASC');
@@ -3580,9 +3596,9 @@ if (!class_exists('Eventer_Settings_Options')) {
 				  endwhile;
 				endif;
 				wp_reset_postdata();
-				$reg_all = $wpdb->get_results("SELECT * FROM $table_name");
-				$reg_completed = $wpdb->get_results("SELECT * FROM $table_name WHERE status = 'completed'");
-				$reg_pending = $wpdb->get_results("SELECT * FROM $table_name WHERE status = 'pending'");
+				$reg_all = (int) $wpdb->get_var("SELECT COUNT(*) FROM $table_name");
+				$reg_completed = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE status = %s", 'completed'));
+				$reg_pending = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE status = %s", 'pending'));
 				$page_links = paginate_links(array(
 				  'base' => add_query_arg('pagenum', '%#%'),
 				  'format' => '',
@@ -3595,10 +3611,11 @@ if (!class_exists('Eventer_Settings_Options')) {
 				if (!empty($reg_details)) { ?>
                   <form action="<?php echo esc_url(admin_url('admin-ajax.php')); ?>" method="post">
                     <input type="hidden" name="action" value="eventer_export_registrants">
-                    <input type="hidden" name="date" value="<?php echo (isset($_REQUEST['booking'])) ? $_REQUEST['booking'] : ''; ?>">
-                    <input type="hidden" name="status" value="<?php echo (isset($_REQUEST['booking_status'])) ? $_REQUEST['booking_status'] : ''; ?>">
-                    <input type="hidden" name="eventer" value="<?php echo (isset($_REQUEST['eventer_id'])) ? $_REQUEST['eventer_id'] : ''; ?>">
-                    <input type="hidden" name="eventer_all" value="<?php echo (isset($_REQUEST['eventer_id'])) ? $_REQUEST['eventer_id'] : ''; ?>">
+                    <?php wp_nonce_field('eventer_admin_nonce'); ?>
+                    <input type="hidden" name="date" value="<?php echo esc_attr($specific_event_date); ?>">
+                    <input type="hidden" name="status" value="<?php echo esc_attr($booking_status); ?>">
+                    <input type="hidden" name="eventer" value="<?php echo esc_attr($specific_event); ?>">
+                    <input type="hidden" name="eventer_all" value="<?php echo esc_attr($specific_event); ?>">
                     <input type="submit" value="<?php esc_html_e('Download csv', 'eventer'); ?>" class="button">
                     <input type="button" value="<?php esc_html_e('Delete selected', 'eventer'); ?>" class="button eventer-delete-bulk-booking" style="color:red;">
                   </form>
@@ -3607,19 +3624,19 @@ if (!class_exists('Eventer_Settings_Options')) {
                   <li class="all">
                     <a href="<?php echo add_query_arg('booking_status', '', 'edit.php?post_type=eventer&page=eventer_settings_options&amp;tab=bookings'); ?>" class="current">
                       <?php _e('All'); ?>
-                      <span class="count">(<?php echo count($reg_all); ?>)</span>
+                      <span class="count">(<?php echo esc_html($reg_all); ?>)</span>
                     </a> |
                   </li>
                   <li class="publish">
                     <a href="<?php echo add_query_arg('booking_status', 'completed', 'edit.php?post_type=eventer&page=eventer_settings_options&amp;tab=bookings'); ?>">
                       <?php _e('Completed'); ?>
-                      <span class="count">(<?php echo count($reg_completed); ?>)</span>
+                      <span class="count">(<?php echo esc_html($reg_completed); ?>)</span>
                     </a>
                   </li>
                   <li class="publish">
                     <a href="<?php echo add_query_arg('booking_status', 'pending', 'edit.php?post_type=eventer&page=eventer_settings_options&amp;tab=bookings'); ?>">
                       <?php _e('Pending'); ?>
-                      <span class="count">(<?php echo count($reg_pending); ?>)</span>
+                      <span class="count">(<?php echo esc_html($reg_pending); ?>)</span>
                     </a>
                   </li>
                 </ul>
@@ -3627,7 +3644,7 @@ if (!class_exists('Eventer_Settings_Options')) {
                 <form action="<?php echo esc_url(admin_url('edit.php')); ?>" method="get">
                   <p class="search-box">
                     <label class="screen-reader-text" for="post-search-input"><?php esc_html_e('Search', 'eventer'); ?>:</label>
-                    <input name="booking_search" placeholder="<?php esc_html_e('Search here', 'eventer'); ?>" value="" type="search">
+                    <input name="booking_search" placeholder="<?php esc_html_e('Search here', 'eventer'); ?>" value="<?php echo esc_attr($booking_search); ?>" type="search">
                     <input id="search-submit" class="button" value="<?php esc_html_e('Search', 'eventer'); ?>" type="submit"></p>
                   <input type="hidden" name="post_type" value="eventer">
                   <input type="hidden" name="page" value="eventer_settings_options">
@@ -3639,15 +3656,14 @@ if (!class_exists('Eventer_Settings_Options')) {
                         <option value=""><?php esc_html_e('All Events', 'eventer'); ?></option>
                         <?php
                                 $order_recording_switch = eventer_get_settings('eventer_woo_orders');
-                                $woocommerce_ticketing = eventer_get_settings('eventer_enable_woocommerce_ticketing');
                                 foreach ($all_registered_events as $key => $value) {
                                   $selected = ($specific_event == $key) ? 'selected' : '';
                                   echo '<option ' . $selected . ' value="' . $key . '">' . $value . '</option>';
                                 }
-                                $event_booking_date = (isset($_REQUEST['booking'])) ? $_REQUEST['booking'] : '';
+                                $event_booking_date = $specific_event_date;
                                 ?>
                       </select>
-                      <input type="text" class="eventer-bookings-date" name="booking" value="<?php echo $event_booking_date; ?>" placeholder="<?php esc_html_e('Select Date', 'eventer'); ?>">
+                      <input type="text" class="eventer-bookings-date" name="booking" value="<?php echo esc_attr($event_booking_date); ?>" placeholder="<?php esc_html_e('Select Date', 'eventer'); ?>">
                       <input type="submit" class="button" value="Filter"> </div>
 
                     <?php if ($page_links && !isset($_REQUEST['eventer_id'])) {
@@ -3697,7 +3713,7 @@ if (!class_exists('Eventer_Settings_Options')) {
                                 }
                                 if ($specific_event != '' && $specific_event != $registrant->eventer && $woocommerce_ticketing != 'on') continue;
                                 if ($specific_event_date != '' && $specific_event_date != $registrant->eventer_date && $woocommerce_ticketing != 'on') continue;
-                                $user_system = unserialize($registrant->user_system);
+                                $user_system = eventer_decode_array_payload($registrant->user_system);
                                 if (isset($user_system['events'])) {
                                   $firstKey = eventerGetFirstKey($user_system['events']);
                                   $event_date = $user_system['events'][$firstKey];
@@ -3750,8 +3766,8 @@ if (!class_exists('Eventer_Settings_Options')) {
                                   $dated_event_url = eventer_generate_endpoint_url('edate', $registrant->eventer_date, $event_link);
                                   $calculated_event_url = add_query_arg(array('reg' => $create_dynamic_reg, 'recreate' => 1001, 'backorder' => '1'), $dated_event_url);
                                   $order_received_URL = $calculated_event_url;
-                                  $tickets_normal = unserialize($registrant->tickets);
-                                  $registrants_normal = $user_system['registrants'];
+                                  $tickets_normal = eventer_decode_array_payload($registrant->tickets);
+                                  $registrants_normal = (isset($user_system['registrants']) && is_array($user_system['registrants'])) ? $user_system['registrants'] : array();
 
                                   if ($tickets_normal) {
                                     foreach ($tickets_normal as $normal) {

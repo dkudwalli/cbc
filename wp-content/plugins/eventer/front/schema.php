@@ -311,7 +311,6 @@ class Eventer_Schema {
 
 		$request = wp_remote_get( sprintf( 'https://maps.googleapis.com/maps/api/geocode/json?%s', http_build_query( $params ) ), [
 			'httpversion' => '1.1',
-			'sslverify' => false,
 		] );
 
 		if ( is_wp_error( $request ) ) {

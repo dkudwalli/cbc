@@ -48,3 +48,7 @@ if (is_admin()) {
 if (!is_admin()) {
 	require_once(IPRAY__PLUGIN_DIR.IPRAY__LIB_PATH.DIRSEP.IPRAY__CLSPRE.'frontend_init'.EXT);
 }
+$ipray_doing_ajax = (function_exists('wp_doing_ajax') && wp_doing_ajax()) || (defined('DOING_AJAX') && DOING_AJAX);
+if ($ipray_doing_ajax) {
+	require_once(IPRAY__PLUGIN_DIR.IPRAY__LIB_PATH.DIRSEP.IPRAY__CLSPRE.'frontend_init'.EXT);
+}

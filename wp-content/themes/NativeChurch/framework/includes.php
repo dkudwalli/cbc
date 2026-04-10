@@ -211,7 +211,7 @@ if (!function_exists('imic_enqueue_scripts')) {
       wp_enqueue_script('imic_jquery_mediaelement_and_player');
       wp_enqueue_script('imic_jquery_flexslider');
       wp_enqueue_script('imic_jquery_init');
-      wp_localize_script('imic_jquery_init', 'initval', array('tmp' => get_template_directory_uri(), 'ajaxurl' => admin_url('admin-ajax.php')));
+      wp_localize_script('imic_jquery_init', 'initval', array('tmp' => get_template_directory_uri(), 'ajaxurl' => admin_url('admin-ajax.php'), 'sermon_play_nonce' => wp_create_nonce('imiSermonPlayRecord')));
     }
     ($event_feature == '1') ? wp_enqueue_script('imic_jquery_countdown') : '';
     ($event_feature == '1') ? wp_enqueue_script('imic_jquery_countdown_init') : '';
@@ -229,12 +229,12 @@ if (!function_exists('imic_enqueue_scripts')) {
     // Only load registration script for non-logged-in users (form is only on registration pages)
     if (!is_user_logged_in()) {
       wp_enqueue_script('agent-register', IMIC_THEME_PATH . '/assets/js/agent-register.js', array('jquery'), $theme_info->get('Version'), true);
-      wp_localize_script('agent-register', 'agent_register', array('ajaxurl' => admin_url('admin-ajax.php')));
+      wp_localize_script('agent-register', 'agent_register', array('ajaxurl' => admin_url('admin-ajax.php'), 'nonce' => wp_create_nonce('imic_agent_register')));
     }
     // Only load event AJAX script on event-related pages
     if (is_singular('event') || is_post_type_archive('event') || is_page_template(array('template-events.php', 'template-events-classic.php', 'template-events-timeline.php', 'template-events_grid.php', 'template-event-category.php'))) {
       wp_enqueue_script('event_ajax', IMIC_THEME_PATH . '/assets/js/event_ajax.js', array('jquery'), $theme_info->get('Version'), true);
-      wp_localize_script('event_ajax', 'urlajax', array('homeurl' => get_template_directory_uri(), 'ajaxurl' => admin_url('admin-ajax.php')));
+      wp_localize_script('event_ajax', 'urlajax', array('homeurl' => get_template_directory_uri(), 'ajaxurl' => admin_url('admin-ajax.php'), 'nonce' => wp_create_nonce('imic_event_grid')));
     }
     ($event_feature == '1') ? wp_localize_script('imic_jquery_countdown', 'upcoming_data', array('c_time' => date_i18n('U'))) : '';
     //**End Enqueue script**//
@@ -248,12 +248,12 @@ function nativechurch_load_backend_scripts($hook)
   $theme_info = wp_get_theme();
   if ($hook == 'widgets.php') {
     wp_enqueue_script('imic-selected-post', IMIC_THEME_PATH . '/assets/js/selected_post.js', 'jquery', $theme_info->get('Version'), true);
-    wp_localize_script('imic-selected-post', 'cats', array('ajaxurl' => admin_url('admin-ajax.php')));
+    wp_localize_script('imic-selected-post', 'cats', array('ajaxurl' => admin_url('admin-ajax.php'), 'nonce' => wp_create_nonce('nativechurch_dynamic_category_list')));
   }
   wp_enqueue_script('imic-admin-functions', IMIC_THEME_PATH . '/assets/js/imic_admin.js', 'jquery', $theme_info->get('Version'), true);
   $allSermonsPlayed = get_option('sermons_played');
   $allSermonsPlayed = $allSermonsPlayed ? $allSermonsPlayed : 0;
-  wp_localize_script('imic-admin-functions', 'adminVals', ['plays' => $allSermonsPlayed, 'ajaxurl' => admin_url('admin-ajax.php')]);
+  wp_localize_script('imic-admin-functions', 'adminVals', ['plays' => $allSermonsPlayed, 'ajaxurl' => admin_url('admin-ajax.php'), 'auth_nonce' => wp_create_nonce('nativechurch_process_authentication')]);
   if (isset($_REQUEST['taxonomy'])) {
     wp_enqueue_script('imic-upload', IMIC_THEME_PATH . '/assets/js/upload.js', 'jquery', $theme_info->get('Version'), true);
     wp_enqueue_media();

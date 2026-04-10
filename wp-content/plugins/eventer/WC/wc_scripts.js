@@ -37,12 +37,15 @@ jQuery(function ($) {
       var ticket_price = $(this).closest('li').attr('data-price');
       var event_allday = $(this).closest('li').attr('data-allday');
       var element = $(this);
+      var ajaxUrl = (typeof eventerWoo !== 'undefined' && eventerWoo.ajax_url) ? eventerWoo.ajax_url : initval.ajax_url;
+      var ajaxNonce = (typeof eventerWoo !== 'undefined' && eventerWoo.nonce) ? eventerWoo.nonce : initval.woo_cart_nonce;
       var request = $.ajax({
-        url: initval.ajax_url,
+        url: ajaxUrl,
         type: "post",
         //async: false,
         data: {
           action: 'eventer_add_product_to_cart',
+          nonce: ajaxNonce,
           tickets: tickets,
           product: product,
           ticket_id: ticket_id,

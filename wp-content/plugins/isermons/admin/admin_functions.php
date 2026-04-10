@@ -25,7 +25,7 @@ if(!function_exists('isermons_enqueue_admin_scripts'))
 		wp_enqueue_script( 'jquery-ui-datepicker' );
 		wp_enqueue_script( 'jquery-ui-autocomplete' );
 		wp_enqueue_script( 'isermons-admin-scripts', ISERMONS__PLUGIN_URL . 'js/admin_scripts.js', array('jquery'), '', true);
-		wp_localize_script('isermons-admin-scripts', 'isermons', array('pages'=>$list_pages, 'ajax_url' => admin_url( 'admin-ajax.php' ),'root' => esc_url_raw( rest_url() ), 'nonce' => wp_create_nonce( 'wp_rest' ), 'color'=>$colorpicker));
+		wp_localize_script('isermons-admin-scripts', 'isermons', array('pages'=>$list_pages, 'ajax_url' => admin_url( 'admin-ajax.php' ),'root' => esc_url_raw( rest_url() ), 'nonce' => wp_create_nonce( 'wp_rest' ), 'auth_nonce' => wp_create_nonce('isermons_process_authentication'), 'color'=>$colorpicker));
 		wp_enqueue_style( 'isermons-admin-style', ISERMONS__PLUGIN_URL . 'css/admin_style.css');
         wp_enqueue_style( 'jquery-ui', ISERMONS__PLUGIN_URL . 'css/smoothness-jquery-ui.css' );
         wp_enqueue_style('eventer_ui_css',ISERMONS__PLUGIN_URL . 'css/themes-jquery-ui.css',false,"1.9.0",false);

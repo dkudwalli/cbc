@@ -74,6 +74,44 @@ function eventer_get_settings($id) {
     return null;
 }
 
+if (!function_exists('eventer_decode_array_payload')) {
+    function eventer_decode_array_payload($value) {
+        if (is_array($value)) {
+            return $value;
+        }
+
+        if (!is_string($value) || $value === '') {
+            return array();
+        }
+
+        $decoded = maybe_unserialize($value);
+
+        return is_array($decoded) ? $decoded : array();
+    }
+}
+
+if (!function_exists('eventer_get_registrant_lookup_schema')) {
+    function eventer_get_registrant_lookup_schema($field) {
+        $allowed_fields = array(
+            'id' => '%d',
+            'eventer' => '%d',
+            'user_id' => '%d',
+            'transaction_id' => '%s',
+            'email' => '%s',
+            'username' => '%s',
+        );
+
+        if (!isset($allowed_fields[$field])) {
+            return false;
+        }
+
+        return array(
+            'field' => $field,
+            'format' => $allowed_fields[$field],
+        );
+    }
+}
+
 // Redirect after plugin activation
 register_activation_hook(__FILE__, 'imi_redirect_after_activation');
 function imi_redirect_after_activation() {
@@ -123,8 +161,12 @@ function disallowed_eventer_admin_pages() {
 // Process authentication via AJAX
 add_action('wp_ajax_eventerProcessAuthentication', 'eventerProcessAuthentication');
 function eventerProcessAuthentication() {
-    $status = $_REQUEST['status'];
-    $authCode = $_REQUEST['authCode'];
+    check_ajax_referer('eventer_process_authentication', 'nonce');
+    if (!current_user_can('manage_options')) {
+        wp_die(-1, 403);
+    }
+    $status = isset($_REQUEST['status']) ? sanitize_text_field(wp_unslash($_REQUEST['status'])) : '';
+    $authCode = isset($_REQUEST['authCode']) ? sanitize_text_field(wp_unslash($_REQUEST['authCode'])) : '';
     update_option('eventer_authenticate', $status);
     update_option('eventer_auth_code', $authCode);
     wp_die();

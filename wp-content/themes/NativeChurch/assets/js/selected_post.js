@@ -9,6 +9,7 @@
             url: cats.ajaxurl,
             data: {
                 action: 'nativechurch_dynamic_category_list',
+                nonce: cats.nonce,
                 cpt: cpt,
 								selected_cat: selected_cat
             },
@@ -22,4 +23,3 @@
 				});
     });
 } ( jQuery ) );
-

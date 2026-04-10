@@ -467,7 +467,7 @@ jQuery(function ($) {
         method: "POST",
         url: dashboard.ajax_url,
 
-        data: { action: 'eventer_switch_dashboard_tab', 'tab': tabs, 'order': order, 'shortcode': shortcode },
+        data: { action: 'eventer_switch_dashboard_tab', nonce: dashboard.tab_nonce, 'tab': tabs, 'order': order, 'shortcode': shortcode },
         type: "post",
         beforeSend: function (xhr) {
           $('.eventer-fe-dash-content').find('.eventer-loader-wrap').show();

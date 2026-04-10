@@ -2,12 +2,14 @@
 function eventer_show_title($title = '', $id = '')
 {
   $event_cdate = get_query_var('edate');
-  if (!$event_cdate) {
+  if (!$event_cdate || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $event_cdate)) {
     return $title;
   }
   global $wpdb;
   $table_name = $wpdb->prefix . "eventer_tickets";
-  $dynamic_details = $wpdb->get_row("SELECT * FROM $table_name WHERE `event` = $id AND `date` = '$event_cdate 00:00:00'");
+  $dynamic_details = $wpdb->get_row(
+    $wpdb->prepare("SELECT * FROM $table_name WHERE `event` = %d AND `date` = %s", absint($id), $event_cdate . ' 00:00:00')
+  );
   if (!$dynamic_details) {
     return $title;
   }
@@ -128,7 +130,7 @@ function eventer_formatting_email_content($content = '', $registrant_details = a
   $user_details = $registrant_details->user_details;
   $paymentmode = $registrant_details->paymentmode;
   $registrant_user_system = $registrant_details->user_system;
-  $registrant_user_system = unserialize($registrant_user_system);
+  $registrant_user_system = eventer_decode_array_payload($registrant_user_system);
   $services_list = '';
   $services = (isset($registrant_user_system['services'])) ? $registrant_user_system['services'] : [];
   $event_services = [];
@@ -159,7 +161,7 @@ function eventer_formatting_email_content($content = '', $registrant_details = a
   $organizer = wp_get_object_terms($eventer_id, 'eventer-organizer');
   $organizer_email = $completed_url_tkt = $pending_url_tkt = $failed_url_tkt = '';
   //Getting all tickets data that registrant selected
-  $reg_tickets = unserialize($tickets);
+  $reg_tickets = eventer_decode_array_payload($tickets);
   $tickets = '';
   $user_fields_val = $registrant_tickets_name = $registrant_tickets_vals = array();
   if (!empty($reg_tickets)) {
@@ -176,7 +178,7 @@ function eventer_formatting_email_content($content = '', $registrant_details = a
   $user_info = '';
   if (!empty($user_details)) {
     //Getting all user details that user fills before selecting event tickets
-    $user_details = unserialize($user_details);
+    $user_details = eventer_decode_array_payload($user_details);
     foreach ($user_details as $details) {
       if ($details['name'] == 'quantity_tkt' || $details['value'] == 'chosen-payment-option') continue;
       $user_fields_val['{' . $details['name'] . '}'] = $details['value'];
@@ -706,13 +708,13 @@ function eventer_prepare_tickets_data($field, $registrant, $atts)
   $default_all = '';
   if ($reg) {
     $usersystem = $reg->user_system;
-    $usersystem = unserialize($usersystem);
+    $usersystem = eventer_decode_array_payload($usersystem);
     $time_slot = (isset($usersystem['time_slot'])) ? $usersystem['time_slot'] : '';
     $slot_title = (isset($usersystem['slot_title'])) ? $usersystem['slot_title'] : '';
     $user_registrants_list = (!empty($usersystem) && isset($usersystem['registrants'])) ? $usersystem['registrants'] : array();
     $woo_user_registrants_list = (!empty($usersystem) && isset($usersystem['tickets'])) ? $usersystem['tickets'] : array();
     $user_registrants_list = ($field == 'id') ? $user_registrants_list : $woo_user_registrants_list;
-    $usertickets = ($field == 'id') ? unserialize($reg->tickets) : $user_registrants_list;
+    $usertickets = ($field == 'id') ? eventer_decode_array_payload($reg->tickets) : $user_registrants_list;
     $normal_registration = (!empty($usertickets)) ? $usertickets : array();
     if (!empty($normal_registration)) {
       foreach ($normal_registration as $normal) {

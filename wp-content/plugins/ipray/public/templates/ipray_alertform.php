@@ -60,14 +60,15 @@ if ( ! defined('ABSPATH') ) { die(_("Don't load directly")); }
                                                 <?php _e('Email me when someone prays for me','ipray') ?>
                                             </label>
                                             <?php } ?>
-                                            <input type="hidden" name="requesturi" value="<?php  echo base64_encode($_SERVER['REQUEST_URI']) ?>" />
+                                            <input type="hidden" name="nonce" value="<?php echo esc_attr(wp_create_nonce('ipray_public_ajax')); ?>" />
+                                            <input type="hidden" name="requesturi" value="<?php echo esc_attr(base64_encode($_SERVER['REQUEST_URI'])); ?>" />
                                             <input type="hidden" name="action" value="prayer_submit" />
                                             <input type="submit" tabindex="9" class="submit btn btn-primary btn-block" value="<?php _e('Submit Request','ipray'); ?>">
                                         </div>
                                     </div>
                                 </div>
-                          	</div>
-                       	</div>
-      				</form>
-      			</div>
-      		</div> 
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>

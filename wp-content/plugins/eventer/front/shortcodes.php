@@ -168,7 +168,7 @@ function eventer_register_shortcodes()
       wp_enqueue_script('fullcalendar-locale');
       wp_enqueue_script('fullcalendar-load');
       //These are the values that we are sending to eventer_calenadar.js file
-      wp_localize_script('fullcalendar-load', 'fcal', array('sitelan' => $site_lang, 'homeurl' => EVENTER__PLUGIN_URL, 'calendar_api' => $google_calendar_api, 'time_format' => $time_format, 'cal_view' => $calendar_view, 'header_left' => $calendar_header_left, 'header_center' => $calendar_header_center, 'header_right' => $calendar_header_right, 'week_str' => $calendar_week_start, 'cal_rtl' => $calendar_rtl, 'start_today' => $calendar_today, 'event_end_time' => $calendar_end_time, 'weeks' => $google_calendar_weeks, 'defaultDate' => $atts['defaultDate']));
+      wp_localize_script('fullcalendar-load', 'fcal', array('ajax_url' => admin_url('admin-ajax.php'), 'sitelan' => $site_lang, 'homeurl' => EVENTER__PLUGIN_URL, 'calendar_api' => $google_calendar_api, 'time_format' => $time_format, 'cal_view' => $calendar_view, 'header_left' => $calendar_header_left, 'header_center' => $calendar_header_center, 'header_right' => $calendar_header_right, 'week_str' => $calendar_week_start, 'cal_rtl' => $calendar_rtl, 'start_today' => $calendar_today, 'event_end_time' => $calendar_end_time, 'weeks' => $google_calendar_weeks, 'defaultDate' => $atts['defaultDate'], 'feed_nonce' => wp_create_nonce('eventer-calendar-feed')));
       wp_enqueue_style('fullcalendar-min');
       wp_enqueue_style('fullcalendar-print-min');
 
@@ -809,6 +809,7 @@ function eventer_register_shortcodes()
       'root' => esc_url_raw(rest_url()),
       'current_user_id' => get_current_user_id(),
       'nonce' => wp_create_nonce('wp_rest'),
+      'tab_nonce' => wp_create_nonce('eventer_switch_dashboard_tab'),
       'default_shortcode' => $set_default,
       'order_string' => esc_html__('order', 'eventer') . '# ',
 	  'site_url' => site_url()

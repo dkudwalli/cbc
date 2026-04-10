@@ -4,27 +4,39 @@ if (!function_exists('wceventer_enqueue_scripts')) {
   {
     $theme_info = wp_get_theme();
     wp_enqueue_script('eventer-woocommerce-scripts', EVENTER__PLUGIN_URL . 'WC/wc_scripts.js', array(), $theme_info->get('Version'), false);
+    wp_localize_script('eventer-woocommerce-scripts', 'eventerWoo', array(
+      'ajax_url' => admin_url('admin-ajax.php'),
+      'nonce' => wp_create_nonce('eventer_add_product_to_cart'),
+    ));
   }
   add_action('wp_enqueue_scripts', 'wceventer_enqueue_scripts');
 }
 function eventer_add_product_to_cart()
 {
+  eventer_verify_public_ajax_request('eventer_add_product_to_cart');
+
   global $woocommerce;
-  $product_id = (isset($_REQUEST['product'])) ? $_REQUEST['product'] : '';
+  $product_id = (isset($_REQUEST['product'])) ? absint($_REQUEST['product']) : 0;
   if (!has_term('eventer', 'product_cat', $product_id)) return;
   if (get_post_type($product_id) != 'product') wp_die();
-  $tickets = (isset($_REQUEST['tickets'])) ? $_REQUEST['tickets'] : '';
-	$ticketName = (isset($_REQUEST['ticketname'])) ? $_REQUEST['ticketname'] : '';
-  $eventer_id = (isset($_REQUEST['ticket_id'])) ? $_REQUEST['ticket_id'] : '';
-  $event_date = (isset($_REQUEST['event_date'])) ? $_REQUEST['event_date'] : '';
-  $event_date_multi = (isset($_REQUEST['event_multi'])) ? $_REQUEST['event_multi'] : '';
-  $event_time = (isset($_REQUEST['event_time'])) ? $_REQUEST['event_time'] : '';
-  $event_time_slot = (isset($_REQUEST['event_slot'])) ? $_REQUEST['event_slot'] : '';
+  $tickets = (isset($_REQUEST['tickets'])) ? absint($_REQUEST['tickets']) : 0;
+  if ($tickets <= 0) {
+    wp_die();
+  }
+	$ticketName = (isset($_REQUEST['ticketname'])) ? sanitize_text_field(wp_unslash($_REQUEST['ticketname'])) : '';
+  $eventer_id = (isset($_REQUEST['ticket_id'])) ? absint($_REQUEST['ticket_id']) : 0;
+  if ($eventer_id <= 0) {
+    wp_die();
+  }
+  $event_date = (isset($_REQUEST['event_date'])) ? sanitize_text_field(wp_unslash($_REQUEST['event_date'])) : '';
+  $event_date_multi = (isset($_REQUEST['event_multi'])) ? sanitize_text_field(wp_unslash($_REQUEST['event_multi'])) : '';
+  $event_time = (isset($_REQUEST['event_time'])) ? sanitize_text_field(wp_unslash($_REQUEST['event_time'])) : '';
+  $event_time_slot = (isset($_REQUEST['event_slot'])) ? sanitize_text_field(wp_unslash($_REQUEST['event_slot'])) : '';
   $event_time = ($event_time_slot != '' && $event_time_slot != '00:00:00') ? date_i18n(get_option('time_format'), strtotime($event_time_slot)) : $event_time;
-  $event_time_slot_title = (isset($_REQUEST['event_slot_title'])) ? $_REQUEST['event_slot_title'] : '';
-  $event_allday = (isset($_REQUEST['event_allday'])) ? $_REQUEST['event_allday'] : '';
-  $event_url = (isset($_REQUEST['event_url'])) ? $_REQUEST['event_url'] : '';
-  $ticket_price = (isset($_REQUEST['ticket_price'])) ? $_REQUEST['ticket_price'] : '';
+  $event_time_slot_title = (isset($_REQUEST['event_slot_title'])) ? sanitize_text_field(wp_unslash($_REQUEST['event_slot_title'])) : '';
+  $event_allday = (isset($_REQUEST['event_allday'])) ? sanitize_text_field(wp_unslash($_REQUEST['event_allday'])) : '';
+  $event_url = (isset($_REQUEST['event_url'])) ? esc_url_raw(wp_unslash($_REQUEST['event_url'])) : '';
+  $ticket_price = (isset($_REQUEST['ticket_price'])) ? sanitize_text_field(wp_unslash($_REQUEST['ticket_price'])) : '';
   $cart_item_data = array('wceventer_name' => apply_filters('eventer_raw_event_title', '', $eventer_id), 'wceventer_id' => $eventer_id, 'wceventer_date' => $event_date, 'wceventer_time' => $event_time, 'wceventer_url' => $event_url, 'eventer_custom_price' => $ticket_price, 'eventer_ticket_name' => $ticketName, 'wceventer_product' => 'ticket', 'wceventer_allday' => $event_allday, 'wceventer_slot' => $event_time_slot, 'wceventer_slot_title' => $event_time_slot_title, 'wceventer_multi' => $event_date_multi);
   foreach ($woocommerce->cart->get_cart() as $key => $item) {
     $item_id = $item['wceventer_id'];
@@ -641,7 +653,7 @@ function eventer_show_thanks_page_download_button($order_id)
     $default = array();
     $newTickets = $new_tickets = apply_filters('eventer_preapare_data_for_tickets', 'eventer', $order_id, array());
     $registrants = eventer_get_registrant_details('eventer', $order_id);
-    $user_system = unserialize($registrants->user_system);
+    $user_system = eventer_decode_array_payload($registrants->user_system);
     $tickets = isset($user_system['tickets']) ? $user_system['tickets'] : [];
     if ($tickets) {
       $count = 0;
@@ -785,7 +797,7 @@ function eventer_status_changed_restore($order_id, $old_status, $new_status)
   }
   return;
   $registrants = eventer_get_registrant_details('eventer', $order_id);
-  $user_system = unserialize($registrants->user_system);
+  $user_system = eventer_decode_array_payload($registrants->user_system);
   $tickets = (isset($user_system['tickets'])) ? $user_system['tickets'] : array();
   $tickets_restore = (isset($user_system['restore'])) ? $user_system['restore'] : '';
   if ($old_status == 'pending' && $tickets_restore == '') {

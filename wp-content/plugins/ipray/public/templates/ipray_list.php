@@ -9,7 +9,7 @@ if ( ! defined('ABSPATH') ) { die(_("Don't load directly")); }
 <!-- prayer newsletter end --> 
       <!-- prayer container --> 
 <div class="ipray-main-container">
-<div id="ipray-notifications" data-requesturi="<?php echo base64_encode($_SERVER['REQUEST_URI']) ?>" data-sending-text="<?php echo $default_sending_msg ?>" data-success-msg="<?php echo $prayer_success_msg ?>" data-error-msg="<?php echo $prayer_error_msg ?>"></div>
+<div id="ipray-notifications" data-requesturi="<?php echo esc_attr(base64_encode($_SERVER['REQUEST_URI'])) ?>" data-nonce="<?php echo esc_attr(wp_create_nonce('ipray_public_ajax')) ?>" data-sending-text="<?php echo esc_attr($default_sending_msg) ?>" data-success-msg="<?php echo esc_attr($prayer_success_msg) ?>" data-error-msg="<?php echo esc_attr($prayer_error_msg) ?>"></div>
 <?php if($prayer_pagination == 0 || $prayer_pagination == 2 ) { ?>
       <div class="ipray-results-pagination"></div>
 <?php } ?>
@@ -27,6 +27,7 @@ if ( ! defined('ABSPATH') ) { die(_("Don't load directly")); }
  <!-- prayer container end --> 
 <form name="ipraylistHiddenForm" id="ipraylistHiddenForm" method="get" action="<?php echo getIprayAjaxUrl() ?>">
     <?php IpraypopulateHiddenFormFields($hidden_fields) ?>
+    <input type="hidden" name="nonce" value="<?php echo esc_attr(wp_create_nonce('ipray_public_ajax')); ?>">
 </form>
 <script type="text/javascript">
 

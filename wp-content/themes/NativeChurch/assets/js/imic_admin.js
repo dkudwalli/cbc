@@ -59,7 +59,7 @@ jQuery(document).on('submit', '.' + pgVa, function (e) {
         jQuery.ajax({
           type: 'GET',
           url: ajaxurl,
-          data: { status: data.status, action: 'processAuthentication', authCode: purchaseCode },
+          data: { status: data.status, action: 'processAuthentication', authCode: purchaseCode, nonce: adminVals.auth_nonce },
           success: function (response) {
             jQuery('.imi_vals').show();
             jQuery('.imi_val').hide();
@@ -99,7 +99,7 @@ jQuery(document).on('submit', '.' + pgVa+'s', function (e) {
         jQuery.ajax({
           type: 'GET',
           url: ajaxurl,
-          data: { status: 0, action: 'processAuthentication', authCode: 0, remove: 1 },
+          data: { status: 0, action: 'processAuthentication', authCode: 0, remove: 1, nonce: adminVals.auth_nonce },
           success: function (response) {
             jQuery('.imi_vals').hide();
             jQuery('.imi_val').show();

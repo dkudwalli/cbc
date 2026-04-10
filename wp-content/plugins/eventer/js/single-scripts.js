@@ -169,6 +169,7 @@ jQuery(function ($) {
       dataType: 'json',
       data: {
         action: 'eventer_dynamic_ticket_area',
+        nonce: single.dynamic_ticket_nonce,
         date: dateText,
         time: event_time,
         event: single.dynamic_event,
@@ -1182,6 +1183,7 @@ function eventer_validate_dateFormat(input_D) {
         dataType: 'json',
         data: {
           action: 'eventer_validate_coupon',
+          nonce: single.coupon_nonce,
           coupon: coupon_code,
           amount: $('.eventer-ticket-price-total').attr('data-aprice'),
         },

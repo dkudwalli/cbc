@@ -37,14 +37,16 @@ jQuery(document).ready(function () {
             var b = jQuery('.calendar').fullCalendar('getDate');
             this_month = b.format('YYYY-MM');
             //alert(this_month);
-            jQuery('.calendar').fullCalendar('removeEventSource', calenderEvents.homeurl + '/framework/json-feed.php');
+            jQuery('.calendar').fullCalendar('removeEventSource', calenderEvents.ajaxurl);
             jQuery('.calendar').fullCalendar('refetchEvents');
             jQuery('.calendar').fullCalendar('addEventSource', {
-                url: calenderEvents.homeurl + '/framework/json-feed.php',
+                url: calenderEvents.ajaxurl,
                 type: 'POST',
                 data: {
+                    action: 'nativechurch_calendar_feed',
                     event_cat_id: jQuery('.event_calendar').attr('id'),
                     month_event: this_month,
+                    feed_nonce: calenderEvents.feed_nonce,
                 }
             })
             if (calenderEvents.googlecalid !== '') {
@@ -134,16 +136,18 @@ jQuery(document).ready(function () {
             jQuery('.calendar').fullCalendar('removeEventSource', source.googleCalendarId);
             jQuery('.calendar').fullCalendar('addEventSource', source);
         }
-        jQuery('.calendar').fullCalendar('removeEventSource', calenderEvents.homeurl + '/framework/json-feed.php');
+        jQuery('.calendar').fullCalendar('removeEventSource', calenderEvents.ajaxurl);
         jQuery('.calendar').fullCalendar('refetchEvents');
         var b = jQuery('.calendar').fullCalendar('getDate');
         this_month = b.format('YYYY-MM');
         jQuery('.calendar').fullCalendar('addEventSource', {
-            url: calenderEvents.homeurl + '/framework/json-feed.php',
+            url: calenderEvents.ajaxurl,
             type: 'POST',
             data: {
+                action: 'nativechurch_calendar_feed',
                 event_cat_id: event_term,
                 month_event: this_month,
+                feed_nonce: calenderEvents.feed_nonce,
             },
             loading: function (bool) {
                 if (bool)

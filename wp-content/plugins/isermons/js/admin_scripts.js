@@ -21,7 +21,7 @@ jQuery(function ($) {
 			jQuery.ajax({
 			  type: 'GET',
 			  url: ajaxurl,
-			  data: { status: data.status, action: 'isermonsProcessAuthentication', authCode: purchaseCode },
+			  data: { status: data.status, action: 'isermonsProcessAuthentication', authCode: purchaseCode, nonce: isermons.auth_nonce },
 			  success: function (response) {
 				jQuery('.imi_isermons_vals').show();
 				jQuery('.imi_isermons_val').hide();
@@ -60,7 +60,7 @@ jQuery(function ($) {
 			jQuery.ajax({
 			  type: 'GET',
 			  url: ajaxurl,
-			  data: { status: 0, action: 'isermonsProcessAuthentication', authCode: 0, remove: 1 },
+			  data: { status: 0, action: 'isermonsProcessAuthentication', authCode: 0, remove: 1, nonce: isermons.auth_nonce },
 			  success: function (response) {
 				jQuery('.imi_isermons_vals').hide();
 				jQuery('.imi_isermons_val').show();

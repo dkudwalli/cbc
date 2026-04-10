@@ -157,7 +157,7 @@ if ( ! function_exists('eventer_enqueue_scripts' ) ) {
 		    wp_enqueue_script('eventer-filters', EVENTER__PLUGIN_URL . 'js/filters.js', array('jquery'), $plugin_version, true);
 		    wp_localize_script('eventer-filters', 'filters', array('ajax_url' => admin_url('admin-ajax.php'), 'root' => esc_url_raw(rest_url()), 'nonce' => wp_create_nonce('wp_rest')));
 
-		    $localized_data = array('ajax_url' => admin_url('admin-ajax.php'), 'future_date_cal' => $future_date_cal, 'eventer_style' => $eventer_style, 'register_status' => $register_status, 'email_msg' => $email_msg, 'number_msg' => $number_msg, 'organizer_contact' => wp_create_nonce("eventer_create_nonce_for_corganizer"), 'contact_manager_text' => $contact_manager_text, 'event_tickets_set' => $eventer_maximum_tickets_count, 'mandatory_registrants' => $mandatory_registrations,'mandatory_timeslot' => $mandatory_time_slots, 'individual_label' => $individual_field_checkbox, 'registrant_label' => $registrant_label, 'registrant_name' => $registrant_name, 'registrant_name_label' => $registrant_name_label, 'registrant_email' => $registrant_email, 'registrant_email_label' => $registrant_email_label, 'individual_reg' => $individual_registrant, 'curr_position' => $eventer_currency_position, 'curr' => $eventer_currency, 'paypal_site' => $paypal_site, 'dotpay_site' => $dotpay_site, 'paypal_proceed' => $paypal_proceed, 'dotpay_proceed' => $dotpay_proceed, 'stripe_proceed' => $stripe_proceed, 'stripe_site' => $stripe_site, 'offline_switch' => $offline_payment_switch, 'woo_payment_switch' => $woocommerce_ticketing, 'proceed_register' => $proceed_register, 'paypal_email' => $paypal_email, 'paypal_curr' => eventer_get_settings('eventer_paypal_currency'), 'paypal_email' => $paypal_email, 'business_id' => $dotpay_business_id, 'all_required' => $all_required_msg, 'blank_payment' => $blank_payment_options, 'blank_tickets' => $blank_tickets, 'wpml_lang' => $site_lang, 'eventers_name' => '', 'eventer_stored' => $eventer_stored, 'reg_now' => $registered_now, 'tickets_added' => $tickets_added, 'stripe_publishable_key' => $stripe_publishable_key, 'stripe_switch' => $stripe_switch);
+		    $localized_data = array('ajax_url' => admin_url('admin-ajax.php'), 'future_date_cal' => $future_date_cal, 'eventer_style' => $eventer_style, 'register_status' => $register_status, 'email_msg' => $email_msg, 'number_msg' => $number_msg, 'organizer_contact' => wp_create_nonce("eventer_create_nonce_for_corganizer"), 'dynamic_ticket_nonce' => wp_create_nonce('eventer_dynamic_ticket_area'), 'coupon_nonce' => wp_create_nonce('eventer_validate_coupon'), 'contact_manager_text' => $contact_manager_text, 'event_tickets_set' => $eventer_maximum_tickets_count, 'mandatory_registrants' => $mandatory_registrations,'mandatory_timeslot' => $mandatory_time_slots, 'individual_label' => $individual_field_checkbox, 'registrant_label' => $registrant_label, 'registrant_name' => $registrant_name, 'registrant_name_label' => $registrant_name_label, 'registrant_email' => $registrant_email, 'registrant_email_label' => $registrant_email_label, 'individual_reg' => $individual_registrant, 'curr_position' => $eventer_currency_position, 'curr' => $eventer_currency, 'paypal_site' => $paypal_site, 'dotpay_site' => $dotpay_site, 'paypal_proceed' => $paypal_proceed, 'dotpay_proceed' => $dotpay_proceed, 'stripe_proceed' => $stripe_proceed, 'stripe_site' => $stripe_site, 'offline_switch' => $offline_payment_switch, 'woo_payment_switch' => $woocommerce_ticketing, 'proceed_register' => $proceed_register, 'paypal_email' => $paypal_email, 'paypal_curr' => eventer_get_settings('eventer_paypal_currency'), 'paypal_email' => $paypal_email, 'business_id' => $dotpay_business_id, 'all_required' => $all_required_msg, 'blank_payment' => $blank_payment_options, 'blank_tickets' => $blank_tickets, 'wpml_lang' => $site_lang, 'eventers_name' => '', 'eventer_stored' => $eventer_stored, 'reg_now' => $registered_now, 'tickets_added' => $tickets_added, 'stripe_publishable_key' => $stripe_publishable_key, 'stripe_switch' => $stripe_switch);
 			$translation_array = array(
 			   "total" => esc_attr__( 'The total number of tickets can not be greater than', 'eventer' ),
 			   "already" => esc_attr__( 'You have already booked the ticket', 'eventer' ),
@@ -191,13 +191,13 @@ if ( ! function_exists('eventer_enqueue_scripts' ) ) {
 		      'family' => 'Merriweather:400,400i,700,700i|Open+Sans:400,400i,700,700i',
 		      'subset' => '',
 		    );
-		    wp_localize_script('eventer-init', 'initval', array('ajax_url' => admin_url('admin-ajax.php'), 'month_events_nonce' => wp_create_nonce("eventer_create_nonce_for_month"), 'ticket_registrant' => wp_create_nonce("eventer_create_nonce_for_registrant"), 'paypal_curr' => eventer_get_settings('eventer_paypal_currency'), 'paypal_email' => $paypal_email, 'all_required' => $all_required_msg, 'blank_payment' => $blank_payment_options, 'blank_tickets' => $blank_tickets, 'wpml_lang' => $site_lang, 'eventers_name' => '', 'eventer_stored' => $eventer_stored, 'reg_now' => $registered_now, 'tickets_added' => $tickets_added));
+		    wp_localize_script('eventer-init', 'initval', array('ajax_url' => admin_url('admin-ajax.php'), 'month_events_nonce' => wp_create_nonce("eventer_create_nonce_for_month"), 'ticket_registrant' => wp_create_nonce("eventer_create_nonce_for_registrant"), 'woo_cart_nonce' => wp_create_nonce('eventer_add_product_to_cart'), 'paypal_curr' => eventer_get_settings('eventer_paypal_currency'), 'paypal_email' => $paypal_email, 'all_required' => $all_required_msg, 'blank_payment' => $blank_payment_options, 'blank_tickets' => $blank_tickets, 'wpml_lang' => $site_lang, 'eventers_name' => '', 'eventer_stored' => $eventer_stored, 'reg_now' => $registered_now, 'tickets_added' => $tickets_added));
 		    //Register for front end form
 		    wp_enqueue_style('eventer_ui_css', '//ajax.googleapis.com/ajax/libs/jqueryui/1.9.0/themes/base/jquery-ui.css', false, "1.9.0", false);
 		    wp_register_style('eventer_datetimepicker', EVENTER__PLUGIN_URL . 'css/jquery.simple-dtpicker.css');
 		    wp_register_script('eventer_datetimepicker', EVENTER__PLUGIN_URL . 'js/jquery.simple-dtpicker.js', array('jquery-ui-core'), '', true);
 		    wp_register_script('eventer_front_form', EVENTER__PLUGIN_URL . 'js/front_form.js', array('jquery-ui-autocomplete', 'jquery'), '', true);
-		    wp_localize_script('eventer_front_form', 'frontForm', array('week_start' => get_option('start_of_week'), 'nonce' => wp_create_nonce('wp-rest')));
+		    wp_localize_script('eventer_front_form', 'frontForm', array('week_start' => get_option('start_of_week'), 'nonce' => wp_create_nonce('wp_rest')));
 		    wp_register_script('eventer_admin_form', EVENTER__PLUGIN_URL . 'js/admin_form.js', array('jquery', 'jquery-ui-sortable'), '', true);
 		    wp_register_script('eventer-dashboard-scripts', EVENTER__PLUGIN_URL . 'js/eventer_dashboard.js', array('jquery', 'jquery-ui-sortable'), '', true);
 		    //CSS
@@ -271,6 +271,221 @@ if (!function_exists('eventer_calendar_scripts_enqueue')) {
     wp_register_style('fullcalendar-print-min', EVENTER__PLUGIN_URL . 'front/fullcalendar/fullcalendar.print.min.css', array(), $plugin_version, 'print');
   }
   add_action('wp_enqueue_scripts', 'eventer_calendar_scripts_enqueue');
+}
+
+if (!function_exists('eventer_get_calendar_feed_events')) {
+  function eventer_get_calendar_feed_events($request = array())
+  {
+    $feed_nonce = isset($request['feed_nonce']) ? sanitize_text_field(wp_unslash($request['feed_nonce'])) : '';
+    if (empty($feed_nonce) || !wp_verify_nonce($feed_nonce, 'eventer-calendar-feed')) {
+      return new WP_Error('eventer_invalid_calendar_request', esc_html__('Invalid calendar request.', 'eventer'), array('status' => 403));
+    }
+
+    $visible_start_date = isset($request['start']) ? sanitize_text_field(wp_unslash($request['start'])) : '';
+    $visible_end_date = isset($request['end']) ? sanitize_text_field(wp_unslash($request['end'])) : '';
+    $site_lang = isset($request['site_lang']) ? sanitize_text_field(wp_unslash($request['site_lang'])) : '';
+    if (function_exists('icl_object_id') && class_exists('SitePress') && $site_lang !== '') {
+      global $sitepress;
+      $sitepress->switch_lang($site_lang);
+    }
+
+    $shortcode_atts = (isset($request['shortcode_atts']) && is_array($request['shortcode_atts'])) ? array_map('sanitize_text_field', wp_unslash($request['shortcode_atts'])) : array();
+    if (isset($shortcode_atts['type']) && $shortcode_atts['type'] == 'google') {
+      return array();
+    }
+
+    $event_cats = (isset($shortcode_atts['terms_cats']) && !empty($shortcode_atts['terms_cats'])) ? explode(',', $shortcode_atts['terms_cats']) : array();
+    $event_ids = (isset($shortcode_atts['ids']) && !empty($shortcode_atts['ids'])) ? explode(',', $shortcode_atts['ids']) : array();
+    $event_tags = (isset($shortcode_atts['terms_tags']) && !empty($shortcode_atts['terms_tags'])) ? explode(',', $shortcode_atts['terms_tags']) : array();
+    $event_venue = (isset($shortcode_atts['terms_venue']) && !empty($shortcode_atts['terms_venue'])) ? explode(',', $shortcode_atts['terms_venue']) : array();
+    $event_organizer = (isset($shortcode_atts['terms_organizer']) && !empty($shortcode_atts['terms_organizer'])) ? explode(',', $shortcode_atts['terms_organizer']) : array();
+    $event_ids = eventer_merge_all_ids($event_ids, $event_cats, $event_tags, $event_venue, $event_organizer);
+    $events = eventer_get_events_array($event_ids, "month", array($visible_start_date, $visible_end_date), '', '1000', '1', 1, $site_lang);
+    $multiple_events = (get_option('eventer_multi_day_event')) ? get_option('eventer_multi_day_event') : array();
+    $event_show = (is_array($events) && isset($events['events']) && is_array($events['events'])) ? $events['events'] : array();
+    $excluded_events = array_diff($event_show, $multiple_events);
+    $inclusive_events = array_merge($excluded_events, $multiple_events);
+    $jsonevents = array();
+
+    if (empty($inclusive_events)) {
+      return $jsonevents;
+    }
+
+    foreach ($inclusive_events as $event_data) {
+      $key = $event_data['start'];
+      $value = $event_data['id'];
+      if (!is_numeric($value) || get_post_status($value) != 'publish') {
+        continue;
+      }
+      $event_start_date = get_post_meta($value, 'eventer_event_start_dt', true);
+      $event_end_date = get_post_meta($value, 'eventer_event_end_dt', true);
+      $event_start_dt_str = strtotime($event_start_date);
+      $event_end_dt_str = strtotime($event_end_date);
+      $hours_diff = (intval($event_end_dt_str) - intval($event_start_dt_str));
+      $find_ids = array_column($jsonevents, 'id');
+      if ($hours_diff > 86400 && in_array($value, $find_ids, true)) {
+        continue;
+      }
+      $color = '';
+      $eventer_category = get_the_terms($value, 'eventer-category');
+      if (!is_wp_error($eventer_category) && !empty($eventer_category)) {
+        $color = get_term_meta($eventer_category[0]->term_id, 'category_color', true);
+        $color = ($color != '') ? $color : '';
+      }
+      if ($hours_diff > 86400) {
+        $all_dates = get_post_meta($value, 'eventer_all_dates', true);
+        $event_time = date_i18n("G:i", $event_start_dt_str);
+        $all_dates_with_time = preg_filter('/$/', ' ' . $event_time, $all_dates);
+        $all_dates_with_time = array_filter($all_dates_with_time, function ($date) {
+          return (strtotime($date) >= date_i18n('U'));
+        });
+        ksort($all_dates_with_time);
+        if (!empty($all_dates_with_time)) {
+          $event_new_key = key($all_dates_with_time);
+          $event_cdate = strtotime($all_dates_with_time[$event_new_key]);
+        } else {
+          $event_cdate = $event_start_dt_str;
+        }
+      }
+      $event_all_day = get_post_meta($value, 'eventer_event_all_day', true);
+      $event_func_date = strtotime($key);
+      $event_this_sdate = date_i18n('Y-m-d', $event_func_date);
+      $event_this_stime = date_i18n("G:i", $event_start_dt_str);
+      $event_this_etime = date_i18n("G:i", $event_end_dt_str);
+
+      if ($hours_diff > 86400) {
+        $stime = date_i18n('c', $event_start_dt_str);
+        $etime = date_i18n('c', $event_end_dt_str);
+        $event_ymd = date_i18n('Y-m-d', $event_cdate);
+        $eventer_url = eventer_generate_endpoint_url('edate', $event_ymd, get_permalink($value));
+      } else {
+        $stime = date_i18n('c', strtotime($event_this_sdate . ' ' . $event_this_stime));
+        $etime = (!$event_all_day && $event_end_date != '') ? date_i18n('c', strtotime($event_this_sdate . ' ' . $event_this_etime)) : '';
+        $event_ymd = date_i18n('Y-m-d', strtotime($event_this_sdate . ' ' . $event_this_etime));
+        $eventer_url = eventer_generate_endpoint_url('edate', $event_ymd, get_permalink($value));
+      }
+      $custom_permalink = get_post_meta($value, 'eventer_event_custom_permalink', true);
+      if (filter_var($custom_permalink, FILTER_VALIDATE_URL)) {
+        $eventer_url = $custom_permalink;
+      }
+      $event_target = '_self';
+      if ($custom_permalink != '') {
+        $event_target = get_post_meta($value, 'eventer_event_custom_permalink_target', true);
+        $event_target = ($event_target) ? $event_target : '_self';
+      }
+      $venues = get_the_terms($value, 'eventer-venue');
+      $elocation = $tickets_list = $ticket_exists = '';
+      if (!is_wp_error($venues) && !empty($venues)) {
+        $elocation = $venues[0]->name;
+      }
+      $aviable_tickets = get_post_meta($value, 'eventer_event_available_tickets', true);
+      $eventer_formatted_date = date_i18n('Y-m-d', strtotime($key));
+      $show_tickets_info = eventer_update_date_wise_bookings_table($value, $eventer_formatted_date . ' 00:00:00', array(), 2);
+      $woocommerce_ticketing = eventer_get_settings('eventer_enable_woocommerce_ticketing');
+      $eventer_currency = ($woocommerce_ticketing != 'on') ? eventer_get_currency_symbol(eventer_get_settings('eventer_paypal_currency')) : get_woocommerce_currency_symbol();
+      $woo_currency_position = get_option('woocommerce_currency_pos');
+      $woo_currency_position = ($woo_currency_position == "left") ? "suffix" : "postfix";
+      $eventer_currency_position = ($woocommerce_ticketing != 'on') ? eventer_get_settings('eventer_currency_position') : $woo_currency_position;
+      if (!empty($show_tickets_info)) {
+        foreach ($show_tickets_info as $ticket) {
+          $ticket_exists = 1;
+          $ticket_name = (isset($ticket['name'])) ? $ticket['name'] : '';
+          $ticket_number = (isset($ticket['tickets'])) ? $ticket['tickets'] : '';
+          $ticket_price = (isset($ticket['price'])) ? $ticket['price'] : '';
+          $ticket_currency = $eventer_currency;
+          if (is_numeric($ticket_price) && $ticket_price != '') {
+            $ticket_price = ($eventer_currency_position != 'postfix') ? $ticket_currency . $ticket_price : $ticket_price . $ticket_currency;
+            $discounted_price = '';
+          } elseif (strpos($ticket_price, "-") !== false && $ticket_price != '') {
+            $new_ticket_price = explode('-', $ticket_price);
+            $calculate_discounted_price = $new_ticket_price[0] - $new_ticket_price[1];
+            $discounted_price = ($eventer_currency_position != 'postfix') ? $ticket_currency . $calculate_discounted_price : $calculate_discounted_price . $ticket_currency;
+            $show_price = ($eventer_currency_position != 'postfix') ? $ticket_currency . $new_ticket_price[0] : $new_ticket_price[0] . $ticket_currency;
+            $ticket_price = '<del class="eventer-price-currency">' . $show_price . '</del>';
+          } else {
+            $discounted_price = '';
+            $ticket_currency = '';
+          }
+          $remaining_tickets = ($ticket_number <= 0) ? '<i class="eventer-ticket-remaining eventer-ticket-full">' . esc_html__('All Booked', 'eventer') . '</i>' : '<i class="eventer-ticket-remaining">' . $ticket_number . ' ' . esc_html__('remaining', 'eventer') . '</i>';
+          if ($aviable_tickets === 'yes') {
+            $remaining_tickets = '';
+          }
+
+          $tickets_list .= '<li>
+          <span class="eventer-ticket-type-price">' . $ticket_price . ' ' . $discounted_price . '</span>
+          <span class="eventer-ticket-type-name">' . $ticket_name . ' ' . $remaining_tickets . '</span>
+          </li>';
+        }
+      }
+
+      $preview = '<div class="tooltipevent eventer-calendar-event-preview" id="eventer-calendar-popup">
+                <div class="eventer-ce-preview-body">
+                  <div class="eventer">
+                    <div class="eventer-ce-preview-header">';
+      if (has_post_thumbnail($value)) {
+        $preview .= get_the_post_thumbnail($value, 'thumbnail');
+      }
+      $preview .= '<h4 class="accent-color">' . get_the_title($value) . '</h4>';
+      if ($elocation != '') {
+        $preview .= '<span class="eventer-event-venue">' . eventer_get_event_venue($elocation, $value) . '</span>';
+      }
+      $preview .= '</div>';
+      if ($ticket_exists != '') {
+        $preview .= '<div class="eventer-ticket-details-wrap">
+                          <div class="eventer-ticket-details">
+                            <h3>' . esc_html__('Tickets details', 'eventer') . '</h3>
+                            <ul class="eventer-tickets-info">' . $tickets_list . '</ul>
+                          </div>
+                        </div>';
+      } else {
+        $preview .= '<div class="eventer-ticket-details-wrap">
+      <div class="eventer-ticket-details">' . get_the_excerpt($value) . '</div>
+          </div>';
+      }
+
+      $preview .= '</div>
+                  </div>
+                </div>
+              </div>';
+
+      $jsonevents[] = array(
+        'id' => $value,
+        'title' => apply_filters('eventer_raw_event_title', '', $value),
+        'allDay' => ($event_all_day || $event_end_date == '') ? true : false,
+        'start' => $stime,
+        'end' => $etime,
+        'url' => esc_url($eventer_url),
+        'targ' => $event_target,
+        'backgroundColor' => $color,
+        'borderColor' => $color,
+        'metas' => $preview,
+      );
+    }
+
+    return $jsonevents;
+  }
+}
+
+if (!function_exists('eventer_send_calendar_feed_response')) {
+  function eventer_send_calendar_feed_response($request = array())
+  {
+    $events = eventer_get_calendar_feed_events($request);
+    if (is_wp_error($events)) {
+      $status = $events->get_error_data('status');
+      wp_send_json(array('error' => $events->get_error_message()), is_numeric($status) ? (int) $status : 403);
+    }
+
+    wp_send_json($events);
+  }
+}
+
+if (!function_exists('eventer_calendar_feed_ajax')) {
+  function eventer_calendar_feed_ajax()
+  {
+    eventer_send_calendar_feed_response($_REQUEST);
+  }
+  add_action('wp_ajax_eventer_calendar_feed', 'eventer_calendar_feed_ajax');
+  add_action('wp_ajax_nopriv_eventer_calendar_feed', 'eventer_calendar_feed_ajax');
 }
 
 /*
@@ -1929,27 +2144,42 @@ if (!function_exists('eventer_registrant_tickets')) {
 
     //$email_cookie = (isset($_COOKIE["reg_email"]))?$_COOKIE["reg_email"]:'';
     $new_already_booked = array();
-    $reg_email = (isset($_POST['reg_mail'])) ? $_POST['reg_mail'] : '';
-    $eventer_id = esc_attr($_POST['eventer_id']);
+    $reg_email = (isset($_POST['reg_mail'])) ? sanitize_email(wp_unslash($_POST['reg_mail'])) : '';
+    $eventer_id = isset($_POST['eventer_id']) ? absint($_POST['eventer_id']) : 0;
     $tickets = (isset($_REQUEST['tickets'])) ? $_REQUEST['tickets'] : array();
-    $eventer_date = esc_attr($_POST['reg_event_date']);
-    $eventer_time = (isset($_POST['reg_event_time']) && $_POST['reg_event_time'] != '') ? esc_attr($_POST['reg_event_time']) : '00:00:00';
+    $eventer_date = isset($_POST['reg_event_date']) ? sanitize_text_field(wp_unslash($_POST['reg_event_date'])) : '';
+    $eventer_time = (isset($_POST['reg_event_time']) && $_POST['reg_event_time'] != '') ? sanitize_text_field(wp_unslash($_POST['reg_event_time'])) : '00:00:00';
     global $wpdb;
     $table_name = $wpdb->prefix . "eventer_registrant";
     $file = 'eventer_booking_csv';
-    $export_query = $wpdb->get_results("SELECT * FROM $table_name WHERE `eventer`= $eventer_id AND `email`='$reg_email'", ARRAY_A);
+    $export_query = $wpdb->get_results(
+      $wpdb->prepare(
+        "SELECT * FROM $table_name WHERE eventer = %d AND email = %s",
+        $eventer_id,
+        $reg_email
+      ),
+      ARRAY_A
+    );
 
     $table_name_tickets = $wpdb->prefix . "eventer_tickets";
+    $ticket_datetime = trim($eventer_date . ' ' . $eventer_time);
 
     $registrations = [];
     if ($export_query) {
-      $tickets_booked = $export_query[0]['tickets'];
-
-      $tickets_booked = unserialize($tickets_booked);
+      $tickets_booked = eventer_decode_array_payload($export_query[0]['tickets']);
       if ($tickets_booked) {
         foreach ($tickets_booked as $tbook) {
           $ticket_booked_name = $tbook['name'];
-          $saved_ticket = $wpdb->get_results("SELECT * FROM $table_name_tickets WHERE `event` = $eventer_id AND `date` = '$eventer_date $eventer_time' AND `name` = '$ticket_booked_name' AND `restricts` = 1", ARRAY_A);
+          $saved_ticket = $wpdb->get_results(
+            $wpdb->prepare(
+              "SELECT * FROM $table_name_tickets WHERE event = %d AND date = %s AND name = %s AND restricts = %d",
+              $eventer_id,
+              $ticket_datetime,
+              sanitize_text_field($ticket_booked_name),
+              1
+            ),
+            ARRAY_A
+          );
           if ($saved_ticket) {
             echo json_encode(['reg_invalid' => '1', 'ticket_name' => $ticket_booked_name]);
             wp_die();
@@ -1958,7 +2188,7 @@ if (!function_exists('eventer_registrant_tickets')) {
       }
     }
 
-    $tickets_ser = (!empty($tickets)) ? serialize($tickets) : array();
+    $tickets_ser = (!empty($tickets)) ? serialize($tickets) : '';
     $formdata = (isset($_POST['reg_data'])) ? $_POST['reg_data'] : array();
     $services = (isset($_POST['services'])) ? $_POST['services'] : array();
     $registrants = (isset($_POST['registrants'])) ? $_POST['registrants'] : array();
@@ -2271,11 +2501,16 @@ if (!function_exists('eventer_get_registrant_details')) {
   function eventer_get_registrant_details($field, $val)
   {
     if ($field != '' && $val != '') {
-      $field = esc_attr($field);
-      $val = esc_attr($val);
+      $lookup = eventer_get_registrant_lookup_schema(sanitize_key($field));
+      if (!$lookup) {
+        return false;
+      }
       global $wpdb;
       $table_name = $wpdb->prefix . "eventer_registrant";
-      $reg_details = $wpdb->get_row("SELECT * FROM $table_name WHERE $field = $val");
+      $value = ('%d' === $lookup['format']) ? absint($val) : sanitize_text_field(wp_unslash($val));
+      $reg_details = $wpdb->get_row(
+        $wpdb->prepare("SELECT * FROM $table_name WHERE {$lookup['field']} = {$lookup['format']} LIMIT 1", $value)
+      );
       if ($reg_details) {
         return $reg_details;
       } else {
@@ -2327,6 +2562,13 @@ if (!function_exists('eventer_update_registrant_details')) {
 	}
 }
 
+if (!function_exists('eventer_verify_public_ajax_request')) {
+  function eventer_verify_public_ajax_request($action, $field = 'nonce')
+  {
+    check_ajax_referer($action, $field);
+  }
+}
+
 /*
  * eventer_contact_organizer function
  * This function is used to contact event manager using button provided at event details page
@@ -2335,9 +2577,11 @@ if (!function_exists('eventer_update_registrant_details')) {
 if (!function_exists('eventer_contact_organizer')) {
   function eventer_contact_organizer()
   {
-    $organizer_fields = (isset($_POST['org_data'])) ? $_POST['org_data'] : array();
-    $eventer_id = (isset($_POST['eventer_id'])) ? $_POST['eventer_id'] : '';
-    $eventer_date = (isset($_POST['eventer_date'])) ? $_POST['eventer_date'] : '';
+    eventer_verify_public_ajax_request('eventer_create_nonce_for_corganizer');
+
+    $organizer_fields = (isset($_POST['org_data']) && is_array($_POST['org_data'])) ? wp_unslash($_POST['org_data']) : array();
+    $eventer_id = (isset($_POST['eventer_id'])) ? absint($_POST['eventer_id']) : 0;
+    $eventer_date = (isset($_POST['eventer_date'])) ? sanitize_text_field(wp_unslash($_POST['eventer_date'])) : '';
     if (!empty($organizer_fields) && !empty($eventer_id)) {
       $organizer = get_the_terms($eventer_id, 'eventer-organizer');
       $organizer_email = '';
@@ -2357,9 +2601,11 @@ if (!function_exists('eventer_contact_organizer')) {
       $message = "<p>" . esc_html__('Someone contacted for below event', 'eventer') . "<p>";
       $message .= "<p>" . esc_url(eventer_generate_endpoint_url('edate', $eventer_date, get_permalink($eventer_id))) . "</p>";
       foreach ($organizer_fields as $field) {
-        $message .= '<p>' . $field['name'] . ': ' . $field['value'] . '</p>';
-        if (filter_var($field['value'], FILTER_VALIDATE_EMAIL)) {
-          $person_email = $field['value'];
+        $field_name = isset($field['name']) ? sanitize_text_field($field['name']) : '';
+        $field_value = isset($field['value']) ? sanitize_textarea_field($field['value']) : '';
+        $message .= '<p>' . esc_html($field_name) . ': ' . esc_html($field_value) . '</p>';
+        if (is_email($field_value)) {
+          $person_email = sanitize_email($field_value);
         }
       }
 	  $message = wpautop($message);
@@ -2395,30 +2641,13 @@ if (!function_exists('eventer_pdf_invoice_email')) {
 	$options->set( 'isRemoteEnabled', true );
 	$dompdf = new \Dompdf\Dompdf( $options );
 
-	$contxt = stream_context_create(
-		array(
-			'http' => array(
-				'header'     => "Content-type: application/x-www-form-urlencoded\r\n",
-				'method'     => 'GET',
-				'user_agent' => 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)',
-			),
-			'ssl' => array(
-				'verify_peer'       => false,
-				'verify_peer_name'  => false,
-				'allow_self_signed' => true,
-			),
-		)
-	);
-
-	$dompdf->setHttpContext( $contxt );
-
 	$dompdf->loadHtml( $html, 'UTF-8' );
 	// Set paper size and orientation
 	$dompdf->setPaper('A4', 'portrait');
 
 	// Enable header and footer
 	$dompdf->set_option('enable_html5_parser', true);
-	$dompdf->set_option('is_php_enabled', true);
+	$dompdf->set_option('is_php_enabled', false);
 	$dompdf->set_option('is_remote_enabled', true);
 
 	// $dompdf->set_option( 'isRemoteEnabled', true );
@@ -2474,11 +2703,7 @@ function eventer_return_ob_html( $post_id, $registrant_details ) {
 	$pgfw_header_font_size  = '10';
 	$pgfw_header_top        = '-60';
 
-	$user_details = $registrant_details->user_details;
-
-	if ( is_serialized( $registrant_details->user_details ) ) {
-		$user_details = unserialize( $registrant_details->user_details );
-	}
+	$user_details = eventer_decode_array_payload($registrant_details->user_details);
 
 	$eventer_date = $registrant_details->eventer_date;
 	$eventer_date_formatted = date_i18n(get_option('date_format'), strtotime($eventer_date));
@@ -2495,11 +2720,7 @@ function eventer_return_ob_html( $post_id, $registrant_details ) {
 
 		if (!empty($registrant_details->tickets)) {
 			$ticket_start = 1;
-			$reg_tickets = $registrant_details->tickets;
-
-			if ( is_serialized( $registrant_details->tickets ) ) {
-				$reg_tickets = unserialize( $registrant_details->tickets );
-			}
+			$reg_tickets = eventer_decode_array_payload($registrant_details->tickets);
 
 			foreach($reg_tickets as $ticket) {
 				if (isset($ticket['number']) && $ticket['number'] != '') {
@@ -3026,15 +3247,15 @@ if (!function_exists('eventer_execute_registrant_event')) {
         $registrants = ($woocommerce_ticketing == 'on') ? eventer_get_registrant_details('eventer', $registrant) : $registrants;
         //$registrants = (!(array) $registrants)?$registrants:(!empty($registrants_woo) && get_post_type($registrants_woo)=='shop_order' && $woocommerce_ticketing=='on')?$registrants_woo:'';
         if ($registrants) {
-          $booked_registrant_tickets = unserialize($registrants->tickets);
+          $booked_registrant_tickets = eventer_decode_array_payload($registrants->tickets);
           $registrant_email = $registrants->email;
           $ticket_id = $registrants->id . '-' . $registrants->eventer;
           $ticket_id_db = $registrants->id;
           $amount = $registrants->amount;
           $username = $registrants->username;
-          $user_details = unserialize($registrants->user_details);
+          $user_details = eventer_decode_array_payload($registrants->user_details);
           $user_details = ($user_details) ? array_column($user_details, 'value', 'name') : array();
-          $user_system = unserialize($registrants->user_system);
+          $user_system = eventer_decode_array_payload($registrants->user_system);
           $user_system_old = $user_system;
           $usersystem = $registrants->user_system;
           $payment_details = $registrants->paypal_details;
@@ -3077,14 +3298,14 @@ if (!function_exists('eventer_execute_registrant_event')) {
         $registrant_position = $registrant_vals['reg_pos'];
         $registrants = eventer_get_registrant_details('id', $registrant);
         if ($registrants) {
-          $booked_registrant_tickets = unserialize($registrants->tickets);
+          $booked_registrant_tickets = eventer_decode_array_payload($registrants->tickets);
           $registrant_email = $registrants->email;
           $ticket_id = $registrants->id . '-' . $registrants->eventer;
           $amount = $registrants->amount;
           $ticket_id_db = $registrants->id;
           $username = $registrants->username;
           $usersystem = $registrants->user_system;
-          $user_details = unserialize($registrants->user_details);
+          $user_details = eventer_decode_array_payload($registrants->user_details);
           $user_details = ($user_details) ? array_column($user_details, 'value', 'name') : array();
         }
       }
@@ -4201,6 +4422,7 @@ function generatePdfTicket($data, $event_id)
   require_once EVENTER__PLUGIN_PATH . 'vendors/dompdf/vendor/autoload.php';
   $options = new \Dompdf\Options();
   $options->set('isRemoteEnabled', true);
+  $options->set('isPhpEnabled', false);
   $options->set('chroot', WP_CONTENT_DIR);
   $dompdf = new \Dompdf\Dompdf($options);
   $event_notes = get_post_meta($event_id, 'eventer_event_ticket_image_notes', true);
@@ -4394,7 +4616,7 @@ function eventer_generate_ticket_qrcode()
     }
 
 	if ( $registrants ) {
-		$user_system = unserialize( $registrants->user_system );
+		$user_system = eventer_decode_array_payload($registrants->user_system);
 
 		if ( $user_system ) {
 			$user_system['tickets_created'] = $tickets_created;
@@ -4421,7 +4643,7 @@ function eventer_status_completed( $registrant, $called = '' ) {
   if ($woocommerce_ticketing == 'on') {
    	return;
   }
-  $usersystem = unserialize($registrant->user_system);
+  $usersystem = eventer_decode_array_payload($registrant->user_system);
   $user_registrants_list = (!empty($usersystem) && isset($usersystem['tickets_created'])) ? $usersystem['tickets_created'] : array();
   //$tickets_generated =  (!empty($usersystem) && isset($usersystem['tickets_generated']))?$usersystem['tickets_generated']:'';
   //global $wp_filesystem;
@@ -4499,10 +4721,16 @@ add_action('wp_ajax_eventer_woo_download_tickets', 'eventer_woo_download_tickets
 
 function eventer_switch_dashboard_tab()
 {
-  $tab = (isset($_REQUEST['tab'])) ? $_REQUEST['tab'] : '';
-  $shortcode = (isset($_REQUEST['shortcode'])) ? $_REQUEST['shortcode'] : '';
-  $order = (isset($_REQUEST['order'])) ? $_REQUEST['order'] : '';
+  eventer_verify_public_ajax_request('eventer_switch_dashboard_tab');
+
+  $tab = (isset($_REQUEST['tab'])) ? sanitize_key(wp_unslash($_REQUEST['tab'])) : '';
+  $shortcode = (isset($_REQUEST['shortcode'])) ? sanitize_key(wp_unslash($_REQUEST['shortcode'])) : '';
+  $order = (isset($_REQUEST['order'])) ? absint($_REQUEST['order']) : 0;
+  $allowed_tabs = array('eventer_add_new', 'eventer_submissions', 'eventer_bookings', 'eventer_login');
   if ($tab != '' && $tab != 'undefined') {
+    if (!in_array($tab, $allowed_tabs, true)) {
+      wp_die();
+    }
     if ($tab == 'eventer_add_new') {
       $form_options = get_option('eventer_forms_data');
       $form_options = (empty($form_options)) ? array() : $form_options;
@@ -4529,7 +4757,7 @@ function eventer_switch_dashboard_tab()
         echo do_shortcode('[eventer_dash_terms]');
       }
     }
-  } elseif ($order != '') {
+  } elseif ($order > 0) {
     $field = (get_post_type($order) == 'shop_order' && eventer_get_settings('eventer_enable_woocommerce_ticketing') == 'on') ? 'eventer' : 'id';
     $event = (get_post_type($order) == 'shop_order') ? array() : array();
     $default = array();
@@ -4548,19 +4776,26 @@ add_action('wp_ajax_nopriv_eventer_switch_dashboard_tab', 'eventer_switch_dashbo
 
 function eventer_dynamic_ticket_area()
 {
-  $event = (isset($_REQUEST['event'])) ? $_REQUEST['event'] : '';
-  $date = (isset($_REQUEST['date'])) ? date_i18n('Y-m-d', strtotime($_REQUEST['date'])) : '';
-  $date_show = (isset($_REQUEST['date'])) ? date_i18n(get_option('date_format'), strtotime($_REQUEST['date'])) : '';
-  $time = (isset($_REQUEST['time'])) ? $_REQUEST['time'] : '00:00:00';
-  $time = date_i18n('H:i:s', strtotime($time));
-  $formatted = date_i18n(get_option('date_format'), strtotime($_REQUEST['date']));
+  eventer_verify_public_ajax_request('eventer_dynamic_ticket_area');
+
+  $event = (isset($_REQUEST['event'])) ? absint($_REQUEST['event']) : 0;
+  $raw_date = (isset($_REQUEST['date'])) ? sanitize_text_field(wp_unslash($_REQUEST['date'])) : '';
+  $raw_time = (isset($_REQUEST['time'])) ? sanitize_text_field(wp_unslash($_REQUEST['time'])) : '00:00:00';
+  $date_timestamp = strtotime($raw_date);
+  if (!$event || !$date_timestamp) {
+    wp_send_json(array());
+  }
+  $date = date_i18n('Y-m-d', $date_timestamp);
+  $date_show = date_i18n(get_option('date_format'), $date_timestamp);
+  $time = $raw_time;
+  $time = strtotime($time) ? date_i18n('H:i:s', strtotime($time)) : '00:00:00';
+  $formatted = date_i18n(get_option('date_format'), $date_timestamp);
   $offline_payment_switch = eventer_get_settings('eventer_offline_payment_switch');
   $offline_payment_msg = eventer_get_settings('eventer_offline_payment_desc');
   $params['offline_switch'] = $offline_payment_switch;
   $params['offline_msg'] = $offline_payment_msg;
 // print_r( [ $date, $date_show, $formatted ] );exit();
-  echo json_encode(array("tickets_modal" => do_shortcode('[eventer_ajax_tickets id="' . $event . '" date="' . $date . '" time="' . $time . '" ajax="1"]'), "tickets" => do_shortcode('[eventer_ajax_tickets_meta id="' . $event . '" date="' . $date . '" time="' . $time . '" ajax="1"]'), "metas" => do_shortcode('[eventer_metas id="' . $event . '" date="' . $date . '" time="' . $time . '"]'), "date_show" => $date_show, "date" => $date, "time" => $time, "formatted" => $formatted, 'event_url' => eventer_generate_endpoint_url('edate', $date, get_permalink($event))));
-  wp_die();
+  wp_send_json(array("tickets_modal" => do_shortcode('[eventer_ajax_tickets id="' . $event . '" date="' . $date . '" time="' . $time . '" ajax="1"]'), "tickets" => do_shortcode('[eventer_ajax_tickets_meta id="' . $event . '" date="' . $date . '" time="' . $time . '" ajax="1"]'), "metas" => do_shortcode('[eventer_metas id="' . $event . '" date="' . $date . '" time="' . $time . '"]'), "date_show" => $date_show, "date" => $date, "time" => $time, "formatted" => $formatted, 'event_url' => eventer_generate_endpoint_url('edate', $date, get_permalink($event))));
 }
 add_action('wp_ajax_eventer_dynamic_ticket_area', 'eventer_dynamic_ticket_area');
 add_action('wp_ajax_nopriv_eventer_dynamic_ticket_area', 'eventer_dynamic_ticket_area');
@@ -4655,13 +4890,18 @@ function pm_remove_all_scripts()
 // Eventer default coupons validation
 function eventer_validate_coupon()
 {
-  $coupon = (isset($_REQUEST['coupon'])) ? $_REQUEST['coupon'] : '';
-  $amount = (isset($_REQUEST['amount'])) ? $_REQUEST['amount'] : '';
+  eventer_verify_public_ajax_request('eventer_validate_coupon');
+
+  $coupon = (isset($_REQUEST['coupon'])) ? sanitize_text_field(wp_unslash($_REQUEST['coupon'])) : '';
+  $amount = (isset($_REQUEST['amount'])) ? floatval(wp_unslash($_REQUEST['amount'])) : 0;
   $validate = $msg = $discounted = '';
   if ($coupon || $amount > 0) {
     global $wpdb;
     $eventer_coupon_table = $wpdb->prefix . "eventer_coupons";
-    $coupon_row = $wpdb->get_row("SELECT * FROM $eventer_coupon_table where `coupon_code` = '$coupon'", ARRAY_A);
+    $coupon_row = $wpdb->get_row(
+      $wpdb->prepare("SELECT * FROM $eventer_coupon_table WHERE coupon_code = %s", $coupon),
+      ARRAY_A
+    );
     if ($coupon_row) {
       $coupon_discount = (isset($coupon_row['discounted'])) ? $coupon_row['discounted'] : '';
       $coupon_validity = (isset($coupon_row['valid_till'])) ? $coupon_row['valid_till'] : '';
@@ -4696,8 +4936,7 @@ function eventer_validate_coupon()
     $validate = '0';
     $msg = esc_html('Total amount is not valid', 'eventer');
   }
-  echo json_encode(array('validate' => $validate, 'msg' => $msg, 'discount' => $discounted, 'amount' => $amount));
-  wp_die();
+  wp_send_json(array('validate' => $validate, 'msg' => $msg, 'discount' => $discounted, 'amount' => $amount));
 }
 add_action('wp_ajax_eventer_validate_coupon', 'eventer_validate_coupon');
 add_action('wp_ajax_nopriv_eventer_validate_coupon', 'eventer_validate_coupon');

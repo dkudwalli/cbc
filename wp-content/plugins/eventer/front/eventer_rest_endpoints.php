@@ -1,9 +1,215 @@
 <?php
+if (!function_exists('eventer_rest_forbidden_response')) {
+  function eventer_rest_forbidden_response($message = '')
+  {
+    return new WP_Error(
+      'eventer_rest_forbidden',
+      ($message !== '') ? $message : esc_html__('You are not allowed to access this resource.', 'eventer'),
+      array('status' => rest_authorization_required_code())
+    );
+  }
+}
+
+if (!function_exists('eventer_rest_bad_request_response')) {
+  function eventer_rest_bad_request_response($message)
+  {
+    return new WP_Error('eventer_rest_bad_request', $message, array('status' => 400));
+  }
+}
+
+if (!function_exists('eventer_rest_get_request_nonce')) {
+  function eventer_rest_get_request_nonce($request)
+  {
+    $nonce = $request->get_header('X-WP-Nonce');
+    if (empty($nonce)) {
+      $nonce = $request->get_param('_wpnonce');
+    }
+
+    return is_string($nonce) ? sanitize_text_field(wp_unslash($nonce)) : '';
+  }
+}
+
+if (!function_exists('eventer_rest_has_valid_nonce')) {
+  function eventer_rest_has_valid_nonce($request)
+  {
+    $nonce = eventer_rest_get_request_nonce($request);
+
+    return (!empty($nonce) && wp_verify_nonce($nonce, 'wp_rest'));
+  }
+}
+
+if (!function_exists('eventer_rest_get_app_key')) {
+  function eventer_rest_get_app_key($request)
+  {
+    $app_key = $request->get_header('X-Eventer-App-Key');
+    if (empty($app_key)) {
+      $app_key = $request->get_header('X-App-Key');
+    }
+    if (empty($app_key)) {
+      $app_key = $request->get_param('app_key');
+    }
+    if (empty($app_key)) {
+      $app_key = $request->get_param('api_key');
+    }
+    if (empty($app_key)) {
+      $app_key = $request->get_param('token');
+    }
+
+    return is_string($app_key) ? sanitize_text_field(wp_unslash($app_key)) : '';
+  }
+}
+
+if (!function_exists('eventer_rest_has_valid_app_key')) {
+  function eventer_rest_has_valid_app_key($request)
+  {
+    $stored_key = trim((string) get_option('eventer-android-app-api-key'));
+    $provided_key = trim(eventer_rest_get_app_key($request));
+
+    return ($stored_key !== '' && $provided_key !== '' && hash_equals($stored_key, $provided_key));
+  }
+}
+
+if (!function_exists('eventer_rest_require_nonce_permission')) {
+  function eventer_rest_require_nonce_permission($request)
+  {
+    if (eventer_rest_has_valid_nonce($request)) {
+      return true;
+    }
+
+    return eventer_rest_forbidden_response(esc_html__('A valid request token is required.', 'eventer'));
+  }
+}
+
+if (!function_exists('eventer_rest_allow_manage_options')) {
+  function eventer_rest_allow_manage_options($request)
+  {
+    if (eventer_rest_has_valid_nonce($request) && current_user_can('manage_options')) {
+      return true;
+    }
+
+    return eventer_rest_forbidden_response();
+  }
+}
+
+if (!function_exists('eventer_rest_allow_form_builder')) {
+  function eventer_rest_allow_form_builder($request)
+  {
+    if (eventer_rest_has_valid_nonce($request) && current_user_can('edit_posts')) {
+      return true;
+    }
+
+    return eventer_rest_forbidden_response();
+  }
+}
+
+if (!function_exists('eventer_rest_allow_logged_in')) {
+  function eventer_rest_allow_logged_in($request)
+  {
+    if (eventer_rest_has_valid_nonce($request) && is_user_logged_in()) {
+      return true;
+    }
+
+    return eventer_rest_forbidden_response();
+  }
+}
+
+if (!function_exists('eventer_rest_allow_app_or_admin')) {
+  function eventer_rest_allow_app_or_admin($request)
+  {
+    if (eventer_rest_has_valid_app_key($request)) {
+      return true;
+    }
+
+    return eventer_rest_allow_manage_options($request);
+  }
+}
+
+if (!function_exists('eventer_rest_allow_event_editor')) {
+  function eventer_rest_allow_event_editor($request)
+  {
+    if (!eventer_rest_has_valid_nonce($request) || !is_user_logged_in()) {
+      return eventer_rest_forbidden_response();
+    }
+
+    $event_id = absint($request->get_param('event'));
+    if (empty($event_id)) {
+      $event_id = absint($request->get_param('ID'));
+    }
+    if (empty($event_id)) {
+      return eventer_rest_bad_request_response(esc_html__('A valid event is required.', 'eventer'));
+    }
+    if (!current_user_can('edit_post', $event_id)) {
+      return eventer_rest_forbidden_response();
+    }
+
+    return true;
+  }
+}
+
+if (!function_exists('eventer_sanitize_shortcode_attribute_value')) {
+  function eventer_sanitize_shortcode_attribute_value($attribute, $value)
+  {
+    if (is_array($value)) {
+      $value = implode(',', array_map('sanitize_text_field', wp_unslash($value)));
+    } else {
+      $value = (string) wp_unslash($value);
+    }
+
+    switch ($attribute) {
+      case 'path':
+        return esc_url_raw($value);
+      case 'column':
+      case 'count':
+      case 'event_until':
+      case 'pagin':
+        return (string) absint($value);
+      default:
+        return sanitize_text_field($value);
+    }
+  }
+}
+
+if (!function_exists('eventer_get_dynamic_shortcode_whitelist')) {
+  function eventer_get_dynamic_shortcode_whitelist()
+  {
+    return array(
+      'eventer_grid' => array('ids', 'terms_cats', 'terms_tags', 'terms_venue', 'terms_organizer', 'type', 'status', 'lang', 'series', 'layout', 'background', 'column', 'path', 'venue', 'filters', 'month_filter', 'calview', 'pagination', 'operator', 'ajax', 'pass', 'carousel', 'occurrence', 'featured', 'count', 'event_until', 'pagin'),
+      'eventer_list' => array('ids', 'terms_cats', 'terms_tags', 'terms_venue', 'terms_organizer', 'type', 'status', 'lang', 'series', 'view', 'background', 'column', 'path', 'venue', 'filters', 'month_filter', 'calview', 'pagination', 'operator', 'ajax', 'pass', 'occurrence', 'featured', 'count', 'event_until', 'pagin'),
+    );
+  }
+}
+
+if (!function_exists('eventer_build_whitelisted_shortcode')) {
+  function eventer_build_whitelisted_shortcode($shortcode_name, $parameters)
+  {
+    $allowed_shortcodes = eventer_get_dynamic_shortcode_whitelist();
+    if (empty($allowed_shortcodes[$shortcode_name])) {
+      return '';
+    }
+
+    $shortcode = '[' . $shortcode_name;
+    foreach ($allowed_shortcodes[$shortcode_name] as $attribute) {
+      if (!isset($parameters[$attribute])) {
+        continue;
+      }
+
+      $value = eventer_sanitize_shortcode_attribute_value($attribute, $parameters[$attribute]);
+      if ($value === '') {
+        continue;
+      }
+
+      $shortcode .= sprintf(' %s="%s"', sanitize_key($attribute), esc_attr($value));
+    }
+    $shortcode .= ']';
+
+    return $shortcode;
+  }
+}
+
 function eventer_get_dynamic_meta($data, $post, $request)
 {
-
-  if (isset($_GET['custom_fields_get'])) {
-    $custom_keys = (!empty($_GET['custom_fields_get'])) ? $_GET['custom_fields_get'] : array();
+  if (eventer_rest_has_valid_nonce($request) && is_user_logged_in() && isset($_GET['custom_fields_get'])) {
+    $custom_keys = (!empty($_GET['custom_fields_get']) && is_array($_GET['custom_fields_get'])) ? array_map('sanitize_text_field', wp_unslash($_GET['custom_fields_get'])) : array();
     if (!empty($custom_keys)) {
       $_data = $data->data;
       foreach ($custom_keys as $key) {
@@ -22,12 +228,11 @@ function eventer_application_event_list($request)
   register_rest_route('imi', 'eventer/', array(
     'methods' => 'GET',
     'callback' => 'eventer_application_get_events',
-    'permission_callback' => '__return_true'
+    'permission_callback' => 'eventer_rest_allow_app_or_admin'
   ));
 }
 function eventer_application_get_events($request = null)
 {
-  update_post_meta(1, 'eventer_application', "starting1");
   $eventers = array();
   $message = "";
   $event_args = array('post_type' => 'eventer', 'posts_per_page' => -1);
@@ -51,15 +256,15 @@ function eventer_application_event_scan($request)
   register_rest_route('imi', 'scan/', array(
     'methods' => 'POST',
     'callback' => 'eventer_application_scan_events',
-    'permission_callback' => '__return_true'
+    'permission_callback' => 'eventer_rest_allow_app_or_admin'
   ));
 }
 function eventer_application_scan_events($request = null)
 {
   $parameters = $request->get_body_params();
-  $event = (isset($parameters['event'])) ? $parameters['event'] : '';
-  $date = (isset($parameters['date'])) ? $parameters['date'] : '';
-  $code = (isset($parameters['code'])) ? $parameters['code'] : '';
+  $event = (isset($parameters['event'])) ? absint($parameters['event']) : 0;
+  $date = (isset($parameters['date'])) ? sanitize_text_field(wp_unslash($parameters['date'])) : '';
+  $code = (isset($parameters['code'])) ? sanitize_text_field(wp_unslash($parameters['code'])) : '';
   if ($code != '') {
     $codes = explode("-", $code);
     $code = $codes[0];
@@ -112,7 +317,7 @@ function eventer_application_scan_events($request = null)
     $status = $registrant->status;
     $event_date = $registrant->eventer_date;
     $event_id = $registrant->eventer;
-    $user = unserialize($registrant->user_system);
+    $user = maybe_unserialize($registrant->user_system);
     $tickets = (isset($user['tickets'])) ? $user['tickets'] : '';
     $woo = "";
     if (!empty($tickets)) {
@@ -148,19 +353,22 @@ function eventer_application_event_checkin($request)
   register_rest_route('imi', 'checkin/', array(
     'methods' => 'POST',
     'callback' => 'eventer_application_checkin_events',
-    'permission_callback' => '__return_true'
+    'permission_callback' => 'eventer_rest_allow_app_or_admin'
   ));
 }
 function eventer_application_checkin_events($request = null)
 {
   $parameters = $request->get_json_params();
-  $registrant = (isset($parameters['registrant'])) ? $parameters['registrant'] : '';
+  $registrant = (isset($parameters['registrant'])) ? absint($parameters['registrant']) : 0;
   $woocommerce_events = eventer_get_settings('eventer_enable_woocommerce_ticketing');
   $registrants = eventer_get_registrant_details('id', $registrant);
+  if (empty($registrants)) {
+    return rest_ensure_response(array("scan" => "", "msg" => esc_html__('Registrant not found.', 'eventer')));
+  }
   if ($woocommerce_events == 'on') {
     $tickets_updated = array();
     $ticket_exist = $date_verify = $proceed_further = '';
-    $user_system = unserialize($registrants->user_system);
+    $user_system = maybe_unserialize($registrants->user_system);
     $tickets = (isset($user_system['tickets'])) ? $user_system['tickets'] : array();
     if (!empty($tickets)) {
       foreach ($tickets as $ticket) {
@@ -186,7 +394,7 @@ function eventer_application_checkin_events($request = null)
       $msg = "It seems the ticket is not related to the details you have submiited above.";
     }
   } else {
-    $user_system = unserialize($registrants->user_system);
+    $user_system = maybe_unserialize($registrants->user_system);
     if (isset($user_system['checkin']) && $user_system['checkin'] == '1') {
       $msg = "This ticket is already checked-in.";
     } else {
@@ -245,23 +453,29 @@ add_action('rest_api_init', function () {
   register_rest_route('imithemes', 'form_settings/', array(
     'methods' => 'POST',
     'callback' => 'eventer_update_form_settings',
-    'permission_callback' => '__return_true'
+    'permission_callback' => 'eventer_rest_allow_form_builder'
   ));
 });
 
 function eventer_update_form_settings($request)
 {
-  if (isset($_POST['form_id'])) {
-    $form_options = (get_option('eventer_forms_data') == '') ? array() : get_option('eventer_forms_data');
-    $dynamic = (isset($_POST['dynamic'])) ? array_map('stripslashes_deep', $_POST['dynamic']) : '';
-    $sections = (isset($_POST['sections'])) ? $_POST['sections'] : '';
-    $number = (isset($_POST['number'])) ? $_POST['number'] : '';
-    $status = (isset($_POST['status'])) ? $_POST['status'] : '';
-    $name = (isset($_POST['name'])) ? $_POST['name'] : '';
-    unset($form_options[$_POST['form_id']]);
-    $form_options[$_POST['form_id']] = array('dynamic' => $dynamic, 'sections' => $sections, 'number' => $number, 'status' => $status, 'name' => $name);
-    update_option('eventer_forms_data', $form_options);
+  $parameters = $request->get_body_params();
+  $form_id = isset($parameters['form_id']) ? sanitize_text_field(wp_unslash($parameters['form_id'])) : '';
+  if ($form_id === '') {
+    return rest_ensure_response(array('updated' => false));
   }
+
+  $form_options = (get_option('eventer_forms_data') == '') ? array() : get_option('eventer_forms_data');
+  $dynamic = (isset($parameters['dynamic']) && is_array($parameters['dynamic'])) ? wp_unslash($parameters['dynamic']) : array();
+  $sections = (isset($parameters['sections']) && is_array($parameters['sections'])) ? array_map('sanitize_text_field', wp_unslash($parameters['sections'])) : array();
+  $number = isset($parameters['number']) ? sanitize_text_field(wp_unslash($parameters['number'])) : '';
+  $status = isset($parameters['status']) ? sanitize_key(wp_unslash($parameters['status'])) : '';
+  $name = isset($parameters['name']) ? sanitize_text_field(wp_unslash($parameters['name'])) : '';
+  unset($form_options[$form_id]);
+  $form_options[$form_id] = array('dynamic' => $dynamic, 'sections' => $sections, 'number' => $number, 'status' => $status, 'name' => $name);
+  update_option('eventer_forms_data', $form_options);
+
+  return rest_ensure_response(array('updated' => true));
 }
 
 /*add_action('rest_api_init', function(){
@@ -354,16 +568,16 @@ function wp_rest_user_endpoints($request)
   register_rest_route('imithemes', 'register/', array(
     'methods' => 'POST',
     'callback' => 'eventer_register_eventer_manager',
-    'permission_callback' => '__return_true'
+    'permission_callback' => 'eventer_rest_require_nonce_permission'
   ));
 }
 function eventer_register_eventer_manager($request = null)
 {
   $response = array();
   $parameters = $request->get_json_params();
-  $username = sanitize_text_field($parameters['username']);
-  $email = sanitize_text_field($parameters['email']);
-  $password = sanitize_text_field($parameters['password']);
+  $username = isset($parameters['username']) ? sanitize_user(wp_unslash($parameters['username']), true) : '';
+  $email = isset($parameters['email']) ? sanitize_email(wp_unslash($parameters['email'])) : '';
+  $password = isset($parameters['password']) ? (string) wp_unslash($parameters['password']) : '';
   $error = new WP_Error();
   if (empty($username)) {
     $error->add(400, esc_html__("Username field 'username' is required.", 'eventer'), array('status' => 400));
@@ -371,6 +585,10 @@ function eventer_register_eventer_manager($request = null)
   }
   if (empty($email)) {
     $error->add(401, esc_html__("Email field 'email' is required.", 'eventer'), array('status' => 400));
+    return $error;
+  }
+  if (!is_email($email)) {
+    $error->add(402, esc_html__("Please enter a valid email address.", 'eventer'), array('status' => 400));
     return $error;
   }
   if (empty($password)) {
@@ -385,8 +603,12 @@ function eventer_register_eventer_manager($request = null)
       $user = get_user_by('id', $user_id);
       $user->set_role('eventer_manager');
       $response['code'] = 200;
-      $response['code'] = 1;
+      $response['state'] = 1;
       $response['message'] = esc_html__("You are successfully registered, please login now.", "eventer");
+    } else {
+      $response['code'] = 200;
+      $response['state'] = 5;
+      $response['message'] = $user_id->get_error_message();
     }
   } elseif ($user_id) {
     $response['code'] = 200;
@@ -416,18 +638,23 @@ function eventer_wp_rest_endpoint_reset($request)
   register_rest_route('imithemes', 'reset/', array(
     'methods' => 'POST',
     'callback' => 'eventer_reset_password_endpoint',
-    'permission_callback' => '__return_true'
+    'permission_callback' => 'eventer_rest_require_nonce_permission'
   ));
 }
 function eventer_reset_password_endpoint($request = null)
 {
   $response = array();
   $parameters = $request->get_json_params();
-  $username = sanitize_text_field($parameters['username']);
+  $username = isset($parameters['username']) ? sanitize_email(wp_unslash($parameters['username'])) : '';
   $verification = (isset($parameters['verification']) && $parameters['verification'] != '') ? sanitize_text_field($parameters['verification']) : '';
-  $password = (isset($parameters['password']) && $parameters['password'] != '') ? sanitize_text_field($parameters['password']) : '';
+  $password = (isset($parameters['password']) && $parameters['password'] != '') ? (string) wp_unslash($parameters['password']) : '';
   $resend = (isset($parameters['resend']) && $parameters['resend'] != '' && $parameters['resend'] != 'undefined') ? sanitize_text_field($parameters['resend']) : '';
   $error = new WP_Error();
+  if (empty($username) || !is_email($username)) {
+    $response['message'] = 4;
+    $response['second'] = esc_html__("Please enter a valid email address.", 'eventer');
+    return new WP_REST_Response($response, 200);
+  }
   $exists = email_exists($username);
   if ($exists) {
     $response['code'] = 200;
@@ -506,15 +733,15 @@ function eventer_wp_rest_endpoint_login($request)
   register_rest_route('imithemes', 'login/', array(
     'methods' => 'POST',
     'callback' => 'eventer_login_endpoint',
-    'permission_callback' => '__return_true'
+    'permission_callback' => 'eventer_rest_require_nonce_permission'
   ));
 }
 function eventer_login_endpoint($request = null)
 {
   $response = array();
   $parameters = $request->get_json_params();
-  $username = sanitize_text_field($parameters['username']);
-  $password = sanitize_text_field($parameters['password']);
+  $username = isset($parameters['username']) ? sanitize_text_field(wp_unslash($parameters['username'])) : '';
+  $password = isset($parameters['password']) ? (string) wp_unslash($parameters['password']) : '';
   if (filter_var($username, FILTER_VALIDATE_EMAIL)) {
     $user = get_user_by('email', $username);
   } else {
@@ -522,8 +749,6 @@ function eventer_login_endpoint($request = null)
   }
   $response['code'] = 200;
   $response['message'] = 4;
-  $response['new'] = $user;
-  //print_r($user);
   if ($user && wp_check_password($password, $user->data->user_pass, $user->ID)) {
     $creds = array('user_login' => $user->data->user_login, 'user_password' => $password);
     $user = wp_signon($creds, true);
@@ -546,7 +771,7 @@ function eventer_wp_rest_endpoint_shortcode($request)
   register_rest_route('form', '/shortcode/', array(
     'methods' => 'POST',
     'callback' => 'eventer_shortcode_endpoint',
-    'permission_callback' => '__return_true'
+    'permission_callback' => 'eventer_rest_allow_form_builder'
   ));
 }
 function eventer_shortcode_endpoint($request = null)
@@ -755,7 +980,7 @@ function eventer_wp_submissions_terms($request)
   register_rest_route('eventers', 'terms/', array(
     'methods' => 'POST',
     'callback' => 'eventer_get_submitted_terms',
-    'permission_callback' => '__return_true'
+    'permission_callback' => 'eventer_rest_allow_logged_in'
   ));
 }
 function eventer_get_submitted_terms($request = null)
@@ -808,7 +1033,7 @@ function eventer_user_bookings($request)
   register_rest_route('eventers', 'bookings/', array(
     'methods' => 'POST',
     'callback' => 'eventer_get_user_bookings',
-    'permission_callback' => '__return_true'
+    'permission_callback' => 'eventer_rest_allow_logged_in'
   ));
 }
 function eventer_get_user_bookings($request = null)
@@ -817,19 +1042,23 @@ function eventer_get_user_bookings($request = null)
   $parameters = $request->get_json_params();
   $status_booking = (isset($parameters['status'])) ? $parameters['status'] : 0;
   $user_info = get_user_by('id', get_current_user_id());
+  if (!$user_info) {
+    $response['bookings'] = array();
+    return rest_ensure_response($response);
+  }
   $user_email = $user_info->user_email;
   $bookings_response = array();
   $parameters = $request->get_json_params();
   global $wpdb;
   $table_name = $wpdb->prefix . "eventer_registrant";
-  $reg_details = $wpdb->get_results("SELECT * FROM $table_name WHERE email = '$user_email'", ARRAY_A);
+  $reg_details = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE email = %s", $user_email), ARRAY_A);
   if ($reg_details) {
     foreach ($reg_details as $details) {
       $bookings = array();
-      $user_details = unserialize($details['user_details']);
+      $user_details = maybe_unserialize($details['user_details']);
       if (empty($user_details)) //Bookings are of Woocommerce
       {
-        $details_events = unserialize($details['user_system']);
+        $details_events = maybe_unserialize($details['user_system']);
         if (!empty($details_events) && isset($details_events['tickets']) && function_exists('wc_get_order')) {
           $order_id = $details['eventer'];
 
@@ -880,7 +1109,7 @@ function eventer_get_user_bookings($request = null)
             }
           }
           if (!empty($details['tickets'])) {
-            foreach (unserialize($details['tickets']) as $ticket) {
+            foreach ((array) maybe_unserialize($details['tickets']) as $ticket) {
               $tickets[] = $ticket['number'] . ' X ' . $ticket['name'];
             }
           }
@@ -909,7 +1138,7 @@ function eventer_get_user_bookings($request = null)
           }
         }
         if (!empty($details['tickets'])) {
-          foreach (unserialize($details['tickets']) as $ticket) {
+          foreach ((array) maybe_unserialize($details['tickets']) as $ticket) {
             $tickets[] = $ticket['number'] . ' X ' . $ticket['name'];
           }
         }
@@ -949,14 +1178,19 @@ function eventer_manager_email($request)
   register_rest_route('imithemes', 'email/', array(
     'methods' => 'POST',
     'callback' => 'eventer_email_endpoint',
-    'permission_callback' => '__return_true'
+    'permission_callback' => 'eventer_rest_allow_event_editor'
   ));
 }
 function eventer_email_endpoint($request = null)
 {
   $email_status = 0;
-  $parameters = $request->get_params();
-  $eventer_edit = (isset($parameters['event'])) ? $parameters['event'] : $_POST['ID'];
+  $eventer_edit = absint($request->get_param('event'));
+  if (empty($eventer_edit)) {
+    $eventer_edit = absint($request->get_param('ID'));
+  }
+  if (empty($eventer_edit)) {
+    return eventer_rest_bad_request_response(esc_html__('A valid event is required.', 'eventer'));
+  }
   $mail_status = get_post_meta($eventer_edit, 'eventer_rest_email_status', true);
   $status = get_post_status($eventer_edit);
   if (($status != 'publish' && $mail_status != '') || ($mail_status == 'publish')) {
@@ -995,24 +1229,19 @@ function eventer_load_dynamic_list($request)
   register_rest_route('eventer', 'dynamic/', array(
     'methods' => 'POST',
     'callback' => 'eventer_generate_dynamic_list',
-    'permission_callback' => '__return_true'
+    'permission_callback' => 'eventer_rest_require_nonce_permission'
   ));
 }
 function eventer_generate_dynamic_list($request = null)
 {
   $response = array();
   $parameters = $request->get_json_params();
-  $result = '';
-  $shortcode_name = '';
-  foreach ($parameters as $key => $value) {
-    if ($key == 'name') {
-      $shortcode_name = ($value);
-      continue;
-    }
-
-    $result .= ' ' . $key . '="' . $value . '"';
+  $shortcode_name = isset($parameters['name']) ? sanitize_key($parameters['name']) : '';
+  $new_result = eventer_build_whitelisted_shortcode($shortcode_name, (array) $parameters);
+  if ($new_result === '') {
+    return eventer_rest_bad_request_response(esc_html__('Invalid shortcode request.', 'eventer'));
   }
-  $new_result = '[' . $shortcode_name . $result . ']';
+
   $response['shortcode'] = do_shortcode($new_result);
-  return new WP_REST_Response($response, 123);
+  return new WP_REST_Response($response, 200);
 }

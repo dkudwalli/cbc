@@ -61,17 +61,15 @@ function eventer_booking_details()
     
     .topright:hover {color: red;}
     </style>';
-  $registrant = (isset($_REQUEST['registrant'])) ? $_REQUEST['registrant'] : '';
+  $registrant = (isset($_REQUEST['registrant'])) ? absint($_REQUEST['registrant']) : 0;
   if ($registrant) {
     $get_details = eventer_get_registrant_details('id', $registrant);
-    $user_details = unserialize($get_details->user_details);
-    if(is_array($user_details)){
+    $user_details = eventer_decode_array_payload($get_details->user_details);
+    if (is_array($user_details)) {
     	$user_details = array_column($user_details, 'value', 'name');
 	}
-    $settings = $get_details->user_system;
-    $settings = unserialize($settings);
-    $payment = $get_details->paypal_details;
-    $payment = unserialize($payment);
+    $settings = eventer_decode_array_payload($get_details->user_system);
+    $payment = eventer_decode_array_payload($get_details->paypal_details);
     $paymentMode = $get_details->paymentmode;
     $paymentModeString = 'Offline';
     if ($paymentMode == '1') {
@@ -81,8 +79,7 @@ function eventer_booking_details()
     }
     $paymentStatus = $get_details->status;
     $paymentAmount = $get_details->amount;
-    $tickets_booked = $get_details->tickets;
-    $tickets_booked = unserialize($tickets_booked);
+    $tickets_booked = eventer_decode_array_payload($get_details->tickets);
     $new_booked = [];
     if ($tickets_booked) {
       foreach ($tickets_booked as $tbook) {
@@ -219,6 +216,7 @@ function eventer_booking_details()
                     dataType:"json",
                     data:{
                         action:"eventer_booking_user_details_update",
+                        nonce:"' . esc_js(wp_create_nonce('eventer_admin_nonce')) . '",
                         reg:reg,
                         details:form_data,
                         username:username,
@@ -249,8 +247,9 @@ function eventer_booking_details()
                     dataType:"json",
                     data:{
                         action:"eventer_booking_user_settings_update",
+                        nonce:"' . esc_js(wp_create_nonce('eventer_admin_nonce')) . '",
                         reg:reg,
-                        details:tickets,                      settings:' . json_encode($settings) . '
+                        details:tickets,                      settings:' . wp_json_encode($settings) . '
                     }
                 });
                 request.done(function (response) {
@@ -266,26 +265,27 @@ function eventer_booking_details()
 
 function eventer_booking_user_details_update()
 {
-  $registrant_id = (isset($_REQUEST['reg'])) ? $_REQUEST['reg'] : '';
-  $user_details = (isset($_REQUEST['details'])) ? $_REQUEST['details'] : '';
-  $username = (isset($_REQUEST['username'])) ? $_REQUEST['username'] : '';
-  $email = (isset($_REQUEST['email'])) ? $_REQUEST['email'] : '';
+  eventer_verify_admin_ajax_request();
+
+  $registrant_id = (isset($_REQUEST['reg'])) ? absint($_REQUEST['reg']) : 0;
+  $user_details = (isset($_REQUEST['details']) && is_array($_REQUEST['details'])) ? map_deep(wp_unslash($_REQUEST['details']), 'sanitize_text_field') : array();
+  $username = (isset($_REQUEST['username'])) ? sanitize_text_field(wp_unslash($_REQUEST['username'])) : '';
+  $email = (isset($_REQUEST['email'])) ? sanitize_email(wp_unslash($_REQUEST['email'])) : '';
   $user_details = serialize($user_details);
   eventer_update_registrant_details(array('user_details' => $user_details, 'username' => $username, 'email' => $email), $registrant_id, array("%s", "%s", "%s"));
-  wp_die();
+  wp_send_json_success();
 }
 add_action('wp_ajax_eventer_booking_user_details_update', 'eventer_booking_user_details_update');
 
 function eventer_booking_user_settings_update()
 {
-  $registrant_id = (isset($_REQUEST['reg'])) ? $_REQUEST['reg'] : '';
-  $user_details = (isset($_REQUEST['details'])) ? $_REQUEST['details'] : '';
-  $settings = (isset($_REQUEST['settings'])) ? $_REQUEST['settings'] : '';
-  $user_details = $user_details;
-  //$settings = json_decode($settings, true);
+  eventer_verify_admin_ajax_request();
 
+  $registrant_id = (isset($_REQUEST['reg'])) ? absint($_REQUEST['reg']) : 0;
+  $user_details = (isset($_REQUEST['details']) && is_array($_REQUEST['details'])) ? map_deep(wp_unslash($_REQUEST['details']), 'sanitize_text_field') : array();
+  $settings = (isset($_REQUEST['settings']) && is_array($_REQUEST['settings'])) ? map_deep(wp_unslash($_REQUEST['settings']), 'sanitize_text_field') : array();
   $settings['registrants'] = $user_details;
   eventer_update_registrant_details(array('user_system' => serialize($settings)), $registrant_id, array("%s", "%s"));
-  wp_die();
+  wp_send_json_success();
 }
 add_action('wp_ajax_eventer_booking_user_settings_update', 'eventer_booking_user_settings_update');

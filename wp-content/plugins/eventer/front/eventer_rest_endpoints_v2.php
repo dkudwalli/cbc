@@ -8,7 +8,7 @@ function eventer_app_list($request)
         array(
             'methods' => 'GET',
             'callback' => 'eventer_get_app_events',
-            'permission_callback' => '__return_true'
+            'permission_callback' => 'eventer_rest_allow_app_or_admin'
         )
     );
 }
@@ -91,7 +91,7 @@ function eventer_attendees($request)
         array(
             'methods' => 'POST',
             'callback' => 'eventer_get_attendees',
-            'permission_callback' => '__return_true'
+            'permission_callback' => 'eventer_rest_allow_app_or_admin'
         )
     );
 }
@@ -99,9 +99,9 @@ function eventer_attendees($request)
 function eventer_get_attendees($request = null)
 {
     $parameters = $request->get_body_params();
-    $event = (isset($parameters['event'])) ? $parameters['event'] : '';
-    $date = (isset($parameters['date'])) ? $parameters['date'] : '';
-    $time = (isset($parameters['time']) && !empty($parameters['time'])) ? date_i18n('H:i:00', strtotime($parameters['time'])) : '';
+    $event = (isset($parameters['event'])) ? absint($parameters['event']) : 0;
+    $date = (isset($parameters['date'])) ? sanitize_text_field(wp_unslash($parameters['date'])) : '';
+    $time = (isset($parameters['time']) && !empty($parameters['time'])) ? date_i18n('H:i:00', strtotime(sanitize_text_field(wp_unslash($parameters['time'])))) : '';
     $woocommerce_events = eventer_get_settings('eventer_enable_woocommerce_ticketing');
     if ($woocommerce_events == 'on' && !empty($event) && !empty($date)) {
         $eventTime = !empty($time) ? $time : get_post_meta($event, 'eventer_event_start_dt', true);
@@ -122,7 +122,7 @@ function eventer_get_attendees($request = null)
         if ($woocommerce_switch != 'on') {
             $attendees = [];
             $table_name = $wpdb->prefix . "eventer_registrant";
-            $result = $wpdb->get_results("SELECT * FROM $table_name WHERE `eventer` = $event AND `eventer_date` = '$date'");
+            $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE `eventer` = %d AND `eventer_date` = %s", $event, $date));
 
             if ($wpdb->last_error) {
                 echo 'wpdb error: ' . $wpdb->last_error;
@@ -130,7 +130,7 @@ function eventer_get_attendees($request = null)
             }
             if (!empty($result)) {
                 foreach ($result as $res) {
-                    $userSystem = unserialize($res->user_system);
+                    $userSystem = maybe_unserialize($res->user_system);
                     if (!empty($time) && $userSystem['time_slot'] != $time) {
                         continue;
                     }
@@ -156,7 +156,7 @@ function eventer_checkin($request)
         array(
             'methods' => 'POST',
             'callback' => 'eventer_process_checkin',
-            'permission_callback' => '__return_true'
+            'permission_callback' => 'eventer_rest_allow_app_or_admin'
         )
     );
 }
@@ -164,10 +164,10 @@ function eventer_checkin($request)
 function eventer_process_checkin($request = null)
 {
     $parameters = $request->get_body_params();
-    $event = (isset($parameters['event'])) ? $parameters['event'] : '';
-    $code = (isset($parameters['ticket'])) ? $parameters['ticket'] : '';
-    $date = (isset($parameters['date'])) ? $parameters['date'] : '';
-    $qr = (isset($parameters['qr'])) ? $parameters['qr'] : '';
+    $event = (isset($parameters['event'])) ? absint($parameters['event']) : 0;
+    $code = (isset($parameters['ticket'])) ? sanitize_text_field(wp_unslash($parameters['ticket'])) : '';
+    $date = (isset($parameters['date'])) ? sanitize_text_field(wp_unslash($parameters['date'])) : '';
+    $qr = (isset($parameters['qr'])) ? absint($parameters['qr']) : 0;
     
     if ($code != '') {
         $codes = explode("-", $code);
@@ -236,7 +236,7 @@ function eventer_process_checkin($request = null)
         $status = $registrant->status;
         $event_date = $registrant->eventer_date;
         $event_id = $registrant->eventer;
-        $user = unserialize($registrant->user_system);
+        $user = maybe_unserialize($registrant->user_system);
         $tickets = (isset($user['tickets'])) ? $user['tickets'] : '';
         $services = (isset($user['services'])) ? $user['services'] : '';
         $serviceOpted = [];

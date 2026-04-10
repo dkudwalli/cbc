@@ -1,6 +1,8 @@
-<?php 
-require_once '../../../../wp-load.php';
-require_once 'ipray_function.php';
+<?php
+if (!defined('ABSPATH')) {
+	require_once dirname(__DIR__, 4) . '/wp-load.php';
+}
+require_once __DIR__ . '/ipray_function.php';
 class ipray_utility
 {
 	public $dbobj;
@@ -232,9 +234,14 @@ class ipray_utility
 		}
 		
 		$session_id = session_id();
-		$prayer_ip = $_SERVER['REMOTE_ADDR'];
+		$prayer_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : '';
 		
-        $sql ="SELECT id FROM $table_name WHERE prayer_id =$prayer_id AND prayer_session ='$session_id' AND prayer_ip = '$prayer_ip'" ;
+        $sql = $this->dbObj->prepare(
+            "SELECT id FROM $table_name WHERE prayer_id = %d AND prayer_session = %s AND prayer_ip = %s",
+            absint($prayer_id),
+            $session_id,
+            $prayer_ip
+        );
         $response = $this->dbObj->get_row($sql,OBJECT);
 		if($response == null)
 		{
@@ -246,7 +253,7 @@ class ipray_utility
 	private function checkmail($email)
 	{
 		$table_name = $this->dbObj->prefix.'prayer_newsletter';
-    $sql ="SELECT * FROM $table_name WHERE email = '$email'" ;
+    $sql = $this->dbObj->prepare("SELECT * FROM $table_name WHERE email = %s", sanitize_email($email));
     $response = $this->dbObj->get_row($sql,OBJECT);
 		$s = 0;
 		if($response !== NULL)
@@ -271,7 +278,7 @@ class ipray_utility
 	{
 		$data = array();
 		$table_name = $this->dbObj->prefix.'prayer_newsletter';
-        $sql ="SELECT * FROM $table_name WHERE status = 1" ;
+        $sql = $this->dbObj->prepare("SELECT * FROM $table_name WHERE status = %d", 1);
         $all_mail = $this->dbObj->get_results($sql,OBJECT);
 		if($all_mail)
 		{
@@ -287,7 +294,7 @@ class ipray_utility
 	private function prayerCount($prayer_id)
 	{
 		$table_name = $this->dbObj->prefix.'prayer_prayed';
-        $sql ="SELECT COUNT(prayer_id) as total_prayer FROM $table_name WHERE prayer_id = $prayer_id" ;
+        $sql = $this->dbObj->prepare("SELECT COUNT(prayer_id) as total_prayer FROM $table_name WHERE prayer_id = %d", absint($prayer_id));
         $response = $this->dbObj->get_row($sql,OBJECT);
 		return $response->total_prayer; 
 	}	
@@ -300,22 +307,31 @@ class ipray_utility
 		{
 			return $data;
 		}
-		if($this->isPrayeredAllow($_REQUEST['prayer_id']))
+		$prayer_id = absint($_REQUEST['prayer_id']);
+		if(!$prayer_id)
+		{
+			return $data;
+		}
+		if($this->isPrayeredAllow($prayer_id))
 		{
 			if (!isset($_SESSION))
 			{ 
 			   session_start();
 			}
 		  $table_name      = $this->dbObj->prefix.'prayer_prayed';
-		  $prayer_id       = $_REQUEST['prayer_id'];
-		  $prayer_browser  = $_SERVER['HTTP_USER_AGENT'];
-		  $prayer_ip       = $_SERVER['REMOTE_ADDR'];
+		  $prayer_browser  = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])) : '';
+		  $prayer_ip       = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : '';
 		  $prayed_created  = date('Y-m-d H:i:s');
 		  $prayer_session  = session_id();
 		  
-		   $sql  ="INSERT INTO $table_name(id,prayer_id,prayer_session,prayer_browser, ";
-		   $sql .="prayer_ip,prayed_created) VALUES ";
-		   $sql .="('',$prayer_id,'$prayer_session','$prayer_browser','$prayer_ip','$prayed_created')" ;
+		   $sql = $this->dbObj->prepare(
+            "INSERT INTO $table_name (prayer_id, prayer_session, prayer_browser, prayer_ip, prayed_created) VALUES (%d, %s, %s, %s, %s)",
+            $prayer_id,
+            $prayer_session,
+            $prayer_browser,
+            $prayer_ip,
+            $prayed_created
+           );
 		   $this->dbObj->query($sql);
 		   /* iprayed submit */
 		   $data['prayer_count'] = $this->prayerCount($prayer_id);
@@ -330,7 +346,7 @@ class ipray_utility
 					$content = $content_post->post_content;
 					$prayer_data['mail_to'] = $prayer_owner_email;
 					$prayer_data['message'] = $content;
-					$sendurl                = iprayPageUrl($_REQUEST['requesturi']);
+					$sendurl                = iprayPageUrl(isset($_REQUEST['requesturi']) ? sanitize_text_field(wp_unslash($_REQUEST['requesturi'])) : '');
 					sendToMail('prayed_to_someone',$prayer_data,$sendurl );
 				}	
 		}
@@ -350,34 +366,46 @@ class ipray_utility
         unset($this->dbObj);
     }
 }
-/* perform ajax activity */
-$ipray_utility = new ipray_utility();
-if(isset($_REQUEST['action']) && $ipray_utility->isAjax())
-{
-	$data = array();
-	$ipray_utility->action = trim($_REQUEST['action']);
-	/* prayer list */
-	if($_REQUEST['action'] == 'ipray-list')
+if (!function_exists('ipray_verify_public_ajax_request')) {
+	function ipray_verify_public_ajax_request()
 	{
-		$res_count = $ipray_utility->getResponse(array('count'=>true));
-		$ipray_data = $ipray_utility->getResponse();
-		$data['res_count'] = $res_count;
-		$data['display_results'] = $ipray_data;
-		$data['setting']['prayer_text'] = __('I prayed for this','ipray');
-		$data['setting']['recieve_text'] = __('Posted:','ipray');
-		$data['per_page'] = trim($_REQUEST['per_page']);
-		header('Content-Type: application/json');
-		echo json_encode($data);;
-	    die;
-	}
-	/* another actions */
-	if($_REQUEST['action'] == 'prayer_submit' ||
-	 $_REQUEST['action'] == 'newsletter_subscribe' ||
-	 $_REQUEST['action'] == 'iprayed')
-	{
-	    header('Content-Type: application/json');
-		echo json_encode($ipray_utility->getResponse());
-		die;
+		check_ajax_referer('ipray_public_ajax', 'nonce');
 	}
 }
-die();
+
+if (!function_exists('ipray_handle_utility_request')) {
+	function ipray_handle_utility_request()
+	{
+		ipray_verify_public_ajax_request();
+
+		$ipray_utility = new ipray_utility();
+		$action = isset($_REQUEST['action']) ? sanitize_text_field(wp_unslash($_REQUEST['action'])) : '';
+		if ($action === '') {
+			wp_send_json(array('submit' => 0), 400);
+		}
+
+		$ipray_utility->action = $action;
+
+		if ($action === 'ipray-list') {
+			$data = array();
+			$res_count = $ipray_utility->getResponse(array('count' => true));
+			$ipray_data = $ipray_utility->getResponse();
+			$data['res_count'] = $res_count;
+			$data['display_results'] = $ipray_data;
+			$data['setting']['prayer_text'] = __('I prayed for this', 'ipray');
+			$data['setting']['recieve_text'] = __('Posted:', 'ipray');
+			$data['per_page'] = isset($_REQUEST['per_page']) ? sanitize_text_field(wp_unslash($_REQUEST['per_page'])) : '';
+			wp_send_json($data);
+		}
+
+		if ($action === 'prayer_submit' || $action === 'newsletter_subscribe' || $action === 'iprayed') {
+			wp_send_json($ipray_utility->getResponse());
+		}
+
+		wp_send_json(array('submit' => 0), 400);
+	}
+}
+
+if (isset($_SERVER['SCRIPT_FILENAME']) && realpath(__FILE__) === realpath($_SERVER['SCRIPT_FILENAME'])) {
+	ipray_handle_utility_request();
+}

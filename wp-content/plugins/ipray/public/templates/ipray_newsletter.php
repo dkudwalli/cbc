@@ -7,6 +7,7 @@ if ( ! defined('ABSPATH') ) { die(_("Don't load directly")); }
     <form id="ipray-newsletter-form" class="col-md-6" name="ipray-newsletter-form" method="post" action="">
         <label for="email"><?php _e('Email:','ipray') ?></label>
          <input type="text" maxlength="70" name="email" class="form-control">
+         <input type="hidden" name="nonce" value="<?php echo esc_attr(wp_create_nonce('ipray_public_ajax')); ?>">
          <input type="hidden" name="action" value="newsletter_subscribe" />
         <input type="submit" value="<?php _e('Subscribe','ipray'); ?>" class="btn btn-primary">
     </form>

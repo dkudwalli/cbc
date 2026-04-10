@@ -105,11 +105,13 @@ jQuery(document).ready(function ($) {
       var calendar_id = element.closest('div.eventer-calendar-render').find(".shortcode-vals").attr('data-calendar');
       element.closest('.calendar').fullCalendar('refetchEventSources');
       element.closest('.calendar').fullCalendar('addEventSource', {
-        url: fcal.homeurl + 'front/eventer-feed.php',
+        url: fcal.ajax_url,
         type: 'POST',
         data: {
+          action: 'eventer_calendar_feed',
           shortcode_atts: $.parseJSON(element.closest('div.eventer-calendar-render').find(".shortcode-vals").text()),
-          site_lang: fcal.sitelan
+          site_lang: fcal.sitelan,
+          feed_nonce: fcal.feed_nonce
         }
       }
       );

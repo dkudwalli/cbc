@@ -15,6 +15,7 @@ jQuery(document).ready(function() {
 			url: agent_register.ajaxurl,
 			data: {
 				action: 'imic_agent_register',
+				nonce: agent_register.nonce,
 				role: jQuery('#role').val(),
 				username: jQuery('#username').val(),
 				email: jQuery('#email').val(),

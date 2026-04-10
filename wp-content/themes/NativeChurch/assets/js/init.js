@@ -536,6 +536,7 @@ jQuery(function ($) {
             url: initval.ajaxurl,
             data: {
               'action': 'imiSermonPlayRecord',
+              'nonce': initval.sermon_play_nonce,
               'sermon': $('.imi-sermon-id').attr('data-sermon'),
             },
             success: function (data) {

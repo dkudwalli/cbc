@@ -872,6 +872,114 @@ if (!function_exists('imic_query_arg')) {
     return $custom_event_url;
   }
 }
+if (!function_exists('nativechurch_get_calendar_feed_data')) {
+  function nativechurch_get_calendar_feed_data($request = array())
+  {
+    $feed_nonce = isset($request['feed_nonce']) ? sanitize_text_field(wp_unslash($request['feed_nonce'])) : '';
+    if (empty($feed_nonce) || !wp_verify_nonce($feed_nonce, 'nativechurch-calendar-feed')) {
+      return new WP_Error('nativechurch_invalid_calendar_request', esc_html__('Invalid calendar request.', 'framework'), array('status' => 403));
+    }
+
+    $month_event = isset($request['month_event']) ? sanitize_text_field(wp_unslash($request['month_event'])) : '';
+    $month_timestamp = strtotime($month_event . '-01');
+    if (!$month_timestamp) {
+      $month_timestamp = current_time('timestamp');
+    }
+    $month_event = date_i18n('Y-m', $month_timestamp);
+
+    $event_cat_id = '';
+    if (isset($request['event_cat_id']) && $request['event_cat_id'] !== '') {
+      $term_data = get_term_by('id', absint($request['event_cat_id']), 'event-category', '', '');
+      $event_cat_id = ($term_data && !is_wp_error($term_data)) ? $term_data->slug : '';
+    }
+
+    $prev_month = date_i18n('Y-m', strtotime($month_event . ' - 7 day'));
+    $prev_events = imic_recur_events_calendar('', '', $event_cat_id, $prev_month);
+    $current_events = imic_recur_events_calendar('', '', $event_cat_id, $month_event);
+    $next_month = date_i18n('Y-m', strtotime($month_event . ' + 7 day'));
+    $next_events = imic_recur_events_calendar('', '', $event_cat_id, $next_month);
+    $events = $prev_events + $current_events + $next_events;
+    ksort($events);
+
+    $jsonevents = $duplicate_finder = array();
+    $imic_options = get_option('imic_options');
+    if ($events) {
+      foreach ($events as $key => $value) {
+        $custom_event_url = $color = $stime = $etime = '';
+        $event_start_date = get_post_meta($value, 'imic_event_start_dt', true);
+        $event_end_date = get_post_meta($value, 'imic_event_end_dt', true);
+        $start_date_str = strtotime($event_start_date);
+        $end_date_str = strtotime($event_end_date);
+        $event_start_time = get_post_meta($value, 'imic_event_start_tm', true);
+        $event_end_time = get_post_meta($value, 'imic_event_end_tm', true);
+        $start_time_str = strtotime($event_start_time);
+        $end_time_str = strtotime($event_end_time);
+        $start_date_time = strtotime(date_i18n('Y-m-d ', $start_date_str) . date_i18n('G:i', $start_time_str));
+        $cat_id = wp_get_post_terms($value, 'event-category', array('orderby' => 'name', 'order' => 'ASC', 'fields' => 'all'));
+        $event_color = '';
+        if (!empty($cat_id)) {
+          $cat_id = $cat_id[0]->term_id;
+          $cat_data = get_option("category_" . $cat_id);
+          $event_default_color = (isset($imic_options['event_default_color'])) ? $imic_options['event_default_color'] : '';
+          $event_color = (isset($cat_data['catBG']) && $cat_data['catBG'] != '') ? $cat_data['catBG'] : $event_default_color;
+        }
+        $frequency = get_post_meta($value, 'imic_event_frequency', true);
+        if ($frequency > 0) {
+          $event_recurring_color = (isset($imic_options['recurring_event_color'])) ? $imic_options['recurring_event_color'] : '';
+          $color = ($event_color != '') ? $event_color : $event_recurring_color;
+        } else {
+          $color = $event_color;
+        }
+        $end_date_time = strtotime(date_i18n('Y-m-d ', $end_date_str) . date_i18n('G:i', $end_time_str));
+        if (date_i18n('Y-m-d', $start_date_str) != date_i18n('Y-m-d', $end_date_str)) {
+          $stime = date_i18n('c', $start_date_time);
+          $etime = date_i18n('c', $end_date_time);
+        } else {
+          $stime = date_i18n('c', $key);
+          $etime = date_i18n('c', $key);
+        }
+        $date_converted = date('Y-m-d', $key);
+        $custom_event_url = imic_query_arg($date_converted, $value);
+        if (in_array($custom_event_url, $duplicate_finder, true)) {
+          continue;
+        }
+        $duplicate_finder[] = $custom_event_url;
+        $jsonevents[] = array(
+          'title' => get_the_title($value),
+          'allDay' => (get_post_meta($value, 'imic_event_all_day', true) != 1) ? false : true,
+          'start' => $stime,
+          'end' => $etime,
+          'url' => $custom_event_url,
+          'backgroundColor' => $color,
+          'borderColor' => $color
+        );
+      }
+    }
+
+    $events_feeds = (isset($imic_options['event_feeds'])) ? $imic_options['event_feeds'] : '';
+    return ($events_feeds == 1) ? $jsonevents : array();
+  }
+}
+if (!function_exists('nativechurch_send_calendar_feed_response')) {
+  function nativechurch_send_calendar_feed_response($request = array())
+  {
+    $events = nativechurch_get_calendar_feed_data($request);
+    if (is_wp_error($events)) {
+      $status = $events->get_error_data('status');
+      wp_send_json(array('error' => $events->get_error_message()), is_numeric($status) ? (int) $status : 403);
+    }
+
+    wp_send_json($events);
+  }
+}
+if (!function_exists('nativechurch_calendar_feed_ajax')) {
+  function nativechurch_calendar_feed_ajax()
+  {
+    nativechurch_send_calendar_feed_response($_REQUEST);
+  }
+  add_action('wp_ajax_nativechurch_calendar_feed', 'nativechurch_calendar_feed_ajax');
+  add_action('wp_ajax_nopriv_nativechurch_calendar_feed', 'nativechurch_calendar_feed_ajax');
+}
 /** -------------------------------------------------------------------------------------
    Add Query Arg For Event Cat
    @since NativeChurch 1.6
@@ -1183,9 +1291,10 @@ if (!function_exists('ajax_login')) {
   {
     check_ajax_referer('ajax-login-nonce', 'security');
     $info = array();
-    $info['user_login'] = $_POST['username'];
-    $info['user_password'] = $_POST['password'];
-    if ($_POST['rememberme'] == 'true') {
+    $info['user_login'] = isset($_POST['username']) ? sanitize_user(wp_unslash($_POST['username'])) : '';
+    $info['user_password'] = isset($_POST['password']) ? (string) wp_unslash($_POST['password']) : '';
+    $remember_me = isset($_POST['rememberme']) ? sanitize_text_field(wp_unslash($_POST['rememberme'])) : '';
+    if ($remember_me == 'true') {
       $info['remember'] = true;
     } else {
       $info['remember'] = false;
@@ -1197,6 +1306,12 @@ if (!function_exists('ajax_login')) {
       echo json_encode(array('loggedin' => true, 'message' => esc_html__('Login successful, redirecting...', 'framework')));
     }
     die();
+  }
+}
+if (!function_exists('nativechurch_verify_public_ajax_request')) {
+  function nativechurch_verify_public_ajax_request($action, $field = 'nonce')
+  {
+    check_ajax_referer($action, $field);
   }
 }
 /** -------------------------------------------------------------------------------------
@@ -1214,19 +1329,17 @@ add_action('init', 'nativechurch_add_registrant_role');
 -------------------------------------------------------------------------------------- */
 function imic_agent_register()
 {
-  if (!$_POST) exit;
-  // Email address verification, do not edit.
-  function validate_email_address($email)
-  {
-    return (preg_match("/^[-_.[:alnum:]]+@((([[:alnum:]]|[[:alnum:]][[:alnum:]-]*[[:alnum:]])\.)+(ad|ae|aero|af|ag|ai|al|am|an|ao|aq|ar|arpa|as|at|au|aw|az|ba|bb|bd|be|bf|bg|bh|bi|biz|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|com|coop|cr|cs|cu|cv|cx|cy|cz|de|dj|dk|dm|do|dz|ec|edu|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gh|gi|gl|gm|gn|gov|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|in|info|int|io|iq|ir|is|it|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mil|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|museum|mv|mw|mx|my|mz|na|name|nc|ne|net|nf|ng|ni|nl|no|np|nr|nt|nu|nz|om|org|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|pro|ps|pt|pw|py|qa|re|ro|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|st|su|sv|sy|sz|tc|td|tf|tg|th|tj|tk|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|um|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)$|(([0-9][0-9]?|[0-1][0-9][0-9]|[2][0-4][0-9]|[2][5][0-5])\.){3}([0-9][0-9]?|[0-1][0-9][0-9]|[2][0-4][0-9]|[2][5][0-5]))$/i", $email));
-  }
+  nativechurch_verify_public_ajax_request('imic_agent_register');
+
+  if (empty($_POST)) exit;
 
   if (!defined("PHP_EOL")) define("PHP_EOL", "\r\n");
 
-  $username     = $_POST['username'];
-  $email    = $_POST['email'];
-  $pwd1  = $_POST['pwd1'];
-  $pwd2 = $_POST['pwd2'];
+  $username = isset($_POST['username']) ? sanitize_user(wp_unslash($_POST['username']), true) : '';
+  $email = isset($_POST['email']) ? sanitize_email(wp_unslash($_POST['email'])) : '';
+  $pwd1 = isset($_POST['pwd1']) ? (string) wp_unslash($_POST['pwd1']) : '';
+  $pwd2 = isset($_POST['pwd2']) ? (string) wp_unslash($_POST['pwd2']) : '';
+  $task = isset($_POST['task']) ? sanitize_text_field(wp_unslash($_POST['task'])) : '';
 
   if (trim($username) == '') {
     echo '<div class="alert alert-error">You must enter your username.</div>';
@@ -1234,7 +1347,7 @@ function imic_agent_register()
   } else if (trim($email) == '') {
     echo '<div class="alert alert-error">You must enter email address.</div>';
     exit();
-  } else if (!validate_email_address($email)) {
+  } else if (!is_email($email)) {
     echo '<div class="alert alert-error">You must enter a valid email address.</div>';
     exit();
   } else if (trim($pwd1) == '') {
@@ -1252,22 +1365,17 @@ function imic_agent_register()
   $err = '';
   $success = '';
 
-  global $wpdb, $PasswordHash, $current_user, $user_ID;
-
-  if (isset($_POST['task']) && $_POST['task'] == 'register') {
-    $username = esc_sql(trim($_POST['username']));
-    $pwd1 = esc_sql(trim($_POST['pwd1']));
-    $pwd2 = esc_sql(trim($_POST['pwd2']));
-    $email = esc_sql(trim($_POST['email']));
-
+  if ($task == 'register') {
     if ($email == "" || $pwd1 == "" || $pwd2 == "" || $username == "") {
       $err = 'Please don\'t leave the required fields.';
     } else if ($pwd1 <> $pwd2) {
       $err = 'Password do not match.';
-    } else if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    } else if (!is_email($email)) {
       $err = 'Invalid email address.';
     } else if (email_exists($email)) {
       $err = 'Email already exist.';
+    } else if (username_exists($username)) {
+      $err = 'Username already exist.';
     } else {
 
       $user_id = wp_insert_user(
@@ -1457,7 +1565,20 @@ if (!function_exists('imic_share_buttons')) {
   ================================================== */
 function imic_event_grid()
 {
+  nativechurch_verify_public_ajax_request('imic_event_grid');
+
   $EventTerm = '';
+  $raw_event_time = isset($_POST['date']) ? sanitize_text_field(wp_unslash($_POST['date'])) : '';
+  $current_event_time = strtotime($raw_event_time . '-01');
+  if (!$current_event_time) {
+    $current_event_time = current_time('timestamp');
+  }
+  $currentEventTime = date_i18n('Y-m', $current_event_time);
+  $event_terms = array();
+  if (isset($_POST['term'])) {
+    $event_terms = array_filter(array_map('absint', explode(',', sanitize_text_field(wp_unslash($_POST['term'])))));
+  }
+  $EventTerm = implode(',', $event_terms);
   echo '<div class="listing events-listing">
 	<header class="listing-header">
 		<div class="row">
@@ -1465,14 +1586,12 @@ function imic_event_grid()
 				<h3>' . esc_html__('All events', 'framework') . '</h3>
 		  </div>
 		  <div class="listing-header-sub col-md-6 col-sm-6">';
-  $currentEventTime = $_POST['date'];
-  $EventTerm = $_POST['term'];
   $prev_month = date_i18n('Y-m', strtotime('-1 month', strtotime($currentEventTime)));
   $next_month = date_i18n('Y-m', strtotime('+1 month', strtotime($currentEventTime)));
   echo '<h5>' . date_i18n('F', strtotime($currentEventTime)) . '</h5>
 				<nav class="next-prev-nav">
-					<a href="javascript:" class="upcomingEvents" rel="' . $EventTerm . '" id="' . $prev_month . '"><i class="fa fa-angle-left"></i></a>
-					<a href="javascript:" class="upcomingEvents" rel="' . $EventTerm . '" id="' . $next_month . '"><i class="fa fa-angle-right"></i></a>
+					<a href="javascript:" class="upcomingEvents" rel="' . esc_attr($EventTerm) . '" id="' . esc_attr($prev_month) . '"><i class="fa fa-angle-left"></i></a>
+					<a href="javascript:" class="upcomingEvents" rel="' . esc_attr($EventTerm) . '" id="' . esc_attr($next_month) . '"><i class="fa fa-angle-right"></i></a>
 				</nav>
 		  </div>
 	  </div>
@@ -1496,8 +1615,8 @@ function imic_event_grid()
     $events_past = imic_recur_events('past', 'nos', '', '', 'save');
   }
   $events = $events + $events_past;
-  if ($EventTerm) {
-    $events_objects = nativechurch_get_term_objects(explode(',', $EventTerm));
+  if (!empty($event_terms)) {
+    $events_objects = nativechurch_get_term_objects($event_terms);
     $events = array_intersect($events, $events_objects);
   }
   $all_events_data_new = array_filter($events, function ($date) use ($currentEventTime) {
@@ -1553,11 +1672,11 @@ function imic_event_grid()
       echo '<li class="item event-item">	
 				  <div class="event-date"> <span class="date">' . date_i18n('d', $key) . '</span> <span class="month">' . imic_global_month_name($key) . '</span> </div>
 				  <div class="event-detail">
-                                      <h4><a href="' . $custom_event_url . '">' . $event_title . '</a>' . imicRecurrenceIcon($value) . '</h4>';
+                                      <h4><a href="' . esc_url($custom_event_url) . '">' . esc_html($event_title) . '</a>' . imicRecurrenceIcon($value) . '</h4>';
 
       echo '<span class="event-dayntime meta-data">' . $event_dt_out[1] . ',&nbsp;&nbsp;' . $event_dt_out[0] . '</span> </div>
 				  <div class="to-event-url">
-					<div><a href="' . $custom_event_url . '" class="btn btn-default btn-sm">' . esc_html__('Details', 'framework') . '</a></div>
+					<div><a href="' . esc_url($custom_event_url) . '" class="btn btn-default btn-sm">' . esc_html__('Details', 'framework') . '</a></div>
 				  </div>
 				</li>';
     }
@@ -2230,8 +2349,10 @@ if (!function_exists('imic_recur_events_calendar')) {
 
 function nativechurch_dynamic_category_list()
 {
-  $cpt = $_POST['cpt'];
-  $selected_cat = $_POST['selected_cat'];
+  nativechurch_verify_public_ajax_request('nativechurch_dynamic_category_list');
+
+  $cpt = isset($_POST['cpt']) ? sanitize_key(wp_unslash($_POST['cpt'])) : '';
+  $selected_cat = isset($_POST['selected_cat']) ? absint($_POST['selected_cat']) : 0;
   switch ($cpt) {
     case 'product':
       $cat = 'product_cat';
@@ -2260,8 +2381,7 @@ function nativechurch_dynamic_category_list()
     foreach ($post_cats as $post_cat) {
       $name = $post_cat->name;
       $id = $post_cat->term_id;
-      $activePost = ($id == $selected_cat) ? 'selected' : '';
-      echo '<option value="' . $id . '"' . $activePost . '>' . $name . '</option>';
+      echo '<option value="' . esc_attr($id) . '" ' . selected($id, $selected_cat, false) . '>' . esc_html($name) . '</option>';
     }
   }
   die();
@@ -2584,7 +2704,9 @@ if (!isset($imic_options['switch-elementor']) || ($imic_options['switch-elemento
 
 function imiSermonPlayRecord()
 {
-  $sermon = $_REQUEST['sermon'];
+  nativechurch_verify_public_ajax_request('imiSermonPlayRecord');
+
+  $sermon = isset($_REQUEST['sermon']) ? absint($_REQUEST['sermon']) : 0;
   if ($sermon) {
     $allsermonsPlayed = get_option('sermons_played');
     $allsermonsPlayed = $allsermonsPlayed ? $allsermonsPlayed : 0;
@@ -2619,8 +2741,12 @@ function disallowed_admin_pages()
 
   function processAuthentication()
   {
-    $status = $_REQUEST['status'];
-    $authCode = $_REQUEST['authCode'];
+    check_ajax_referer('nativechurch_process_authentication', 'nonce');
+    if (!current_user_can('manage_options')) {
+      wp_die(-1, 403);
+    }
+    $status = isset($_REQUEST['status']) ? sanitize_text_field(wp_unslash($_REQUEST['status'])) : '';
+    $authCode = isset($_REQUEST['authCode']) ? sanitize_text_field(wp_unslash($_REQUEST['authCode'])) : '';
     update_option('nativechurch_authenticate', $status);
     update_option('nativechurch_auth_code', $authCode);
     wp_die();

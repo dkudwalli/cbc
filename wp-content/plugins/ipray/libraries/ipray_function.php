@@ -7,14 +7,14 @@ function IpraypopulateHiddenFormFields ($fields = array())
 	{
 		 foreach($fields as $name =>$value)
 		 {
-			echo '<input type="hidden" name="'.$name.'" value="'.$value.'">'; 
+			echo '<input type="hidden" name="'.esc_attr($name).'" value="'.esc_attr($value).'">';
 		 }
 	}
 }
 /* generate and retrun ajax utility url */
 function getIprayAjaxUrl ()
 {
-	return IPRAY__PLUGIN_URL.IPRAY__LIB_PATH.'/ipray_utility.php';
+	return admin_url('admin-ajax.php');
 }
 /**
  * adds a box to the main column on the post and page edit screens.

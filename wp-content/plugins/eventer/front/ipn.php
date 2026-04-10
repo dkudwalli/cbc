@@ -60,7 +60,6 @@ function check_ipn_valid($ipn_response) {
  
      $params = array(
          'body' => $validate_ipn,
-         'sslverify' => false,
          'timeout' => 60,
          'httpversion' => '1.1',
          'compress' => false,

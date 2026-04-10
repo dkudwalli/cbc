@@ -5,6 +5,7 @@ class ipray_frontend {
                                      'function' =>'For all ipray common native functions', 
 									 'shortcode'=>'For ipray shortcode',
 									 'global'=>'This is a ipray register file',
+                                     'utility'=>'Shared AJAX utility handlers',
 								);
 								
 	#'hook name'=>'function name'							
@@ -16,6 +17,10 @@ class ipray_frontend {
 	/* enqeue all js and css in frontend */
 	public static function enqueue_init()
 	{
+		 $ipray_doing_ajax = (function_exists('wp_doing_ajax') && wp_doing_ajax()) || (defined('DOING_AJAX') && DOING_AJAX);
+		 if ($ipray_doing_ajax) {
+			return;
+		 }
 		 
 		 wp_register_script('ipray_confliction',
 			IPRAY__PLUGIN_URL .IPRAY__PUBLIC_PATH. '/js/jquery.confliction.js',
@@ -66,6 +71,10 @@ class ipray_frontend {
 		wp_enqueue_script('ipray_pagination');
 		wp_enqueue_script('ipray_form_validate');
 		wp_enqueue_script('ipray_global');
+		wp_localize_script('ipray_global', 'iprayAjax', array(
+			'ajaxurl' => admin_url('admin-ajax.php'),
+			'nonce' => wp_create_nonce('ipray_public_ajax'),
+		));
 	}
 	/* required hook add */
 	public function hook_init()
@@ -73,6 +82,13 @@ class ipray_frontend {
 		 foreach($this->hooks as $key=>$action)
 		 {
 			    add_action($key, $action);
+		 }
+		 if (function_exists('ipray_handle_utility_request')) {
+			$ajax_actions = array('ipray-list', 'prayer_submit', 'newsletter_subscribe', 'iprayed');
+			foreach ($ajax_actions as $ajax_action) {
+				add_action('wp_ajax_' . $ajax_action, 'ipray_handle_utility_request');
+				add_action('wp_ajax_nopriv_' . $ajax_action, 'ipray_handle_utility_request');
+			}
 		 }
 	}
 	/*

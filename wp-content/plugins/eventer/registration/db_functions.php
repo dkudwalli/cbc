@@ -1,7 +1,27 @@
 <?php
+function eventer_registration_allowed_column($col = 'id')
+{
+  $allowed_columns = array(
+    'id',
+    'order_id',
+  );
+
+  return in_array($col, $allowed_columns, true) ? $col : 'id';
+}
+
+function eventer_registration_ticket_allowed_column($col = 'reg_id')
+{
+  $allowed_columns = array(
+    'id',
+    'reg_id',
+    'event_id',
+  );
+
+  return in_array($col, $allowed_columns, true) ? $col : 'reg_id';
+}
+
 function addRegistration($data)
 {
-  print_r($data);
   global $wpdb;
   $table_name = $wpdb->prefix . "eventer_registrations";
   $wpdb->query(
@@ -26,11 +46,20 @@ function getRegistration($regId = null, $limit = 10, $offset = 0, $col = 'id')
 {
   global $wpdb;
   $tableName = $wpdb->prefix . "eventer_registrations";
+  $limit = max(1, absint($limit));
+  $offset = max(0, absint($offset));
   if (empty($regId)) {
-    $registrations = $wpdb->get_results("SELECT * FROM $tableName ORDER BY ID DESC LIMIT $offset, $limit", ARRAY_A);
+    $registrations = $wpdb->get_results(
+      $wpdb->prepare("SELECT * FROM $tableName ORDER BY ID DESC LIMIT %d, %d", $offset, $limit),
+      ARRAY_A
+    );
     return $registrations;
   } else {
-    $registration = $wpdb->get_row("SELECT * FROM $tableName WHERE $col = $regId", OBJECT);
+    $col = eventer_registration_allowed_column($col);
+    $registration = $wpdb->get_row(
+      $wpdb->prepare("SELECT * FROM $tableName WHERE {$col} = %d", absint($regId)),
+      OBJECT
+    );
     return $registration;
   }
 }
@@ -62,7 +91,13 @@ function getRegistrationTickets($regId = null, $limit = 20, $offset = 0, $col = 
   global $wpdb;
   $tableName = $wpdb->prefix . "eventer_registration_tickets";
   if (!empty($regId)) {
-    $registrationTickets = $wpdb->get_results("SELECT * FROM $tableName WHERE $col = $regId ORDER BY ID DESC LIMIT $offset, $limit", OBJECT);
+    $limit = max(1, absint($limit));
+    $offset = max(0, absint($offset));
+    $col = eventer_registration_ticket_allowed_column($col);
+    $registrationTickets = $wpdb->get_results(
+      $wpdb->prepare("SELECT * FROM $tableName WHERE {$col} = %d ORDER BY ID DESC LIMIT %d, %d", absint($regId), $offset, $limit),
+      OBJECT
+    );
     return $registrationTickets;
   }
   return false;
@@ -73,10 +108,21 @@ function getRegistrants($eventId = null, $ticketDate = null)
   global $wpdb;
   $tableName = $wpdb->prefix . "eventer_registration_tickets";
   if (!empty($eventId) && !empty($ticketDate)) {
-    $registrationTickets = $wpdb->get_results("SELECT user_name as 'name', reg_id as 'id', reg_id as 'show', ticket_status as 'checkin' FROM $tableName WHERE `event_id` = $eventId AND `ticket_date` = '$ticketDate' GROUP BY `reg_id`");
+    $registrationTickets = $wpdb->get_results(
+      $wpdb->prepare(
+        "SELECT user_name as 'name', reg_id as 'id', reg_id as 'show', ticket_status as 'checkin' FROM $tableName WHERE event_id = %d AND ticket_date = %s GROUP BY reg_id",
+        absint($eventId),
+        sanitize_text_field($ticketDate)
+      )
+    );
     return $registrationTickets;
   } elseif (!empty($eventId)) {
-    $registrationTickets = $wpdb->get_results("SELECT id as 'code', user_name as 'name', reg_id as 'id', ticket_status as 'checkin' FROM $tableName WHERE `reg_id` = $eventId");
+    $registrationTickets = $wpdb->get_results(
+      $wpdb->prepare(
+        "SELECT id as 'code', user_name as 'name', reg_id as 'id', ticket_status as 'checkin' FROM $tableName WHERE reg_id = %d",
+        absint($eventId)
+      )
+    );
     return $registrationTickets;
   }
   return false;
@@ -87,7 +133,10 @@ function getTicket($ticketId = null)
   global $wpdb;
   $tableName = $wpdb->prefix . "eventer_registration_tickets";
   if (!empty($ticketId)) {
-    $ticket = $wpdb->get_row("SELECT * FROM $tableName WHERE id = $ticketId", OBJECT);
+    $ticket = $wpdb->get_row(
+      $wpdb->prepare("SELECT * FROM $tableName WHERE id = %d", absint($ticketId)),
+      OBJECT
+    );
     return $ticket;
   }
   return false;
@@ -120,7 +169,13 @@ function getRegistrationMeta($regId, $metaKey)
   global $wpdb;
   $tableName = $wpdb->prefix . "eventer_registration_meta";
   if (!empty($regId)) {
-    $meta = $wpdb->get_row("SELECT * FROM $tableName WHERE reg_id = $regId AND meta_key = '$metaKey'");
+    $meta = $wpdb->get_row(
+      $wpdb->prepare(
+        "SELECT * FROM $tableName WHERE reg_id = %d AND meta_key = %s",
+        absint($regId),
+        sanitize_key($metaKey)
+      )
+    );
     if (!empty($meta)) {
       return $meta->meta_value;
     }
@@ -148,7 +203,13 @@ function getTicketMeta($regId, $metaKey)
   global $wpdb;
   $tableName = $wpdb->prefix . "eventer_ticket_meta";
   if (!empty($regId)) {
-    $meta = $wpdb->get_row("SELECT * FROM $tableName WHERE ticket_id = $regId AND meta_key = '$metaKey'");
+    $meta = $wpdb->get_row(
+      $wpdb->prepare(
+        "SELECT * FROM $tableName WHERE ticket_id = %d AND meta_key = %s",
+        absint($regId),
+        sanitize_key($metaKey)
+      )
+    );
     if (!empty($meta)) {
       return $meta->meta_value;
     }
