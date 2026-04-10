@@ -1040,6 +1040,8 @@ function eventer_register_shortcodes()
     $params['woocommerce_ticketing'] = $woocommerce_ticketing;
     $params['dynamic_val'] = $event_id;
     $params['ajax'] = $atts['ajax'];
+    $params['eventer_thanks_view'] = TicketAssetService::build_thanks_modal_view($params);
+    $params['eventer_ticket_view'] = TicketAssetService::build_ticket_modal_view($params);
     if ($woocommerce_ticketing == "on" && $eventer_woo_layout != "on" && $eventer_woo_layout != "checkout") {
       eventer_append_template_with_arguments('eventers/sections/event', 'wootickets', $params);
     } else {
