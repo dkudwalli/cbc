@@ -97,6 +97,10 @@
       } else {
         $custom = get_post_custom($id);
       }
+      $page_header_show = get_post_meta($id, 'imic_page_header_show', true);
+      $page_title_show = get_post_meta($id, 'imic_pages_title_show', true);
+      $show_parallax_header = !($page_header_show === '0');
+      $show_page_title = !($page_title_show === '0');
       $header_image = get_post_meta($id, 'imic_header_image', true);
       if (is_category() || !empty($term->term_id)) {
         global $cat;
@@ -137,20 +141,22 @@
         $height = get_post_meta($id, 'imic_pages_slider_height', true);
         $height = ($height == '') ? '150' : $height;
         $breadpad = intval($height) - 60;
-        if (($header_options == 0 || $header_options == '') || (is_category() || !empty($term->term_id))) { ?>
+        if ($show_parallax_header && (($header_options == 0 || $header_options == '') || (is_category() || !empty($term->term_id)))) { ?>
     <?php
             get_template_part('template-parts/header/header', 'parallax', ['url' => $src[0], 'breadpad' => $breadpad]);
             ?>
-    <?php } elseif ($header_options == 3 || $header_options == '') { ?>
+    <?php } elseif ($show_parallax_header && ($header_options == 3 || $header_options == '')) { ?>
     <?php
             $color = get_post_meta($id, 'imic_pages_banner_color', true);
             $color = ($color != '') ? $color : '';
             get_template_part('template-parts/header/header', 'parallax', ['color' => $color, 'breadpad' => $breadpad]); ?>
 
-    <?php } else {
+    <?php } elseif ($show_parallax_header) {
           include(locate_template('pages_slider.php'));
         }
-        get_template_part('template-parts/header/page', 'header', ['custom' => $custom, 'blog_id' => $page_for_posts, 'flag' => $flag, 'id'=>$id]); ?>
+        if ($show_page_title) {
+          get_template_part('template-parts/header/page', 'header', ['custom' => $custom, 'blog_id' => $page_for_posts, 'flag' => $flag, 'id'=>$id]);
+        } ?>
     <?php
       /**   Start Content* */
       echo '<div class="main" role="main">

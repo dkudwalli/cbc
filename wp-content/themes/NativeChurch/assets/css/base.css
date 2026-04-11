@@ -4193,6 +4193,123 @@ body.boxed .siteorigin-panels-stretch{
 .searchandfilter ul > li > ul:not(.children){
 	margin-left:0
 }
+
+/* Welcome page */
+body.page-welcome-to-christ-bible-church .content{
+	padding-top:0!important;
+	padding-bottom:0!important;
+	background:#fff;
+}
+body.page-welcome-to-christ-bible-church .nav-backed-header,
+body.page-welcome-to-christ-bible-church .page-header{
+	display:none;
+}
+body.page-welcome-to-christ-bible-church .page-content{
+	padding:0;
+}
+.cbc-welcome-hero .elementor-container,
+.cbc-welcome-hero .elementor-column,
+.cbc-welcome-hero .elementor-widget-wrap{
+	min-height:inherit;
+}
+.cbc-welcome-hero .cbc-welcome-hero-copy{
+	max-width:760px;
+	margin:0 auto;
+	text-align:center;
+}
+.cbc-welcome-kicker .elementor-heading-title{
+	display:inline-block;
+	padding:8px 18px;
+	border:1px solid rgba(255,255,255,.38);
+	color:#fff;
+	font-family:'Oswald', sans-serif;
+	font-size:14px;
+	font-weight:500;
+	letter-spacing:1.8px;
+	text-transform:uppercase;
+}
+.cbc-welcome-hero .elementor-widget-text-editor,
+.cbc-welcome-intro .elementor-widget-text-editor{
+	margin-left:auto;
+	margin-right:auto;
+}
+.cbc-welcome-hero .elementor-widget-text-editor{
+	max-width:680px;
+}
+.cbc-welcome-intro .elementor-widget-text-editor{
+	max-width:760px;
+}
+.cbc-welcome-note-card,
+.cbc-welcome-access-card,
+.cbc-welcome-cta-box{
+	background:#f8f7f3;
+	border:1px solid #eceae4;
+	box-shadow:0 18px 40px rgba(0,0,0,.06);
+}
+.cbc-welcome-note-card > .elementor-widget-wrap,
+.cbc-welcome-access-card > .elementor-widget-wrap,
+.cbc-welcome-cta-box > .elementor-widget-wrap{
+	padding:52px 48px!important;
+}
+.cbc-welcome-note-card .elementor-heading-title,
+.cbc-welcome-access-card .elementor-heading-title,
+.cbc-welcome-cta-box .elementor-heading-title{
+	color:#1b1f1f;
+}
+.cbc-welcome-access-card p:last-of-type,
+.cbc-welcome-note-card p:last-of-type,
+.cbc-welcome-cta-box p:last-of-type{
+	margin-bottom:0;
+}
+.cbc-welcome-access-list{
+	margin:28px 0 0;
+	padding:0;
+	list-style:none;
+}
+.cbc-welcome-access-list li{
+	position:relative;
+	margin:0 0 16px;
+	padding:16px 18px 16px 54px;
+	background:#fff;
+	border-left:3px solid #b48b2e;
+	box-shadow:0 10px 24px rgba(0,0,0,.05);
+}
+.cbc-welcome-access-list li:last-child{
+	margin-bottom:0;
+}
+.cbc-welcome-access-list li:before{
+	content:"";
+	position:absolute;
+	top:23px;
+	left:24px;
+	width:10px;
+	height:10px;
+	border-radius:50%;
+	background:#b48b2e;
+	box-shadow:0 0 0 6px rgba(180,139,46,.14);
+}
+.cbc-welcome-phone .elementor-heading-title{
+	font-size:42px;
+	line-height:1.1em;
+}
+.cbc-welcome-phone a{
+	color:#202020;
+	text-decoration:none;
+}
+.cbc-welcome-phone a:hover{
+	color:#b48b2e;
+}
+body.page-welcome-to-christ-bible-church .cbc-welcome-hero .elementor-button,
+body.page-welcome-to-christ-bible-church .cbc-welcome-cta .elementor-button{
+	padding:16px 30px;
+	border-width:1px;
+	box-shadow:none;
+	font-family:'Oswald', sans-serif;
+	font-size:15px;
+	font-weight:500;
+	letter-spacing:1px;
+	text-transform:uppercase;
+}
 /*-------------------------------------------------------------------------------------------*/
 /* Responsive Classes
 /*-------------------------------------------------------------------------------------------*/
@@ -4202,6 +4319,11 @@ body.boxed .siteorigin-panels-stretch{
 	}
 }
 @media only screen and (max-width: 992px) {
+	.cbc-welcome-note-card > .elementor-widget-wrap,
+	.cbc-welcome-access-card > .elementor-widget-wrap,
+	.cbc-welcome-cta-box > .elementor-widget-wrap{
+		padding:42px 32px!important;
+	}
 	.notice-bar .btn-block, .notice-bar .counter{
 		margin-top:20px
 	}
@@ -4381,6 +4503,25 @@ body.boxed .siteorigin-panels-stretch{
 	}
 }
 @media only screen and (max-width: 767px) {
+	.cbc-welcome-kicker .elementor-heading-title{
+		font-size:12px;
+		letter-spacing:1.4px;
+	}
+	.cbc-welcome-note-card > .elementor-widget-wrap,
+	.cbc-welcome-access-card > .elementor-widget-wrap,
+	.cbc-welcome-cta-box > .elementor-widget-wrap{
+		padding:32px 24px!important;
+	}
+	.cbc-welcome-access-list li{
+		padding:14px 14px 14px 46px;
+	}
+	.cbc-welcome-access-list li:before{
+		top:21px;
+		left:18px;
+	}
+	.cbc-welcome-phone .elementor-heading-title{
+		font-size:32px;
+	}
 	/* Isotope */
 	.isotope {
 		overflow: visible !important;
